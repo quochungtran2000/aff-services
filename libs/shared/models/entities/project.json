@@ -1,0 +1,22 @@
+{
+  "root": "libs/shared/models/entities",
+  "sourceRoot": "libs/shared/models/entities/src",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/models/entities/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/shared/models/entities"],
+      "options": {
+        "jestConfig": "libs/shared/models/entities/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

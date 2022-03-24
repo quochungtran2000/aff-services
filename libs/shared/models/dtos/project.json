@@ -1,0 +1,22 @@
+{
+  "root": "libs/shared/models/dtos",
+  "sourceRoot": "libs/shared/models/dtos/src",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/models/dtos/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/shared/models/dtos"],
+      "options": {
+        "jestConfig": "libs/shared/models/dtos/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

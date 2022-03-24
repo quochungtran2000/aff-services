@@ -2,6 +2,8 @@
   "version": 2,
   "projects": {
     "api-gateway": "apps/api-gateway",
+    "shared-models-dtos": "libs/shared/models/dtos",
+    "shared-models-entities": "libs/shared/models/entities",
     "user": "apps/user"
   }
 }

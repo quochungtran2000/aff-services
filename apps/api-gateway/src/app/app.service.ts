@@ -19,4 +19,9 @@ export class AppService {
   async getData(): Promise<{ message: string }> {
     return this.client.send({ cmd: 'a' }, {}).toPromise();
   }
+
+  async getUser(data: any = {}) {
+    this.logger.log(`${this.getUser.name} called`);
+    return this.client.send({ cmd: 'find_user' }, data).toPromise();
+  }
 }
