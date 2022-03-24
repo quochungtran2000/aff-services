@@ -1,3 +1,4 @@
+import { UserQueryDTO } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { UserRepo } from '../repositories/userRepo';
 
@@ -7,8 +8,8 @@ export class AuthService {
 
   constructor(private readonly userRepo: UserRepo) {}
 
-  async find(query: any) {
+  async find(query: UserQueryDTO) {
     this.logger.log(`${this.find.name} Query:${JSON.stringify(query)}`);
-    return this.userRepo.find(query);
+    return await this.userRepo.find(query);
   }
 }

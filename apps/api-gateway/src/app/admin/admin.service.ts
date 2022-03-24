@@ -1,11 +1,10 @@
-import { UserQueryDTO } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 
 @Injectable()
-export class AppService {
+export class AdminService {
   private readonly client: ClientProxy;
-  private readonly logger = new Logger(`API-Gateway.Admin.${AppService.name}`);
+  private readonly logger = new Logger(`API-Gateway.${AdminService.name}`);
   constructor() {
     this.logger.log(`Connecting to: ${process.env.REDIS_URL}`);
     this.client = ClientProxyFactory.create({
@@ -19,10 +18,5 @@ export class AppService {
   }
   async getData(): Promise<{ message: string }> {
     return this.client.send({ cmd: 'a' }, {}).toPromise();
-  }
-
-  async getUser(data: UserQueryDTO) {
-    this.logger.log(`${this.getUser.name} called`);
-    return await this.client.send({ cmd: 'find_user' }, data).toPromise();
   }
 }

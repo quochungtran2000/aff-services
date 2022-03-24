@@ -10,7 +10,6 @@ export class AppController {
   // @Get()
   @MessagePattern({ cmd: 'a' })
   getData(data: any) {
-    console.log({ data });
     return this.appService.getData();
   }
 }
