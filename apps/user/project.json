@@ -1,16 +1,16 @@
 {
-  "root": "apps/api-gateway",
-  "sourceRoot": "apps/api-gateway/src",
+  "root": "apps/user",
+  "sourceRoot": "apps/user/src",
   "projectType": "application",
   "targets": {
     "build": {
       "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/api-gateway",
-        "main": "apps/api-gateway/src/main.ts",
-        "tsConfig": "apps/api-gateway/tsconfig.app.json",
-        "assets": ["apps/api-gateway/src/assets"]
+        "outputPath": "dist/apps/user",
+        "main": "apps/user/src/main.ts",
+        "tsConfig": "apps/user/tsconfig.app.json",
+        "assets": ["apps/user/src/assets"]
       },
       "configurations": {
         "production": {
@@ -19,8 +19,8 @@
           "inspect": false,
           "fileReplacements": [
             {
-              "replace": "apps/api-gateway/src/environments/environment.ts",
-              "with": "apps/api-gateway/src/environments/environment.prod.ts"
+              "replace": "apps/user/src/environments/environment.ts",
+              "with": "apps/user/src/environments/environment.prod.ts"
             }
           ]
         }
@@ -29,22 +29,22 @@
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "api-gateway:build",
-        "port": 9229
+        "buildTarget": "user:build",
+        "port": 9230
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/api-gateway/**/*.ts"]
+        "lintFilePatterns": ["apps/user/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/api-gateway"],
+      "outputs": ["coverage/apps/user"],
       "options": {
-        "jestConfig": "apps/api-gateway/jest.config.js",
+        "jestConfig": "apps/user/jest.config.js",
         "passWithNoTests": true
       }
     }
