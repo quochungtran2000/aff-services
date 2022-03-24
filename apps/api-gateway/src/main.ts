@@ -6,7 +6,9 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AdminModule } from './app/admin/admin.module';
 import { AppModule } from './app/app.module';
+import { MobileModule } from './app/mobile/mobile.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,7 +25,7 @@ async function bootstrap() {
     .build();
 
   const documentAdmin = SwaggerModule.createDocument(app, configAdmin, {
-    include: [AppModule],
+    include: [AdminModule],
   });
   SwaggerModule.setup(`${globalPrefix}/document/admin`, app, documentAdmin);
 
@@ -36,7 +38,7 @@ async function bootstrap() {
     .build();
 
   const documentMobile = SwaggerModule.createDocument(app, configMobile, {
-    include: [AppModule],
+    include: [MobileModule],
   });
   SwaggerModule.setup(`${globalPrefix}/document/mobile`, app, documentMobile);
 
