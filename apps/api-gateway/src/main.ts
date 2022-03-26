@@ -12,6 +12,7 @@ import { MobileModule } from './app/mobile/mobile.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   const port = process.env.PORT || 3333;
 
   const globalPrefix = 'api/v1';
