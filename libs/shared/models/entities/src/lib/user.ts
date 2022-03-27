@@ -1,9 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ROLE } from './role';
 
-@Entity({ schema: 'public', name: 'partner' })
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+@Entity({ schema: 'public', name: 'user' })
+export class USER {
+  @PrimaryGeneratedColumn({ name: 'user_id' })
+  userId: number;
 
   @Column({ name: 'username', nullable: false })
   username: string;
@@ -11,9 +12,25 @@ export class User {
   @Column({ name: 'password', nullable: false })
   password: string;
 
+  @Column({ name: 'fullname', nullable: false })
+  fullname: string;
+
+  @Column({ name: 'email', nullable: false })
+  email: string;
+
+  @Column({ name: 'phone_number', nullable: false })
+  phoneNumber: string;
+
+  @Column({ name: 'role_id', nullable: false })
+  roleId: string;
+
   @Column({ name: 'created_at', type: 'timestamp', default: '() => now()' })
   createdAt: Date;
 
   @Column({ name: 'updated_at', type: 'timestamp', default: '() => now()' })
   updatedAt: Date;
+
+  @OneToOne(() => ROLE)
+  @JoinColumn({ name: 'role_id', referencedColumnName: 'roleId' })
+  role: ROLE;
 }

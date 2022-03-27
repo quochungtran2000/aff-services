@@ -7,8 +7,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  getData() {
+  async getData() {
     this.logger.log(`${this.getData.name} called`);
-    return this.userService.getData();
+    return await this.userService.getData();
   }
 }

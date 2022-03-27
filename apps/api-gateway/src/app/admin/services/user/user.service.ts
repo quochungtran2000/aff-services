@@ -17,6 +17,7 @@ export class UserService {
     });
   }
   async getData(): Promise<{ message: string }> {
-    return this.client.send({ cmd: 'a' }, {}).toPromise();
+    this.logger.log(`${this.getData.name}`)
+    return await this.client.send({ cmd: 'a' }, {}).toPromise();
   }
 }
