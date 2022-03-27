@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, Matches } from 'class-validator';
 
 export class UserQueryDTO {
   @ApiProperty({ type: String, example: 'hung' })

@@ -43,7 +43,7 @@ async function bootstrap() {
   });
   SwaggerModule.setup(`${globalPrefix}/document/mobile`, app, documentMobile);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.setGlobalPrefix(globalPrefix);
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);

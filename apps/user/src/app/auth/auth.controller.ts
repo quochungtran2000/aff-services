@@ -14,4 +14,16 @@ export class AuthController {
     this.logger.log(`${this.findUser.name} called`);
     return this.authService.find(data);
   }
+
+  @MessagePattern({ cmd: 'login' })
+  login(data: { username: string; password: string }) {
+    this.logger.log(`${this.login.name} called`);
+    return this.authService.login(data);
+  }
+
+  @MessagePattern({ cmd: 'my_profile' })
+  myProfile({ userId }: { userId: number }) {
+    this.logger.log(`${this.login.name} called`);
+    return this.authService.myProfile(userId);
+  }
 }
