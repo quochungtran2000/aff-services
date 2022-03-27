@@ -26,4 +26,33 @@ export class UserRepo {
 
     return { total, data };
   }
+
+  async findOneByUserName(username: string) {
+    this.logger.log(`${this.findOneByUserName.name} Ref:${username}`);
+    return this.userRepo.createQueryBuilder('u').where('u.username = :username', { username }).getOne();
+  }
+
+  async findOneByUserId(userId: number) {
+    this.logger.log(`${this.findOneByUserId.name} Ref:${userId}`);
+    return this.userRepo.createQueryBuilder('u').where('u.user_id = :userId', { userId }).getOne();
+  }
+
+  async findUserLogin(username: string) {
+    return this.userRepo
+      .createQueryBuilder('u')
+      .where('u.username = :username')
+      .orWhere('u.email = :username')
+      .orWhere('u.phone_number = :username')
+      .setParameters({ username })
+      .getOne();
+  }
+
+  async getProfileByUserId(userId: number) {
+    this.logger.log(`${this.getProfileByUserId.name} Ref:${userId}`);
+    return this.userRepo
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.role', 'r')
+      .where('u.user_id = :userId', { userId })
+      .getOne();
+  }
 }
