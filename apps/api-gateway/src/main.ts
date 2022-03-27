@@ -8,6 +8,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AdminModule } from './app/admin/admin.module';
 import { AppModule } from './app/app.module';
+import { AuthModule } from './app/auth/auth.module';
+import { AllExceptionsFilter } from './app/middlewares/http-exception.filter';
 import { MobileModule } from './app/mobile/mobile.module';
 
 async function bootstrap() {
@@ -26,7 +28,7 @@ async function bootstrap() {
     .build();
 
   const documentAdmin = SwaggerModule.createDocument(app, configAdmin, {
-    include: [AdminModule],
+    include: [AdminModule, AuthModule],
   });
   SwaggerModule.setup(`${globalPrefix}/document/admin`, app, documentAdmin);
 
@@ -39,10 +41,11 @@ async function bootstrap() {
     .build();
 
   const documentMobile = SwaggerModule.createDocument(app, configMobile, {
-    include: [MobileModule],
+    include: [MobileModule, AuthModule],
   });
   SwaggerModule.setup(`${globalPrefix}/document/mobile`, app, documentMobile);
 
+  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.setGlobalPrefix(globalPrefix);
   await app.listen(port);
