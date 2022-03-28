@@ -9,4 +9,8 @@ export const config = {
   jwt: {
     secret: process.env.JWT_SECRET || 'secret',
   },
+  application: {
+    port: process.env.PORT || 3333,
+    documentUrl: process.env.DOCUMENT_URL,
+  },
 };
