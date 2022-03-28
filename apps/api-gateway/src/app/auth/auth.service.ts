@@ -1,3 +1,4 @@
+import { RegisterPayload } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -27,6 +28,12 @@ export class AuthService {
   }
 
   async login(data: { username: string; password: string }) {
+    this.logger.log(`${this.login.name} called`);
     return await this.client.send({ cmd: 'login' }, data).toPromise();
+  }
+
+  async register(data: RegisterPayload) {
+    this.logger.log(`${this.register.name} called`);
+    return await this.client.send({ cmd: 'register' }, data).toPromise();
   }
 }

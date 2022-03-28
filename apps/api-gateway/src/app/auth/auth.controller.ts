@@ -1,5 +1,5 @@
-import { LoginPayload, LoginResponse, MyProfileResponse } from '@aff-services/shared/models/dtos';
-import { Body, Controller, Get, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { LoginPayload, LoginResponse, MyProfileResponse, RegisterPayload } from '@aff-services/shared/models/dtos';
+import { Body, Controller, Get, HttpException, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
@@ -31,5 +31,17 @@ export class AuthController {
   getProfile(@Req() req: Request, @Res() res: Response) {
     const profile = Object.assign({}, req.user as MyProfileResponse);
     return res.status(200).json(profile);
+  }
+
+  @Post('register')
+  async register(@Body() data: RegisterPayload, @Res() res: Response) {
+    try {
+      this.logger.log(`${this.register.name} called`);
+      const result = await this.AuthService.register(RegisterPayload.from(data));
+      return res.status(201).json(result);
+    } catch (error) {
+      this.logger.error(`${this.register.name} Error:${error.message}`);
+      throw new HttpException(error.message, error.status || 500);
+    }
   }
 }
