@@ -3,8 +3,10 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
 import {
+  AssignPermissionDTO,
   BaseResponse,
   CreateRoleDTO,
+  CreateRolePermissionDTO,
   PagingPermissionResponse,
   PagingRoleResponse,
   UpdateRoleDTO,
@@ -33,7 +35,11 @@ export class AccessControlRepo {
 
   async getManyAndCountRoles() {
     this.logger.log(`${this.getManyAndCountRoles.name} called`);
-    const [data, total] = await this.roleRepo.createQueryBuilder('r').getManyAndCount();
+    const [data, total] = await this.roleRepo
+      .createQueryBuilder('r')
+      // .leftJoinAndSelect('r.rolePermissions', 'rp')
+      // .leftJoinAndSelect('rp.permission', 'p')
+      .getManyAndCount();
     return PagingRoleResponse.from(total, data);
   }
 
@@ -61,6 +67,41 @@ export class AccessControlRepo {
       return { status: 200, message: 'Update Role Success' };
     } catch (error) {
       this.logger.error(`${this.updateRoleById.name} Error:${error.message}`);
+      throw new RpcException({ status: error.status || 500, message: error.message });
+    }
+  }
+
+  async assignPermission(data: AssignPermissionDTO): Promise<BaseResponse> {
+    try {
+      this.logger.log(`${this.assignPermission.name} called Data:${JSON.stringify(data)}`);
+      const { permissionIds, roleId } = data;
+
+      //  delete permission
+      await this.rolePermissionRepo
+        .createQueryBuilder()
+        .delete()
+        .from(ROLE_PERMISSION)
+        .where(`permission_id not in (:...permissionIds)`)
+        .andWhere('role_id = roleId')
+        .setParameters({ permissionIds, roleId })
+        .execute();
+
+      const toBeCreated = CreateRolePermissionDTO.toBeCreated(roleId, permissionIds);
+
+      console.log({ toBeCreated });
+
+      // update permission
+      await this.rolePermissionRepo
+        .createQueryBuilder()
+        .insert()
+        .into(ROLE_PERMISSION)
+        .values(toBeCreated)
+        .orIgnore(true)
+        .execute();
+
+      return { status: 200, message: 'Assign Permission Success' };
+    } catch (error) {
+      this.logger.error(`${this.assignPermission.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
     }
   }

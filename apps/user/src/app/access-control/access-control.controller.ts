@@ -3,6 +3,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AccessControlService } from './access-control.service';
 import {
+  AssignPermissionDTO,
   BaseResponse,
   CreateRoleDTO,
   PagingPermissionResponse,
@@ -33,9 +34,15 @@ export class AccessControlController {
     return this.accessControlService.createRole(data);
   }
 
-  @MessagePattern({ cmd: CMD.ADMIN_UPDATE_ROLE})
+  @MessagePattern({ cmd: CMD.ADMIN_UPDATE_ROLE })
   updateRole(data: UpdateRoleDTO): Promise<BaseResponse> {
     this.logger.log(`${this.updateRole.name} called`);
     return this.accessControlService.updateRole(data);
+  }
+
+  @MessagePattern({ cmd: CMD.ADMIN_ASSIGNN_PERMISSON })
+  assignPermission(data: AssignPermissionDTO): Promise<BaseResponse> {
+    this.logger.log(`${this.assignPermission.name} called`);
+    return this.accessControlService.assignPermission(data);
   }
 }

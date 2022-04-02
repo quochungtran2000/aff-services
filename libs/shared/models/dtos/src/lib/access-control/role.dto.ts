@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, Matches } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, Matches } from 'class-validator';
 import { UpdateRoleParam } from '../params/role.param';
 
 export class CreateRoleDTO {
@@ -47,6 +47,22 @@ export class UpdateRoleDTO {
     result.roleName = data.roleName;
     result.slug = data.slug;
     result.description = data.description;
+    return result;
+  }
+}
+
+export class AssignPermissionDTO {
+  @IsNotEmpty()
+  @ApiProperty({ type: Number, example: 1, isArray: true, required: true })
+  @IsNumber({}, { each: true })
+  permissionIds: number[];
+
+  roleId: number;
+
+  public static from(params: Partial<UpdateRoleParam>, data: AssignPermissionDTO) {
+    const result = new AssignPermissionDTO();
+    result.roleId = Number(params.roleId);
+    result.permissionIds = data.permissionIds;
     return result;
   }
 }

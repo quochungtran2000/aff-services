@@ -2,6 +2,7 @@ import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 import {
+  AssignPermissionDTO,
   BaseResponse,
   CreateRoleDTO,
   PagingPermissionResponse,
@@ -43,5 +44,10 @@ export class AccessControlService {
   async updateRole(data: UpdateRoleDTO) {
     this.logger.log(`${this.updateRole.name} called`);
     return await this.client.send<BaseResponse>({ cmd: CMD.ADMIN_UPDATE_ROLE }, data).toPromise();
+  }
+
+  async assignPermission(data: AssignPermissionDTO) {
+    this.logger.log(`${this.assignPermission.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.ADMIN_ASSIGNN_PERMISSON }, data).toPromise();
   }
 }

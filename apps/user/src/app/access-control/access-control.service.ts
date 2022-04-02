@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AccessControlRepo } from '../repositories/accessControlRepo';
 import {
+  AssignPermissionDTO,
   BaseResponse,
   CreateRoleDTO,
   PagingPermissionResponse,
@@ -31,5 +32,10 @@ export class AccessControlService {
   async updateRole(data: UpdateRoleDTO): Promise<BaseResponse> {
     this.logger.log(`${this.updateRole.name} called`);
     return await this.accessControlRepo.updateRoleById(data);
+  }
+
+  async assignPermission(data: AssignPermissionDTO): Promise<BaseResponse> {
+    this.logger.log(`${this.assignPermission.name} called`);
+    return await this.accessControlRepo.assignPermission(data);
   }
 }

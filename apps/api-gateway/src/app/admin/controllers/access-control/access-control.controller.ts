@@ -1,10 +1,11 @@
 import { SwaggerException, SwaggerHeaders } from '@aff-services/shared/common/swagger';
 import { Body, Controller, Get, HttpException, Logger, Param, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { AccessControlService } from '../../services/access-control/access-control.service';
 import {
+  AssignPermissionDTO,
   BaseResponse,
   CreateRoleDTO,
   PagingPermissionResponse,
@@ -14,7 +15,7 @@ import {
 } from '@aff-services/shared/models/dtos';
 
 @ApiTags('Access Control')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @SwaggerHeaders()
 @SwaggerException()
 @Controller('admin/access-control')
@@ -23,6 +24,7 @@ export class AccessControlController {
   constructor(private readonly accessCcontrolService: AccessControlService) {}
 
   @ApiResponse({ status: 200, type: PagingPermissionResponse })
+  @ApiOperation({ summary: 'get permission' })
   @Get('permission')
   async getPermissions(@Req() req: Request, @Res() res: Response) {
     try {
@@ -35,6 +37,7 @@ export class AccessControlController {
   }
 
   @ApiResponse({ status: 200, type: PagingRoleResponse })
+  @ApiOperation({ summary: 'get role' })
   @Get('role')
   async getRoles(@Req() req: Request, @Res() res: Response) {
     try {
@@ -47,6 +50,7 @@ export class AccessControlController {
   }
 
   @ApiResponse({ status: 201, type: BaseResponse })
+  @ApiOperation({ summary: 'create role' })
   @Post('role')
   async createRole(@Req() req: Request, @Res() res: Response, @Body() data: CreateRoleDTO) {
     try {
@@ -59,11 +63,25 @@ export class AccessControlController {
   }
 
   @ApiResponse({ status: 200, type: BaseResponse })
+  @ApiOperation({ summary: 'update role' })
   @Put('role/:roleId')
   async updateRole(@Res() res: Response, @Body() data: UpdateRoleDTO, @Param() params: UpdateRoleParam) {
     try {
       this.logger.log(`${this.updateRole.name} called Data:${JSON.stringify(data)}`);
       const result = await this.accessCcontrolService.updateRole(UpdateRoleDTO.from(params, data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @ApiResponse({ status: 200, type: BaseResponse })
+  @ApiOperation({ summary: 'asssign permission to role' })
+  @Post('role/:roleId')
+  async assignPermission(@Res() res: Response, @Body() data: AssignPermissionDTO, @Param() params: UpdateRoleParam) {
+    try {
+      this.logger.log(`${this.assignPermission.name} called Data:${JSON.stringify(data)}`);
+      const result = await this.accessCcontrolService.assignPermission(AssignPermissionDTO.from(params, data));
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
