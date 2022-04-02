@@ -50,34 +50,34 @@ export class MyProfileResponse {
 }
 
 export class RegisterPayload {
-  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'username không được chưa khoảng trắng' })
+  @ApiProperty({ type: String, required: true })
+  @IsNotEmpty({ message: 'tên đăng nhập không được để trống' })
+  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'tên đăng nhập không được chưa khoảng trắng' })
   username: string;
 
   @ApiProperty({ type: String, required: true })
-  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'username không được chưa khoảng trắng' })
-  @IsNotEmpty()
+  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'mật khẩu không được chưa khoảng trắng' })
+  @IsNotEmpty({ message: 'mật khẩu không được để trống' })
   password: string;
 
   @ApiProperty({ type: String, required: true })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'họ và tên không được để trống' })
   fullname: string;
 
   @ApiProperty({ type: String, required: true })
   @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'username không được chưa khoảng trắng' })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'email không được để trống' })
   email: string;
 
   @ApiProperty({ type: String, required: true })
-  @IsNotEmpty()
-  @Matches(/[0-9]{9}/)
-  @IsString()
+  @IsNotEmpty({ message: 'số điện thoại không được để trống' })
+  @Matches(/[0][0-9]{8}/, { message: 'số điện thoại không đúng định dạng' })
   phoneNumber: string;
 
-  @ApiProperty({ type: String, required: true })
-  @IsNotEmpty()
-  @IsString()
-  role: string;
+  // @ApiProperty({ type: String, required: true })
+  // @IsNotEmpty()
+  // @IsString()
+  roleId: number;
 
   public static from(dto: Partial<RegisterPayload>) {
     const payload = new RegisterPayload();
@@ -86,7 +86,7 @@ export class RegisterPayload {
     payload.fullname = dto.fullname;
     payload.email = dto.email;
     payload.phoneNumber = dto.phoneNumber;
-    payload.role = dto.role;
+    payload.roleId = dto.roleId;
     return payload;
   }
 }

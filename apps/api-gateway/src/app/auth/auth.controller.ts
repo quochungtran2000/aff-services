@@ -1,4 +1,10 @@
-import { LoginPayload, LoginResponse, MyProfileResponse, RegisterPayload } from '@aff-services/shared/models/dtos';
+import {
+  BaseResponse,
+  LoginPayload,
+  LoginResponse,
+  MyProfileResponse,
+  RegisterPayload,
+} from '@aff-services/shared/models/dtos';
 import { Body, Controller, Get, HttpException, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
@@ -33,6 +39,7 @@ export class AuthController {
     return res.status(200).json(profile);
   }
 
+  @ApiResponse({ type: BaseResponse, status: 201 })
   @Post('register')
   async register(@Body() data: RegisterPayload, @Res() res: Response) {
     try {
