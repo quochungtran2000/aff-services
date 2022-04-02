@@ -1,12 +1,12 @@
-import { UserQuery } from '@aff-services/shared/models/dtos';
+import { PagingPermissionResponse } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 
 @Injectable()
-export class UserService {
+export class PermissionService {
+  private readonly logger = new Logger(`Api-Gateway.${PermissionService.name}`);
   private readonly client: ClientProxy;
-  private readonly logger = new Logger(`API-Gateway.${UserService.name}`);
   constructor() {
     this.logger.log(`Connecting to: ${process.env.REDIS_URL}`);
     this.client = ClientProxyFactory.create({
@@ -18,8 +18,9 @@ export class UserService {
       },
     });
   }
-  async getUsers(data: UserQuery) {
-    this.logger.log(`${this.getUsers.name}`);
-    return await this.client.send({ cmd: CMD.ADMIN_GET_USERS }, data).toPromise();
+
+  async getPermissions() {
+    this.logger.log(`${this.getPermissions.name} called`);
+    return await this.client.send<PagingPermissionResponse>({ cmd: CMD.ADMIN_GET_PERMISSION }, {}).toPromise();
   }
 }

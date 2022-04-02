@@ -6,4 +6,8 @@ export enum CMD {
 
   // Welcome
   WELCOME_TO_USER = 'welcome_to_user',
+
+  // Admin
+  ADMIN_GET_PERMISSION = 'admin_get_permission',
+  ADMIN_GET_USERS = 'admin_get_users',
 }
