@@ -1,3 +1,4 @@
+import { UserQuery } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -17,8 +18,8 @@ export class UserService {
       },
     });
   }
-  async getData(): Promise<{ message: string }> {
-    this.logger.log(`${this.getData.name}`);
-    return await this.client.send({ cmd: CMD.WELCOME_TO_USER }, {}).toPromise();
+  async getUsers(data: UserQuery) {
+    this.logger.log(`${this.getUsers.name}`);
+    return await this.client.send({ cmd: CMD.ADMIN_GET_USERS }, data).toPromise();
   }
 }
