@@ -1,7 +1,4 @@
-import { UserQueryDTO } from '@aff-services/shared/models/dtos';
-import { Controller, Get, Logger, Query, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
-
+import { Controller, Get, Logger } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -11,13 +8,7 @@ export class AppController {
 
   @Get()
   getData() {
+    this.logger.log(`${this.getData.name} called`);
     return this.appService.getData();
-  }
-
-  @Get('/user')
-  async getUser(@Req() req: Request, @Res() res: Response, @Query() query: UserQueryDTO) {
-    this.logger.log(`${this.getUser.name} called`);
-    const result = await this.appService.getUser(UserQueryDTO.from(query));
-    res.status(200).json(result);
   }
 }

@@ -1,4 +1,4 @@
-import { UserQueryDTO } from '@aff-services/shared/models/dtos';
+import { RegisterPayload, UserQueryDTO } from '@aff-services/shared/models/dtos';
 import { USER } from '@aff-services/shared/models/entities';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -54,5 +54,10 @@ export class UserRepo {
       .leftJoinAndSelect('u.role', 'r')
       .where('u.user_id = :userId', { userId })
       .getOne();
+  }
+
+  async createUser(data: Partial<RegisterPayload>) {
+    this.logger.log(`${this.createUser.name} ${JSON.stringify(data)}`);
+    return this.userRepo.createQueryBuilder().insert().into(USER).values(data).execute();
   }
 }

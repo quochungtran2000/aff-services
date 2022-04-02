@@ -1,12 +1,13 @@
+import { BaseResponse, LoginResponse, RegisterPayload } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { CMD } from '@aff-services/shared/utils/helpers';
 
 @Injectable()
 export class AuthService {
   private readonly client: ClientProxy;
   private readonly logger = new Logger(`API-Gateway.Admin.${AuthService.name}`);
-  constructor(private jwtService: JwtService) {
+  constructor() {
     this.logger.log(`Connecting to: ${process.env.REDIS_URL}`);
     this.client = ClientProxyFactory.create({
       transport: Transport.REDIS,
@@ -18,15 +19,13 @@ export class AuthService {
     });
   }
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    // if (user && user.password === pass) {
-    //   const { password, ...result } = user;
-    //   return result;
-    // }
-    return null;
+  async login(data: { username: string; password: string }) {
+    this.logger.log(`${this.login.name} called`);
+    return await this.client.send<LoginResponse>({ cmd: CMD.LOGIN }, data).toPromise();
   }
 
-  async login(data: { username: string; password: string }) {
-    return await this.client.send({ cmd: 'login' }, data).toPromise();
+  async register(data: RegisterPayload) {
+    this.logger.log(`${this.register.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.REGISTER }, data).toPromise();
   }
 }

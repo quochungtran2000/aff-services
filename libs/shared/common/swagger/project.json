@@ -1,0 +1,22 @@
+{
+  "root": "libs/shared/common/swagger",
+  "sourceRoot": "libs/shared/common/swagger/src",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/common/swagger/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/shared/common/swagger"],
+      "options": {
+        "jestConfig": "libs/shared/common/swagger/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

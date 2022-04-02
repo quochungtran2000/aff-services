@@ -22,7 +22,7 @@ export class USER {
   phoneNumber: string;
 
   @Column({ name: 'role_id', nullable: false })
-  roleId: string;
+  roleId: number;
 
   @Column({ name: 'created_at', type: 'timestamp', default: '() => now()' })
   createdAt: Date;

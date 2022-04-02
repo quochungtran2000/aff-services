@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { CMD } from '@aff-services/shared/utils/helpers';
+import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 
 import { AppService } from './app.service';
@@ -7,9 +8,8 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // @Get()
-  @MessagePattern({ cmd: 'a' })
-  getData(data: any) {
+  @MessagePattern({ cmd: CMD.WELCOME_TO_USER })
+  getData() {
     return this.appService.getData();
   }
 }

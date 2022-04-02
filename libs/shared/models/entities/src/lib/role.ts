@@ -12,6 +12,9 @@ export class ROLE {
   @Column({ name: 'description' })
   description: string;
 
+  @Column({ name: 'slug', unique: true, nullable: false })
+  slug: string;
+
   @OneToMany(() => ROLE_PERMISSION, (rp) => rp.role)
   @JoinColumn({ name: 'role_id', referencedColumnName: 'roleId' })
   rolePermissions: ROLE_PERMISSION[];

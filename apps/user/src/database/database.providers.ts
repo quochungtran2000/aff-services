@@ -1,7 +1,15 @@
 import { createConnection } from 'typeorm';
 import { DB_CON_TOKEN } from './database.constant';
 import { config } from '../config/configurations';
-import { PERMISSION, ROLE, ROLE_PERMISSION, USER } from '@aff-services/shared/models/entities';
+import {
+  APERMISSION,
+  AROLE,
+  AROLE_PERMISSION,
+  PERMISSION,
+  ROLE,
+  ROLE_PERMISSION,
+  USER,
+} from '@aff-services/shared/models/entities';
 
 export const databaseProviders = [
   {
@@ -20,7 +28,7 @@ export const databaseProviders = [
         username: POSTGRES_USER,
         password: POSTGRES_PASSWORD,
         database: POSTGRES_DATABASE,
-        entities: [USER, PERMISSION, ROLE, ROLE_PERMISSION],
+        entities: [USER, PERMISSION, ROLE, ROLE_PERMISSION, AROLE, APERMISSION, AROLE_PERMISSION],
         // synchronize: true,
         // logging: true,
       });
