@@ -2,8 +2,11 @@
   "version": 2,
   "projects": {
     "api-gateway": "apps/api-gateway",
+    "shared-common-services": "libs/shared/common/services",
+    "shared-common-swagger": "libs/shared/common/swagger",
     "shared-models-dtos": "libs/shared/models/dtos",
     "shared-models-entities": "libs/shared/models/entities",
+    "shared-utils-helpers": "libs/shared/utils/helpers",
     "user": "apps/user"
   }
 }

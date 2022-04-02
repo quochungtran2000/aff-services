@@ -1,13 +1,21 @@
-import { MyProfileResponse, RegisterPayload, UserQueryDTO } from '@aff-services/shared/models/dtos';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
 import { AccessControlRepo } from '../repositories/accessControlRepo';
 import { UserRepo } from '../repositories/userRepo';
+import { BcryptService } from '@aff-services/shared/common/services';
+import {
+  BaseResponse,
+  LoginPayload,
+  LoginResponse,
+  MyProfileResponse,
+  RegisterPayload,
+} from '@aff-services/shared/models/dtos';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(`Micro-User.${AuthService.name}`);
+  private readonly bcryptService = new BcryptService();
 
   constructor(
     private readonly userRepo: UserRepo,
@@ -15,21 +23,19 @@ export class AuthService {
     private readonly accessControlRepo: AccessControlRepo
   ) {}
 
-  async find(query: UserQueryDTO) {
-    this.logger.log(`${this.find.name} Query:${JSON.stringify(query)}`);
-    return await this.userRepo.find(query);
-  }
-
-  async login({ username, password }: { username: string; password: string }) {
+  async login({ username, password }: LoginPayload): Promise<LoginResponse> {
     try {
       this.logger.log(`${this.login.name} called`);
-      const user = await this.userRepo.findUserLogin(username);
+      const { password: hashPassword, ...user } = await this.userRepo.findUserLogin(username);
       if (!user) throw new BadRequestException('username hoặc password không chính xác!.');
 
-      if (password !== user.password) throw new BadRequestException('username hoặc password không chính xác!.');
+      const matchPassword = await this.bcryptService.comparePassword(password, hashPassword);
+
+      if (!matchPassword) throw new BadRequestException('username hoặc password không chính xác!.');
 
       const token = this.jwtService.sign({
         userId: user.userId,
+        ...user,
       });
 
       return { token };
@@ -39,7 +45,7 @@ export class AuthService {
     }
   }
 
-  async myProfile(userId: number) {
+  async myProfile(userId: number): Promise<MyProfileResponse> {
     try {
       this.logger.log(`${this.myProfile.name} called`);
       const user = await this.userRepo.getProfileByUserId(userId);
@@ -50,7 +56,7 @@ export class AuthService {
     }
   }
 
-  async register(data: RegisterPayload) {
+  async register(data: RegisterPayload): Promise<BaseResponse> {
     try {
       this.logger.log(`${this.register.name} called`);
       const userRole = await this.accessControlRepo.findOneRoleBySlug('user');

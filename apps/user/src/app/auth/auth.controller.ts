@@ -1,4 +1,5 @@
-import { RegisterPayload, UserQueryDTO } from '@aff-services/shared/models/dtos';
+import { RegisterPayload } from '@aff-services/shared/models/dtos';
+import { CMD } from '@aff-services/shared/utils/helpers';
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
@@ -9,25 +10,19 @@ export class AuthController {
 
   constructor(private readonly authService: AuthService) {}
 
-  @MessagePattern({ cmd: 'find_user' })
-  findUser(data: UserQueryDTO) {
-    this.logger.log(`${this.findUser.name} called`);
-    return this.authService.find(data);
-  }
-
-  @MessagePattern({ cmd: 'login' })
+  @MessagePattern({ cmd: CMD.LOGIN })
   login(data: { username: string; password: string }) {
     this.logger.log(`${this.login.name} called`);
     return this.authService.login(data);
   }
 
-  @MessagePattern({ cmd: 'my_profile' })
+  @MessagePattern({ cmd: CMD.MY_PROFILE })
   myProfile({ userId }: { userId: number }) {
     this.logger.log(`${this.login.name} called`);
     return this.authService.myProfile(userId);
   }
 
-  @MessagePattern({ cmd: 'register' })
+  @MessagePattern({ cmd: CMD.REGISTER })
   register(data: RegisterPayload) {
     this.logger.log(`${this.login.name} called`);
     return this.authService.register(data);

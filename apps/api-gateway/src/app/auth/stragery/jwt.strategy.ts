@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { config } from '../../config/configurations';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { CMD } from '@aff-services/shared/utils/helpers';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -28,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     this.logger.log(`${this.validate.name} ${JSON.stringify(payload)}`);
     const data = await this.client
-      .send({ cmd: 'my_profile' }, { userId: payload.userId })
+      .send({ cmd: CMD.MY_PROFILE }, { userId: payload.userId })
       .toPromise()
       .catch(() => {
         throw new UnauthorizedException();

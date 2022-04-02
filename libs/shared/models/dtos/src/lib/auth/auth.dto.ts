@@ -1,6 +1,6 @@
 import { USER } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
-import { Matches, IsNotEmpty, IsString } from 'class-validator';
+import { Matches, IsNotEmpty } from 'class-validator';
 
 export class LoginPayload {
   @ApiProperty({ type: String, example: 'hung' })
@@ -11,6 +11,13 @@ export class LoginPayload {
   @ApiProperty({ type: String, example: 'hung' })
   @IsNotEmpty()
   password: string;
+
+  public static from(dto: Partial<LoginPayload>) {
+    const data = new LoginPayload();
+    data.username = dto.username;
+    data.password = dto.password;
+    return data;
+  }
 }
 
 export class LoginResponse {

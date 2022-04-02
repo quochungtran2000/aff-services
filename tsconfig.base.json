@@ -15,8 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@aff-services/shared/common/services": ["libs/shared/common/services/src/index.ts"],
+      "@aff-services/shared/common/swagger": ["libs/shared/common/swagger/src/index.ts"],
       "@aff-services/shared/models/dtos": ["libs/shared/models/dtos/src/index.ts"],
-      "@aff-services/shared/models/entities": ["libs/shared/models/entities/src/index.ts"]
+      "@aff-services/shared/models/entities": ["libs/shared/models/entities/src/index.ts"],
+      "@aff-services/shared/utils/helpers": ["libs/shared/utils/helpers/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
