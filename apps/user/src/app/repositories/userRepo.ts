@@ -19,6 +19,17 @@ export class UserRepo {
     return this.userRepo.createQueryBuilder('u').where('u.user_id = :userId', { userId }).getOne();
   }
 
+  async findOneByUserIdAndUpdatePassword(userId: number, password: string) {
+    this.logger.log(`${this.findOneByUserIdAndUpdatePassword.name} Ref:${userId}`);
+    return this.userRepo
+      .createQueryBuilder()
+      .update(USER)
+      .set({ password })
+      .where('user_id = :userId')
+      .setParameters({ userId })
+      .execute();
+  }
+
   async findUserLogin(username: string) {
     return this.userRepo
       .createQueryBuilder('u')

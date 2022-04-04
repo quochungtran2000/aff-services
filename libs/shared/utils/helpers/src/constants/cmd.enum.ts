@@ -3,6 +3,10 @@ export enum CMD {
   LOGIN = 'login',
   REGISTER = 'register',
   MY_PROFILE = 'my_profile',
+  CHANGE_PASSWORD = 'change_password',
+  FORGOT_PASSWORD = 'forgot_password',
+  CHECK_REQUEST_RESET_PASSWORD = 'check_request_reset_password',
+  RESET_PASSWORD = 'reset_password',
 
   // Welcome
   WELCOME_TO_USER = 'welcome_to_user',
