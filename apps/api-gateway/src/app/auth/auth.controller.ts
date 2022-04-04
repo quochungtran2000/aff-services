@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
@@ -7,10 +7,14 @@ import { BcryptService } from '@aff-services/shared/common/services';
 import {
   BaseResponse,
   ChangePasswordPayload,
+  CheckRequestResetPasswordResponse,
+  ForgotPasswordPayload,
   LoginPayload,
   LoginResponse,
   MyProfileResponse,
   RegisterPayload,
+  RequestResetPasswordQuery,
+  ResetPasswordPayload,
 } from '@aff-services/shared/models/dtos';
 import {
   SwaggerException,
@@ -74,9 +78,56 @@ export class AuthController {
   @Post('password')
   async changePassword(@Body() data: ChangePasswordPayload, @Req() req: Request, @Res() res: Response) {
     try {
-      this.logger.log(`${this.register.name} called`);
+      this.logger.log(`${this.changePassword.name} called`);
       data['userId'] = (req.user as MyProfileResponse).userId;
       const result = await this.AuthService.changePassword(ChangePasswordPayload.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      this.logger.error(`${this.changePassword.name} Error:${error.message}`);
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() data: ForgotPasswordPayload, @Res() req: Request, @Res() res: Response) {
+    try {
+      this.logger.log(`${this.forgotPassword.name} called`);
+      const result = await this.AuthService.forgotPassword(ForgotPasswordPayload.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      this.logger.error(`${this.forgotPassword.name} Error:${error.message}`);
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @ApiResponse({ type: CheckRequestResetPasswordResponse })
+  @Get('reset-password')
+  async checkRequestResetPassword(
+    @Res() req: Request,
+    @Res() res: Response,
+    @Query() query: RequestResetPasswordQuery
+  ) {
+    try {
+      this.logger.log(`${this.checkRequestResetPassword.name} called`);
+      const result = await this.AuthService.checkRequestResetPassword(RequestResetPasswordQuery.from(query));
+      return res.status(200).json(result);
+    } catch (error) {
+      this.logger.error(`${this.checkRequestResetPassword.name} Error:${error.message}`);
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @ApiResponse({ type: BaseResponse })
+  @Post('reset-password')
+  async resetPassword(
+    @Res() req: Request,
+    @Res() res: Response,
+    @Query() query: RequestResetPasswordQuery,
+    @Body() data: ResetPasswordPayload
+  ) {
+    try {
+      this.logger.log(`${this.resetPassword.name} called`);
+      const result = await this.AuthService.resetPassword(ResetPasswordPayload.from(query, data));
       return res.status(200).json(result);
     } catch (error) {
       this.logger.error(`${this.changePassword.name} Error:${error.message}`);

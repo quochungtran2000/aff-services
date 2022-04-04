@@ -1,7 +1,16 @@
-import { BaseResponse, ChangePasswordPayload, LoginResponse, RegisterPayload } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { CMD } from '@aff-services/shared/utils/helpers';
+import {
+  BaseResponse,
+  ChangePasswordPayload,
+  CheckRequestResetPasswordResponse,
+  ForgotPasswordPayload,
+  LoginResponse,
+  RegisterPayload,
+  RequestResetPasswordQuery,
+  ResetPasswordPayload,
+} from '@aff-services/shared/models/dtos';
 
 @Injectable()
 export class AuthService {
@@ -32,5 +41,22 @@ export class AuthService {
   async changePassword(data: ChangePasswordPayload) {
     this.logger.log(`${this.changePassword.name} called`);
     return await this.client.send<BaseResponse>({ cmd: CMD.CHANGE_PASSWORD }, data).toPromise();
+  }
+
+  async forgotPassword(data: ForgotPasswordPayload) {
+    this.logger.log(`${this.forgotPassword.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.FORGOT_PASSWORD }, data).toPromise();
+  }
+
+  async checkRequestResetPassword(data: RequestResetPasswordQuery) {
+    this.logger.log(`${this.checkRequestResetPassword.name} called`);
+    return await this.client
+      .send<CheckRequestResetPasswordResponse>({ cmd: CMD.CHECK_REQUEST_RESET_PASSWORD }, data)
+      .toPromise();
+  }
+
+  async resetPassword(data: ResetPasswordPayload) {
+    this.logger.log(`${this.resetPassword.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.RESET_PASSWORD }, data).toPromise();
   }
 }

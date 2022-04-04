@@ -1,4 +1,10 @@
-import { ChangePasswordPayload, RegisterPayload } from '@aff-services/shared/models/dtos';
+import {
+  ChangePasswordPayload,
+  ForgotPasswordPayload,
+  RegisterPayload,
+  RequestResetPasswordQuery,
+  ResetPasswordPayload,
+} from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -32,5 +38,23 @@ export class AuthController {
   changePassword(data: ChangePasswordPayload) {
     this.logger.log(`${this.changePassword.name} called`);
     return this.authService.changePassword(data);
+  }
+
+  @MessagePattern({ cmd: CMD.FORGOT_PASSWORD })
+  forgotPassword(data: ForgotPasswordPayload) {
+    this.logger.log(`${this.forgotPassword.name} called`);
+    return this.authService.forgotPassword(data);
+  }
+
+  @MessagePattern({ cmd: CMD.CHECK_REQUEST_RESET_PASSWORD })
+  checkRequestResetPassword(data: RequestResetPasswordQuery) {
+    this.logger.log(`${this.checkRequestResetPassword.name} called`);
+    return this.authService.checkRequestResetPassword(data);
+  }
+
+  @MessagePattern({ cmd: CMD.RESET_PASSWORD })
+  resetPassword(data: ResetPasswordPayload) {
+    this.logger.log(`${this.resetPassword.name} called`);
+    return this.authService.resetPassword(data);
   }
 }

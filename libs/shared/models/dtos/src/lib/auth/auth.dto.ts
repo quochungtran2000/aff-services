@@ -1,6 +1,7 @@
 import { USER } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
 import { Matches, IsNotEmpty } from 'class-validator';
+import { RequestResetPasswordQuery } from '../queries';
 
 export class LoginPayload {
   @ApiProperty({ type: String, example: 'hung' })
@@ -116,6 +117,47 @@ export class ChangePasswordPayload {
     result.oldPassword = dto.oldPassword;
     result.newPassword = dto.newPassword;
     result.userId = dto.userId;
+    return result;
+  }
+}
+
+export class ForgotPasswordPayload {
+  @ApiProperty({ type: String, example: 'hung', required: true })
+  @IsNotEmpty({ message: 'tên đăng nhập không được để trống' })
+  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'tên đăng nhập không được chưa khoảng trắng' })
+  username: string;
+
+  public static from(dto: Partial<ForgotPasswordPayload>) {
+    const result = new ForgotPasswordPayload();
+    result.username = dto.username;
+    return result;
+  }
+}
+
+export class CheckRequestResetPasswordResponse {
+  @ApiProperty({ type: Boolean, example: false })
+  valid: boolean;
+
+  @ApiProperty({ type: String, example: 'Đường dẫn hết hạn', required: false })
+  message?: string;
+}
+
+export class ResetPasswordPayload {
+  @ApiProperty({ type: String, example: 'password' })
+  @IsNotEmpty({ message: 'password không được để trống' })
+  password: string;
+
+  @ApiProperty({ type: String, example: 'confirmPassword' })
+  @IsNotEmpty({ message: 'confirmPassword không được để trống' })
+  confirmPassword: string;
+
+  token: string;
+
+  public static from(query: Partial<RequestResetPasswordQuery>, dto: Partial<ResetPasswordPayload>) {
+    const result = new ResetPasswordPayload();
+    result.password = dto.password;
+    result.confirmPassword = dto.confirmPassword;
+    result.token = query.token;
     return result;
   }
 }
