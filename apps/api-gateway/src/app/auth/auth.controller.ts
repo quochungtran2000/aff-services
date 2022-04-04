@@ -6,6 +6,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { BcryptService } from '@aff-services/shared/common/services';
 import {
   BaseResponse,
+  ChangePasswordPayload,
   LoginPayload,
   LoginResponse,
   MyProfileResponse,
@@ -63,6 +64,22 @@ export class AuthController {
       return res.status(201).json(result);
     } catch (error) {
       this.logger.error(`${this.register.name} Error:${error.message}`);
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SwaggerNoAuthHeaders()
+  @SwaggerNoAuthException()
+  @Post('password')
+  async changePassword(@Body() data: ChangePasswordPayload, @Req() req: Request, @Res() res: Response) {
+    try {
+      this.logger.log(`${this.register.name} called`);
+      data['userId'] = (req.user as MyProfileResponse).userId;
+      const result = await this.AuthService.changePassword(ChangePasswordPayload.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      this.logger.error(`${this.changePassword.name} Error:${error.message}`);
       throw new HttpException(error.message, error.status || 500);
     }
   }

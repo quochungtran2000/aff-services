@@ -1,4 +1,4 @@
-import { BaseResponse, LoginResponse, RegisterPayload } from '@aff-services/shared/models/dtos';
+import { BaseResponse, ChangePasswordPayload, LoginResponse, RegisterPayload } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { CMD } from '@aff-services/shared/utils/helpers';
@@ -27,5 +27,10 @@ export class AuthService {
   async register(data: RegisterPayload) {
     this.logger.log(`${this.register.name} called`);
     return await this.client.send<BaseResponse>({ cmd: CMD.REGISTER }, data).toPromise();
+  }
+
+  async changePassword(data: ChangePasswordPayload) {
+    this.logger.log(`${this.changePassword.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.CHANGE_PASSWORD }, data).toPromise();
   }
 }

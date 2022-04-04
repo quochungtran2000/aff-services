@@ -97,3 +97,25 @@ export class RegisterPayload {
     return payload;
   }
 }
+
+export class ChangePasswordPayload {
+  @ApiProperty({ type: String, required: true })
+  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'mật khẩu cũ không được chưa khoảng trắng' })
+  @IsNotEmpty({ message: 'mật khẩu cũ không được để trống' })
+  oldPassword: string;
+
+  @ApiProperty({ type: String, required: true })
+  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'mật khẩu mới không được chưa khoảng trắng' })
+  @IsNotEmpty({ message: 'mật khẩu mới không được để trống' })
+  newPassword: string;
+
+  userId: number;
+
+  public static from(dto: Partial<ChangePasswordPayload>) {
+    const result = new ChangePasswordPayload();
+    result.oldPassword = dto.oldPassword;
+    result.newPassword = dto.newPassword;
+    result.userId = dto.userId;
+    return result;
+  }
+}

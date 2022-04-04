@@ -6,6 +6,7 @@ import { UserRepo } from '../repositories/userRepo';
 import { BcryptService } from '@aff-services/shared/common/services';
 import {
   BaseResponse,
+  ChangePasswordPayload,
   LoginPayload,
   LoginResponse,
   MyProfileResponse,
@@ -65,6 +66,26 @@ export class AuthService {
       return { status: 201, message: 'create user success' };
     } catch (error) {
       this.logger.error(`${this.register.name} Error:${error.message}`);
+      throw new RpcException({ status: error.status || 500, message: error.message });
+    }
+  }
+
+  async changePassword({ userId, oldPassword, newPassword }: ChangePasswordPayload): Promise<BaseResponse> {
+    try {
+      this.logger.log(`${this.changePassword.name} called`);
+      const { password } = await this.userRepo.findOneByUserId(userId);
+
+      const matchPassword = await this.bcryptService.comparePassword(oldPassword, password);
+      if (!matchPassword)
+        throw new BadRequestException('Tên đăng nhập hoặc mật khẩu không đúng. Xin vui lòng thử lại!');
+
+      const hashPassword = await this.bcryptService.hashPassword(newPassword);
+
+      await this.userRepo.findOneByUserIdAndUpdatePassword(userId, hashPassword);
+
+      return { status: 200, message: 'Đổi mật khẩu thành công' };
+    } catch (error) {
+      this.logger.error(`${this.changePassword.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
     }
   }
