@@ -12,6 +12,7 @@ import { AuthModule } from './app/auth/auth.module';
 import { config } from './app/config/configurations';
 import { AllExceptionsFilter } from './app/middlewares/http-exception.filter';
 import { MobileModule } from './app/mobile/mobile.module';
+import { WebsiteModule } from './app/website/website.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +33,19 @@ async function bootstrap() {
     include: [AdminModule, AuthModule],
   });
   SwaggerModule.setup(`${globalPrefix}/document/admin`, app, documentAdmin);
+
+  const configWebsite = new DocumentBuilder()
+    .setTitle('AFF-Services Website Document Api')
+    .setDescription('The AFF-Services Website document API description.')
+    .setVersion('1.0')
+    .addTag('AFF-Services Website API')
+    .addServer(config.application.documentUrl)
+    .build();
+
+  const documentWebsite = SwaggerModule.createDocument(app, configWebsite, {
+    include: [WebsiteModule, AuthModule],
+  });
+  SwaggerModule.setup(`${globalPrefix}/document/website`, app, documentWebsite);
 
   const configMobile = new DocumentBuilder()
     .setTitle('AFF-Services Mobile Document Api')
