@@ -1,3 +1,5 @@
+import { ProductTemplateQuery } from '@aff-services/shared/models/dtos';
+import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 
@@ -17,8 +19,18 @@ export class ProductService {
     });
   }
 
-  getData() {
-    this.logger.log(`${this.getData.name} called`);
-    return { message: 'Welcome to Product' };
+  async getProducts() {
+    this.logger.log(`${this.getProducts.name} called`);
+    return await this.client.send({ cmd: CMD.ADMIN_GET_PRODUCTS }, {}).toPromise();
+  }
+
+  async websiteGetProducts(data: ProductTemplateQuery) {
+    this.logger.log(`${this.websiteGetProducts.name} called`);
+    return await this.client.send({ cmd: CMD.WEBSITE_GET_PRODUCTS }, data).toPromise();
+  }
+
+  async websiteGetProduct(id: number) {
+    this.logger.log(`${this.websiteGetProducts.name} called`);
+    return await this.client.send({ cmd: CMD.WEBSITE_GET_PRODUCT }, { id }).toPromise();
   }
 }

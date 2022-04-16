@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpException, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -30,6 +30,7 @@ export class AuthController {
   private readonly bcryptService = new BcryptService();
   constructor(private readonly AuthService: AuthService) {}
 
+  @ApiOperation({ summary: 'Đăng nhập' })
   @SwaggerNoAuthException()
   @SwaggerNoAuthHeaders()
   @ApiResponse({ status: 200, type: LoginResponse })
@@ -46,6 +47,7 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Thông tin của tôi' })
   @SwaggerHeaders()
   @SwaggerException()
   @ApiResponse({ status: 200, type: MyProfileResponse })
@@ -56,6 +58,7 @@ export class AuthController {
     return res.status(200).json(profile);
   }
 
+  @ApiOperation({ summary: 'Đăng ký' })
   @SwaggerNoAuthHeaders()
   @SwaggerNoAuthException()
   @ApiResponse({ type: BaseResponse, status: 201 })
@@ -72,6 +75,7 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Đổi mật khẩu' })
   @UseGuards(JwtAuthGuard)
   @SwaggerNoAuthHeaders()
   @SwaggerNoAuthException()
@@ -88,6 +92,7 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Quên mật khẩu' })
   @Post('forgot-password')
   async forgotPassword(@Body() data: ForgotPasswordPayload, @Res() req: Request, @Res() res: Response) {
     try {
@@ -100,6 +105,7 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Kiểm tra đường dẫn đặt lại mật khẩu có hợp lệ hay không' })
   @ApiResponse({ type: CheckRequestResetPasswordResponse })
   @Get('reset-password')
   async checkRequestResetPassword(
@@ -117,6 +123,7 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Đặt lại mật khẩu' })
   @ApiResponse({ type: BaseResponse })
   @Post('reset-password')
   async resetPassword(
