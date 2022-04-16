@@ -1,0 +1,53 @@
+{
+  "root": "apps/crawl",
+  "sourceRoot": "apps/crawl/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/crawl",
+        "main": "apps/crawl/src/main.ts",
+        "tsConfig": "apps/crawl/tsconfig.app.json",
+        "assets": ["apps/crawl/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/crawl/src/environments/environment.ts",
+              "with": "apps/crawl/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "crawl:build",
+        "port": 9231
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/crawl/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/crawl"],
+      "options": {
+        "jestConfig": "apps/crawl/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

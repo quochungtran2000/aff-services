@@ -24,7 +24,7 @@ export class AccessControlController {
   constructor(private readonly accessCcontrolService: AccessControlService) {}
 
   @ApiResponse({ status: 200, type: PagingPermissionResponse })
-  @ApiOperation({ summary: 'get permission' })
+  @ApiOperation({ summary: 'Danh sách quyền' })
   @Get('permission')
   async getPermissions(@Req() req: Request, @Res() res: Response) {
     try {
@@ -37,7 +37,7 @@ export class AccessControlController {
   }
 
   @ApiResponse({ status: 200, type: PagingRoleResponse })
-  @ApiOperation({ summary: 'get role' })
+  @ApiOperation({ summary: 'Danh sách chức vụ' })
   @Get('role')
   async getRoles(@Req() req: Request, @Res() res: Response) {
     try {
@@ -50,7 +50,7 @@ export class AccessControlController {
   }
 
   @ApiResponse({ status: 201, type: BaseResponse })
-  @ApiOperation({ summary: 'create role' })
+  @ApiOperation({ summary: 'Tạo chức vụ' })
   @Post('role')
   async createRole(@Req() req: Request, @Res() res: Response, @Body() data: CreateRoleDTO) {
     try {
@@ -63,7 +63,7 @@ export class AccessControlController {
   }
 
   @ApiResponse({ status: 200, type: BaseResponse })
-  @ApiOperation({ summary: 'update role' })
+  @ApiOperation({ summary: 'Cập nhật chức vụ' })
   @Put('role/:roleId')
   async updateRole(@Res() res: Response, @Body() data: UpdateRoleDTO, @Param() params: UpdateRoleParam) {
     try {
@@ -76,7 +76,7 @@ export class AccessControlController {
   }
 
   @ApiResponse({ status: 200, type: BaseResponse })
-  @ApiOperation({ summary: 'asssign permission to role' })
+  @ApiOperation({ summary: 'Thêm quyền cho chức vụ' })
   @Post('role/:roleId')
   async assignPermission(@Res() res: Response, @Body() data: AssignPermissionDTO, @Param() params: UpdateRoleParam) {
     try {

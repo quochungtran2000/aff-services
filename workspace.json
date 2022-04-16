@@ -2,6 +2,7 @@
   "version": 2,
   "projects": {
     "api-gateway": "apps/api-gateway",
+    "crawl": "apps/crawl",
     "shared-common-services": "libs/shared/common/services",
     "shared-common-swagger": "libs/shared/common/swagger",
     "shared-models-dtos": "libs/shared/models/dtos",
