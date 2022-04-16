@@ -13,4 +13,8 @@ export const config = {
     port: process.env.PORT || 3333,
     documentUrl: process.env.DOCUMENT_URL,
   },
+  env: {
+    privateKey: process.env.PRIVATE_KEY,
+    applications: process.env.APPLICATIONS,
+  },
 };

@@ -14,7 +14,7 @@ import { AuthService } from './auth.service';
     DatabaseModule,
     JwtModule.register({
       secret: config.jwt.secret,
-      signOptions: { expiresIn: '2h' },
+      signOptions: { expiresIn: '1y' },
     }),
   ],
   controllers: [AuthController],
