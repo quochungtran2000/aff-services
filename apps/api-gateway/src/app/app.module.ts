@@ -35,9 +35,9 @@ export class AppModule implements NestModule {
       .forRoutes('*')
       .apply(AppNameMiddleWare)
       .forRoutes(
-        { path: 'admin', method: RequestMethod.ALL },
-        { path: 'mobile', method: RequestMethod.ALL },
-        { path: 'website', method: RequestMethod.ALL }
+        { path: 'admin/*', method: RequestMethod.ALL },
+        { path: 'mobile/*', method: RequestMethod.ALL },
+        { path: 'website/*', method: RequestMethod.ALL }
       );
   }
 }

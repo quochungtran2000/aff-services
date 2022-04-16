@@ -1,7 +1,6 @@
 import { Product, PRODUCT_TEMPLATE } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
-import { isArray } from 'class-validator';
-import { ProductResponse } from '../responses';
+import { ProductResponse } from './product-response.dto';
 
 export class CreateProductTemplateDTO {
   productName: string;

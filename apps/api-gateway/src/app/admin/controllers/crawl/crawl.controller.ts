@@ -1,6 +1,6 @@
 import { BaseResponse, CrawlPayload } from '@aff-services/shared/models/dtos';
 import { Body, Controller, HttpException, Logger, Post, Req, Res } from '@nestjs/common';
-import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CrawlService } from '../../services/crawl/crawl.service';
 

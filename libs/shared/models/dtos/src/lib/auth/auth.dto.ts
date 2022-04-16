@@ -1,7 +1,7 @@
 import { USER } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
 import { Matches, IsNotEmpty } from 'class-validator';
-import { RequestResetPasswordQuery } from '../queries';
+import { RequestResetPasswordQuery } from './auth.query';
 
 export class LoginPayload {
   @ApiProperty({ type: String, example: 'hung' })
