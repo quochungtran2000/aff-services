@@ -1,4 +1,3 @@
-import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
 
@@ -18,6 +17,6 @@ export class AppService {
     });
   }
   async getData(): Promise<{ message: string }> {
-    return this.client.send({ cmd: CMD.WELCOME_TO_USER }, {}).toPromise();
+    return { message: 'Welcome to gateway' };
   }
 }

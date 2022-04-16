@@ -25,6 +25,7 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "pg": "^8.7.3",
+    "puppeteer": "^13.5.2",
     "redis": "^3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~6.6.3",

@@ -1,0 +1,1 @@
+export const DB_CON_TOKEN = 'DATABASE_CONNECTION_TOKEN';
