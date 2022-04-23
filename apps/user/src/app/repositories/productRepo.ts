@@ -100,8 +100,12 @@ export class ProductRepo {
   }
 
   async getProductTemplate(query: ProductTemplateQuery) {
+    console.log('long')
     try {
       this.logger.log(`${this.getProductTemplate.name} called`);
+      console.log({
+        query
+      })
       const { page_size, skip, search } = query;
       const qr = this.productTemplateRepo
         .createQueryBuilder('pt')
