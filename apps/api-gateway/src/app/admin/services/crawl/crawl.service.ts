@@ -24,4 +24,11 @@ export class CrawlService {
     this.client.send({ cmd: CMD.CRAWL_DATA }, data).toPromise();
     return { message: 'Created crawl request' };
   }
+
+  async crawlCategory(data: any) {
+    this.logger.log(`${this.crawlCategory.name} called`);
+    // this.client.send({ cmd: CMD.CRAWL_CATEGORY }, data).toPromise();
+    // return { message: 'Created crawl category request' };
+    return await this.client.send({ cmd: CMD.CRAWL_CATEGORY }, data).toPromise();
+  }
 }

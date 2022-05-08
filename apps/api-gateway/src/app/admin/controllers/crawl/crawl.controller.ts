@@ -22,4 +22,17 @@ export class CrawlController {
       throw new HttpException(error.message, error.status || 500);
     }
   }
+
+  @ApiOperation({ summary: 'Dùng để cào danh mục' })
+  // @ApiResponse({ type: any})
+  @Post('category')
+  async crawlCategory(@Body() data: CrawlPayload, @Req() req: Request, @Res() res: Response) {
+    try {
+      this.logger.log(`${this.crawlCategory.name} called`);
+      const result = await this.crawlService.crawlCategory(data);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
 }

@@ -4,6 +4,28 @@ import * as puppeteer from 'puppeteer';
 import { CrawlPayload, CreateProductDTO } from '@aff-services/shared/models/dtos';
 const args = ['--disable-gpu', '--no-sandbox'];
 process.setMaxListeners(Infinity);
+enum MerchangeEnum {
+  TIKI = 'tiki',
+  LAZADA = 'lazada',
+  SHOPEE = 'shopee',
+}
+
+type Merchange = 'tiki' | 'lazada' | 'shopee';
+
+const websites = [
+  {
+    name: MerchangeEnum.TIKI,
+    url: 'https://tiki.vn',
+  },
+  {
+    name: MerchangeEnum.SHOPEE,
+    url: 'https://shopee.vn',
+  },
+  {
+    name: MerchangeEnum.LAZADA,
+    url: 'https://www.lazada.vn',
+  },
+];
 
 @Injectable()
 export class CrawlService {
@@ -60,9 +82,7 @@ export class CrawlService {
     try {
       this.logger.log(`${this.crawlData.name} data${JSON.stringify({ url })}`);
       let products: any[] = [];
-      const merchant = url.startsWith('https://www.')
-        ? (url.replace('https://www.', '').split('.vn')[0] as 'tiki' | 'lazada' | 'shopee')
-        : (url.replace('https://', '').split('.vn')[0] as 'tiki' | 'lazada' | 'shopee');
+      const merchant = this.getMerchant(url);
       console.log(merchant);
       switch (merchant) {
         case 'tiki': {
@@ -243,32 +263,32 @@ export class CrawlService {
     return articles;
   }
 
-  mappingCategory(merchant: 'tiki' | 'lazada' | 'shopee', cateId: string) {
+  mappingCategory(merchant: Merchange, cateId: string) {
     switch (merchant) {
-      case 'shopee': {
+      case MerchangeEnum.SHOPEE: {
         const [cate] = this.shopeeCategoryData.filter((elm) => elm.ids.includes(cateId));
         return cate;
       }
-      case 'tiki': {
+      case MerchangeEnum.TIKI: {
         const [cate] = this.tikiCategoryData.filter((elm) => elm.ids.includes(cateId));
         return cate;
       }
-      case 'lazada': {
+      case MerchangeEnum.LAZADA: {
         const [cate] = this.lazadaCategoryData.filter((elm) => elm.ids.includes(cateId));
         return cate;
       }
     }
   }
 
-  getCateId(url: string, merchant: 'tiki' | 'lazada' | 'shopee') {
+  getCateId(url: string, merchant: Merchange) {
     switch (merchant) {
-      case 'tiki': {
+      case MerchangeEnum.TIKI: {
         return url.split('/').pop();
       }
-      case 'shopee': {
+      case MerchangeEnum.SHOPEE: {
         return url.split('.').pop();
       }
-      case 'lazada': {
+      case MerchangeEnum.LAZADA: {
         return url.replace('https://www.lazada.vn/', '').split('/').shift();
       }
     }
@@ -277,4 +297,263 @@ export class CrawlService {
   wait(ms) {
     return new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
   }
+
+  getMerchant(url: string) {
+    return url.startsWith('https://www.')
+      ? (url.replace('https://www.', '').split('.vn')[0] as Merchange)
+      : (url.replace('https://', '').split('.vn')[0] as Merchange);
+  }
+
+  async crawlCategory(data: any) {
+    const browser = await puppeteer.launch({ headless: true, handleSIGINT: false, args: args });
+    try {
+      this.logger.log(`${this.crawlCategory.name} called Data:${JSON.stringify(data)}`);
+      websites.map((website) => {
+        console.log({ website });
+      });
+      // const merchant = this.getMerchant(data.url);
+      // const categories = await this.getTikiCategories(browser, data.url);
+      // console.log({ merchant });
+      // await browser.close();
+      // console.log({ categories });
+      const tiki = await this.getTikiCategories(browser, 'https://tiki.vn');
+      const shopee = await this.getShopeeCategories(browser, 'https://shopee.vn');
+      const lazada = await this.getLazadaCategories(browser, 'https://www.lazada.vn/');
+      return { tiki, shopee, lazada };
+    } catch (error) {
+      await browser.close();
+      this.logger.error(`${this.crawlCategory.name} error:${error.message}`);
+    }
+  }
+
+  async getTikiCategories(browser: puppeteer.Browser, url: string) {
+    try {
+      this.logger.log(`${this.getTikiCategories.name} called`);
+      const page = await browser.newPage();
+      await page.goto(url);
+      this.logger.log(`${this.getTikiCategories.name} goto:${url}`);
+      const articles = await page.evaluate(() => {
+        const categories: { [key: string]: any }[] = [];
+        const items = document.querySelectorAll(
+          '.styles__StyledCategoryList-sc-17y817k-0.dNFPjn .styles__StyledCategory-sc-17y817k-1.iBByno'
+        );
+        items.forEach((item) => {
+          const category: { [key: string]: any } = {};
+          const sub = item.querySelector('.styles__FooterSubheading-sc-32ws10-5.cNJLWI a');
+          category.link = sub.getAttribute('href');
+          category.name = sub.textContent;
+          category.sub1 = [];
+          const listSubCategory = item.querySelectorAll('p a');
+          Array.from(listSubCategory).forEach((cate) => {
+            const name = cate?.textContent;
+            const link = cate?.getAttribute('href');
+            category.sub1.push({ name, link });
+          });
+          categories.push(category);
+        });
+        return categories;
+      });
+      await page.close();
+      this.logger.log(`${this.getTikiCategories.name} Done`);
+      return articles;
+    } catch (error) {
+      await browser.close();
+      this.logger.error(`${this.getTikiCategories.name} error:${error.message}`);
+    }
+  }
+
+  async getShopeeCategories(browser: puppeteer.Browser, url: string) {
+    try {
+      this.logger.log(`${this.getShopeeCategories.name} called`);
+      const page = await browser.newPage();
+      await page.goto(url);
+      this.logger.log(`${this.getShopeeCategories.name} goto:${url}`);
+      await page.setDefaultNavigationTimeout(60000);
+      await page.setViewport({ width: 1800, height: 6000 });
+      const bodyHandle = await page.$('body');
+      const { height } = await bodyHandle.boundingBox();
+      await bodyHandle.dispose();
+
+      // Scroll one viewport at a time, pausing to let content load
+      const viewportHeight = page.viewport().height;
+      let viewportIncr = 0;
+      while (viewportIncr + viewportHeight < height) {
+        await page.evaluate((_viewportHeight) => {
+          window.scrollBy(0, _viewportHeight);
+        }, viewportHeight);
+        await this.wait(5000);
+        viewportIncr = viewportIncr + viewportHeight;
+      }
+      await this.wait(1000);
+
+      await page.screenshot({ path: 'category.png' });
+      const articles = await page.evaluate(() => {
+        const results: any[] = [];
+        const items = document.querySelectorAll('._5mVtqL.uZncG4 .F-JPOo > div');
+        items.forEach((product) => {
+          const category: any = {};
+          const title = product.querySelector('.sR5RFo a');
+          category.link = title.getAttribute('href');
+          category.name = title.textContent;
+          category.sub1 = [];
+          const listSubCategory = product.querySelectorAll('._0ShNPC .LYwNSg');
+          Array.from(listSubCategory).forEach((cate) => {
+            const name = cate?.textContent;
+            const link = cate?.getAttribute('href');
+            category.sub1.push({ name, link });
+          });
+          results.push(category);
+        });
+
+        return results;
+      });
+      await page.close();
+      this.logger.log(`${this.getShopeeCategories.name} Done`);
+      return articles;
+    } catch (error) {
+      await browser.close();
+      this.logger.error(`${this.getShopeeCategories.name} error:${error.message}`);
+    }
+  }
+
+  async getLazadaCategories(browser: puppeteer.Browser, url: string) {
+    const page = await browser.newPage();
+    try {
+      this.logger.log(`${this.getLazadaCategories.name} called`);
+      await page.setDefaultNavigationTimeout(60000);
+      this.logger.log(`${this.getLazadaCategories.name} goto:${url}`);
+      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      await this.wait(5000);
+
+      // const ids = await page.evaluate(() => {
+      //   const results: string[] = [];
+      //   const items = document.querySelectorAll('.lzd-site-menu-root .lzd-site-menu-root-item');
+      //   // const title = product.querySelector('a span');
+      //   items.forEach((product) => {
+      //     const id = product.getAttribute('id');
+      //     if (id) results.push(`#${id}`);
+      //   });
+      //   return results;
+      // });
+      // console.log({ ids });
+
+      // ids.map(async (id) => {
+      //   await page.click(id);
+      // });
+
+      const articles = await page.evaluate(() => {
+        const results: any[] = [];
+        const items = document.querySelectorAll('.lzd-site-menu-root .lzd-site-menu-root-item');
+        items.forEach((product) => {
+          const category: any = {};
+          const cateLv1Id = product.getAttribute('id');
+          category.name = product.querySelector('a span').textContent;
+          category.link = product.querySelector('a').getAttribute('href') || '/';
+          category.sub1 = [];
+
+          const subLv1 = document.querySelector(`.lzd-site-menu-sub.${cateLv1Id}`);
+          if (subLv1) {
+            const arrows = subLv1.querySelectorAll('.sub-item-remove-arrow');
+            if (arrows.length) {
+              arrows.forEach((arrow) => {
+                const name = arrow.querySelector('a span').textContent;
+                const link = arrow.querySelector('a').getAttribute('href');
+                category.sub1.push({ name, link });
+              });
+            }
+
+            const items = subLv1.querySelectorAll('.lzd-site-menu-sub-item');
+            if (items) {
+              console.log('items');
+              items.forEach((item) => {
+                const name = item.querySelector('a span').textContent;
+                const link = item.querySelector('a').getAttribute('href');
+                console.log(`asdasd`, { name, link });
+                const cate: any = { name, link, sub1: [] };
+                const sub = item.querySelectorAll('ul.lzd-site-menu-grand .lzd-site-menu-grand-item');
+                if (sub.length) {
+                  sub.forEach((elm) => {
+                    const name = elm.querySelector('a span').textContent;
+                    const link = elm.querySelector('a').getAttribute('href');
+                    cate.sub1.push({ name, link });
+                  });
+                }
+                category.sub1.push({ ...cate, name, link });
+              });
+            }
+          }
+          results.push(category);
+        });
+        return results;
+      });
+      await page.close();
+      this.logger.log(`${this.getLazadaCategories.name} Done`);
+      return articles;
+    } catch (error) {
+      await page.close();
+      this.logger.error(`${this.getLazadaCategories.name} error:${error.message}`);
+    }
+  }
+
+  // async getTikiCategories(browser: puppeteer.Browser, url: string) {
+  //   this.logger.log(`${this.getTikiCategories.name} called`);
+  //   const page = await browser.newPage();
+  //   await page.goto(url);
+  //   this.logger.log(`${this.getTikiCategories.name} goto:${url}`);
+  //   const articles = await page.evaluate(() => {
+  //     const results: any[] = [];
+  //     const items = document.querySelectorAll('.breadcrumb a.breadcrumb-item');
+  //     items.forEach((product) => {
+  //       const category: any = {};
+  //       category.link = product.getAttribute('href');
+  //       category.name = product.querySelector('span').textContent;
+  //       results.push(category);
+  //     });
+  //     return results;
+  //   });
+  //   await page.close();
+  //   return articles;
+  // }
+
+  // async getShopeeCategories(browser: puppeteer.Browser, url: string) {
+  //   this.logger.log(`${this.getShopeeCategories.name} called`);
+  //   const page = await browser.newPage();
+  //   await page.goto(url);
+  //   this.logger.log(`${this.getShopeeCategories.name} goto:${url}`);
+  //   const articles = await page.evaluate(() => {
+  //     const results: any[] = [];
+  //     const items = document.querySelectorAll('.flex.items-center._3bDXqx.page-product__breadcrumb ._2572CL');
+  //     items.forEach((product) => {
+  //       const category: any = {};
+  //       category.link = product.getAttribute('href');
+  //       category.name = product.textContent;
+  //       results.push(category);
+  //     });
+  //     return results;
+  //   });
+  //   await page.close();
+  //   return articles;
+  // }
+
+  // async getLazadaCategories(browser: puppeteer.Browser, url: string) {
+  //   this.logger.log(`${this.getLazadaCategories.name} called`);
+  //   const page = await browser.newPage();
+  //   await page.setDefaultNavigationTimeout(60000);
+  //   this.logger.log(`${this.getLazadaCategories.name} goto:${url}`);
+  //   await page.goto(url, { waitUntil: 'domcontentloaded' });
+  //   await this.wait(5000);
+  //   const articles = await page.evaluate(() => {
+  //     const results: any[] = [];
+  //     const items = document.querySelectorAll('.breadcrumb .breadcrumb_item a.breadcrumb_item_anchor');
+  //     items.forEach((product) => {
+  //       const category: any = {};
+  //       category.link = product.getAttribute('href')?.replace('https://www.lazada.vn/', '');
+  //       category.name = product.querySelector('span').textContent;
+  //       results.push(category);
+  //     });
+  //     return results;
+  //   });
+  //   await page.close();
+  //   return articles;
+  // }
 }

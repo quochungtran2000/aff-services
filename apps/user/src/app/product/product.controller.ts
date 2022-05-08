@@ -50,13 +50,13 @@ export class ProductController {
 
   //  Mobile
 
-  @MessagePattern({ cmd: CMD.WEBSITE_GET_PRODUCTS })
+  @MessagePattern({ cmd: CMD.MOBILE_GET_PRODUCTS })
   mobileGetProducts(data: ProductTemplateQuery) {
     this.logger.log(`${this.mobileGetProducts.name} called`);
     return this.productService.mobileGetProducts(data);
   }
 
-  @MessagePattern({ cmd: CMD.WEBSITE_GET_PRODUCT })
+  @MessagePattern({ cmd: CMD.MOBILE_GET_PRODUCT })
   mobileGetProduct({ id }: { id: number }) {
     this.logger.log(`${this.mobileGetProduct.name} called`);
     return this.productService.mobileGetProduct(id);
