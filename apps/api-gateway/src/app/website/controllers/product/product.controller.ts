@@ -22,7 +22,7 @@ export class ProductController {
   // }
 
   @ApiResponse({ type: PagingProductTemplateResponse })
-  @Get('')
+  @Get()
   async websiteGetProducts(@Res() res: Response, @Query() data: ProductTemplateQuery) {
     try {
       this.logger.log(`${this.websiteGetProducts.name} called`);

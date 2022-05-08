@@ -115,7 +115,7 @@ export class ProductRepo {
         .take(page_size)
         .skip(skip)
         .setParameters({ search })
-        // .orderBy('pt.product_template_id', 'DESC')
+        // .orderBy('pt.product_template_id', 'DESC') 
         .getManyAndCount();
       return PagingProductTemplateResponse.from(total, data);
     } catch (error) {
