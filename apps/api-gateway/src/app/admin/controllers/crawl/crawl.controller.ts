@@ -1,5 +1,5 @@
 import { BaseResponse, CrawlPayload } from '@aff-services/shared/models/dtos';
-import { Body, Controller, HttpException, Logger, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Logger, Post, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CrawlService } from '../../services/crawl/crawl.service';
@@ -26,10 +26,21 @@ export class CrawlController {
   @ApiOperation({ summary: 'Dùng để cào danh mục' })
   // @ApiResponse({ type: any})
   @Post('category')
-  async crawlCategory(@Body() data: CrawlPayload, @Req() req: Request, @Res() res: Response) {
+  async crawlCategory(@Req() req: Request, @Res() res: Response) {
     try {
       this.logger.log(`${this.crawlCategory.name} called`);
-      const result = await this.crawlService.crawlCategory(data);
+      const result = await this.crawlService.crawlCategory();
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Get('config')
+  async getConfig(@Req() req: Request, @Res() res: Response) {
+    try {
+      this.logger.log(`${this.getConfig.name} called`);
+      const result = await this.crawlService.getConfig();
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);

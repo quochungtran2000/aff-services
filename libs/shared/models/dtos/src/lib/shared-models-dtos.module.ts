@@ -5,3 +5,4 @@ export * from './params';
 export * from './product';
 export * from './crawl';
 export * from './base';
+export * from './category';

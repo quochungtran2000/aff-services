@@ -34,4 +34,7 @@ export enum CMD {
   // Crawl
   CRAWL_DATA = 'crawl_data',
   CRAWL_CATEGORY = 'crawl_category',
+
+  //Config
+  GET_CONFIG = 'get_config',
 }
