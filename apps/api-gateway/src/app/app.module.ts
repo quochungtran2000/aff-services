@@ -1,5 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
@@ -8,7 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { WebsiteModule } from './website/website.module';
 import { LoggingMiddleware } from './middlewares/logging.middleware';
 import { HeaderMiddleware } from './middlewares/header.middleware';
-import { AppNameMiddleWare } from './middlewares/app-name.middleware';
+// import { AppNameMiddleWare } from './middlewares/app-name.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { config } from './config/configurations';
 
@@ -28,17 +27,13 @@ import { config } from './config/configurations';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggingMiddleware)
-      .forRoutes('*')
-      .apply(HeaderMiddleware)
-      .forRoutes('*')
-      // .apply(AppNameMiddleWare)
-      // .forRoutes(
-      //   { path: 'admin/*', method: RequestMethod.ALL },
-      //   { path: 'mobile/*', method: RequestMethod.ALL },
-      //   { path: 'website/*', method: RequestMethod.ALL }
-      // );
-  }
+    consumer.apply(LoggingMiddleware).forRoutes('*').apply(HeaderMiddleware).forRoutes('*');
+    // .apply(AppNameMiddleWare)
+    // .forRoutes(
+    //   { path: 'admin/*', method: RequestMethod.ALL },
+    //   { path: 'mobile/*', method: RequestMethod.ALL },
+    //   { path: 'website/*', method: RequestMethod.ALL }
+    // );  }
+}
 }
 
