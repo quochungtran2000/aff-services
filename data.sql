@@ -65,3 +65,65 @@ create table product_product (
 alter table product_product add constraint product_product_pkey primary key (product_template_id,product_id);
 alter table product_product add constraint product_product_fkey_product foreign key (product_id) references product(product_id);
 alter table product_product add constraint product_product_fkey_product_template foreign key (product_template_id) references product_template(product_template_id);
+
+create table aff_config (
+	name character varying not null,
+	value character varying not null,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table aff_config add constraint aff_config_pkey primary key (name);
+
+create table category (
+	id character varying not null, 
+	merchant character varying not null,
+	slug character varying not null,
+	parent_id character varying,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table category add constraint category_pkey primary key(id);
+
+
+-- Category
+create table crawl_category (
+	crawl_category_id character varying not null, 
+	merchant character varying not null,
+	title character varying not null,
+	slug character varying not null,
+	parent_id character varying,
+	active boolean not null default false,
+	crawl boolean not null default false,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table crawl_category add constraint crawl_category_pkey primary key(crawl_category_id);
+alter table crawl_category add constraint crawl_category_fkey foreign key (parent_id) references crawl_category(crawl_category_id);
+
+
+create sequence category_id_seq start with 1 increment by 1 no minvalue maxvalue 9999999999;
+
+create table category (
+	category_id integer not null default nextval('category_id_seq'::regClass), 
+	title character varying not null,
+	slug character varying not null,
+	active boolean not null default false,
+	crawl boolean not null default false,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table category add constraint category_pkey primary key(category_id);
+
+create table mapping_category (
+	category_id integer not null,
+	crawl_category_id character varying not null
+);
+
+alter table mapping_category add constraint mapping_category_pkey primary key(category_id,crawl_category_id);
+alter table mapping_category add constraint mapping_category_fkey_category foreign key(category_id) references category(category_id);
+alter table mapping_category add constraint mapping_category_fkey_crawl_category foreign key(crawl_category_id) references crawl_category(crawl_category_id);
+

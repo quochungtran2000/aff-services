@@ -16,8 +16,8 @@ export class CrawlController {
   }
 
   @MessagePattern({ cmd: CMD.CRAWL_CATEGORY })
-  crawlCategory(data: any) {
+  crawlCategory() {
     this.logger.log(`${this.crawlCategory.name}`);
-    return this.crawlService.crawlCategory(data);
+    return this.crawlService.crawlCategory();
   }
 }

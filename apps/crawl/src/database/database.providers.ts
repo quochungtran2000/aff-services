@@ -1,7 +1,13 @@
 import { createConnection } from 'typeorm';
 import { DB_CON_TOKEN } from './database.constant';
 import { config } from '../config/configurations';
-import { Product, PRODUCT_PRODUCT, PRODUCT_TEMPLATE } from '@aff-services/shared/models/entities';
+import {
+  CONFIG,
+  CRAWL_CATEGORY,
+  Product,
+  PRODUCT_PRODUCT,
+  PRODUCT_TEMPLATE,
+} from '@aff-services/shared/models/entities';
 
 export const databaseProviders = [
   {
@@ -20,7 +26,7 @@ export const databaseProviders = [
         username: POSTGRES_USER,
         password: POSTGRES_PASSWORD,
         database: POSTGRES_DATABASE,
-        entities: [Product, PRODUCT_PRODUCT, PRODUCT_TEMPLATE],
+        entities: [Product, PRODUCT_PRODUCT, PRODUCT_TEMPLATE, CONFIG, CRAWL_CATEGORY],
         // synchronize: true,
         // logging: true,
       });

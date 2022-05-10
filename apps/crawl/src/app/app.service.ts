@@ -4,12 +4,16 @@ import { getRepository } from 'typeorm';
 import { Product } from '@aff-services/shared/models/entities';
 
 import * as puppeteer from 'puppeteer';
+import { ConfigRepo } from './repositories/configRepo';
 const args = ['--disable-gpu', '--no-sandbox'];
 process.setMaxListeners(Infinity);
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(`Micro.Crawl${AppService.name}`);
+
+  constructor(private readonly configRepo: ConfigRepo) {}
+
   private readonly shopeeCategoryData = [
     {
       type: 'smartphone',
@@ -356,5 +360,9 @@ export class AppService {
     });
     await page.close();
     return articles;
+  }
+
+  async getConfigs() {
+    return await this.configRepo.getAll();
   }
 }
