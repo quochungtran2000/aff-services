@@ -35,4 +35,8 @@ export class CrawlService {
   async getConfig() {
     return await this.client.send({ cmd: CMD.GET_CONFIG }, {}).toPromise();
   }
+
+  async getCategory(merchant: string) {
+    return await this.client.send({ cmd: CMD.GET_CATEGORY }, { merchant }).toPromise();
+  }
 }

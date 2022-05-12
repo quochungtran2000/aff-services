@@ -143,7 +143,6 @@ export class ProductTemplateDetailResponse {
   products: ProductResponse[];
 
   public static fromEntity(entity: Partial<PRODUCT_TEMPLATE>) {
-    console.log(entity.productProducts[0]);
     const result = new ProductTemplateDetailResponse();
     result.productTemplateId = entity.productTemplateId;
     result.productName = entity.productName;
