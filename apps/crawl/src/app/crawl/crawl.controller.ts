@@ -20,4 +20,9 @@ export class CrawlController {
     this.logger.log(`${this.crawlCategory.name}`);
     return this.crawlService.crawlCategory();
   }
+
+  @MessagePattern({ cmd: CMD.GET_CATEGORY })
+  getCateGory({ merchant }: { merchant }) {
+    return this.crawlService.getCategory(merchant);
+  }
 }

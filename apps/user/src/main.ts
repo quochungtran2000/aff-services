@@ -6,12 +6,14 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
+import * as compression from 'compression';
 
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
   const logger = new Logger(`MicroService-User`);
   const app = await NestFactory.create(AppModule);
+  app.use(compression());
 
   app.connectMicroservice({
     transport: Transport.REDIS,

@@ -1,4 +1,7 @@
+import { CRAWL_CATEGORY } from '@aff-services/shared/models/entities';
 import { removeAccent } from '@aff-services/shared/utils/helpers';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsIn, IsNotEmpty } from 'class-validator';
 
 export type TCrawlCategory = {
   name: string;
@@ -89,4 +92,62 @@ export class CrawlCategoryDTO {
 
     return result;
   }
+}
+
+export class CrawlCategoryResponse {
+  @ApiProperty({ type: String, example: 'iasd' })
+  id: string;
+
+  @ApiProperty({ type: String, example: 'example title' })
+  title: string;
+
+  @ApiProperty({ type: String, example: 'example slug' })
+  slug: string;
+
+  @ApiProperty({ type: String, example: false })
+  active: boolean;
+
+  @ApiProperty({ type: String, example: false })
+  crawl: boolean;
+
+  @ApiProperty({ type: CrawlCategoryResponse, isArray: true })
+  subCategory?: CrawlCategoryResponse[];
+
+  public static fromEntity(entity: Partial<CRAWL_CATEGORY>) {
+    const result = new CrawlCategoryResponse();
+    result.id = entity.crawlCategoryId;
+    result.title = entity.title;
+    result.slug = entity.slug;
+    result.active = entity.active;
+    result.crawl = entity.crawl;
+    result.subCategory = [];
+    if (entity?.subCategory?.length) {
+      for (const elm of entity.subCategory) {
+        result.subCategory.push(this.fromEntity(elm));
+      }
+    }
+    if (!result.subCategory.length) delete result.subCategory;
+    return result;
+  }
+
+  public static fromEntities(entities: Partial<CRAWL_CATEGORY[]>) {
+    const result: CrawlCategoryResponse[] = [];
+    for (const entity of entities) {
+      const temp = CrawlCategoryResponse.fromEntity(entity);
+      result.push(temp);
+    }
+    return result;
+  }
+}
+
+export enum MerchantEnum {
+  TIKI = 'tiki',
+  LAZADA = 'lazada',
+  SHOPEE = 'shopee',
+}
+export class EcommerceCategoryQuery {
+  @ApiProperty({ required: true, enum: MerchantEnum })
+  @IsNotEmpty()
+  @IsIn([MerchantEnum.LAZADA, MerchantEnum.SHOPEE, MerchantEnum.TIKI])
+  merchant: MerchantEnum;
 }

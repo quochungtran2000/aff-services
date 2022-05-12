@@ -57,7 +57,6 @@ export class ProductRepo {
             .orUpdate(['product_name', 'price', 'updated_at', 'thumbnail', 'average'], ['slug'])
             .returning('*')
             .execute();
-          // console.log({ raw });
           // break;
           await this.productProductRepo
             .createQueryBuilder()
@@ -80,7 +79,6 @@ export class ProductRepo {
             const values = relatedProducts.map((product) => {
               return { productTemplateId: raw[0].product_template_id, productId: product.productId };
             });
-            console.log({ relatedProducts: values });
 
             await this.productProductRepo
               .createQueryBuilder()

@@ -7,10 +7,12 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
+import * as compression from 'compression';
 
 async function bootstrap() {
   const logger = new Logger(`MicroService-Crawl`);
   const app = await NestFactory.create(AppModule);
+  app.use(compression());
 
   app.connectMicroservice({
     transport: Transport.REDIS,
@@ -28,4 +30,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-                                                            

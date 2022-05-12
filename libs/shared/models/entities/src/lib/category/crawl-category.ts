@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity({ schema: 'public', name: 'crawl_category' })
 export class CRAWL_CATEGORY {
@@ -29,7 +29,11 @@ export class CRAWL_CATEGORY {
   @Column({ name: 'updated_at', type: 'timestamp', default: '() => now()' })
   updatedAt: Date;
 
-  @OneToMany(() => CRAWL_CATEGORY, (c) => c.subCategory)
+  @OneToMany(() => CRAWL_CATEGORY, (c) => c.parentCategory)
+  @JoinColumn({ name: 'crawl_category_id', referencedColumnName: 'parentId' })
+  subCategory: CRAWL_CATEGORY[];
+
+  @ManyToOne(() => CRAWL_CATEGORY, (c) => c.subCategory)
   @JoinColumn({ name: 'parent_id', referencedColumnName: 'crawlCategoryId' })
-  subCategory: CRAWL_CATEGORY;
+  parentCategory: CRAWL_CATEGORY;
 }
