@@ -31,8 +31,9 @@ export class AuthService {
   async login({ username, password }: LoginPayload): Promise<LoginResponse> {
     try {
       this.logger.log(`${this.login.name} called`);
-      const { password: hashPassword, ...user } = await this.userRepo.findUserLogin(username);
-      if (!user) throw new BadRequestException('username hoặc password không chính xác!.');
+      const exists = await this.userRepo.findUserLogin(username);
+      if (!exists) throw new BadRequestException('username hoặc password không chính xác!.');
+      const { password: hashPassword, ...user } = exists;
 
       const matchPassword = await this.bcryptService.comparePassword(password, hashPassword);
 
@@ -43,7 +44,7 @@ export class AuthService {
         ...user,
       });
 
-      return { token };
+      return { token, user: MyProfileResponse.fromEntity(user) };
     } catch (error) {
       this.logger.error(`${this.login.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });

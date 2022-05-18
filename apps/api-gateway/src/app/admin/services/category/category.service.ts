@@ -1,4 +1,10 @@
-import { CrawlCategoryResponse, EcommerceCategoryQuery } from '@aff-services/shared/models/dtos';
+import {
+  BaseResponse,
+  CrawlCategoryResponse,
+  CreateCategoryDTO,
+  EcommerceCategoryQuery,
+  UpdateEcommerceCategoryDTO,
+} from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -25,5 +31,20 @@ export class CategoryService {
     return await this.client
       .send<CrawlCategoryResponse[]>({ cmd: CMD.ADMIN_GET_ECOMMERCE_CATEGORY }, query)
       .toPromise();
+  }
+
+  async updateEcommerceCategory(data: UpdateEcommerceCategoryDTO): Promise<BaseResponse> {
+    this.logger.log(`${this.getEcommerceCategory.name} data:${JSON.stringify(data)}`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.ADMIN_UPDATE_ECOMMERCE_CATEGORY }, data).toPromise();
+  }
+
+  async getCategory(): Promise<any> {
+    this.logger.log(`${this.getCategory.name} called`);
+    return await this.client.send<any>({ cmd: CMD.ADMIN_GET_CATEGORY }, {}).toPromise();
+  }
+
+  async createCategory(data: CreateCategoryDTO): Promise<BaseResponse> {
+    this.logger.log(`${this.createCategory.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.ADMIN_CREATE_CATEGORY }, data).toPromise();
   }
 }

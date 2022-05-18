@@ -1,4 +1,10 @@
-import { CrawlCategoryResponse, EcommerceCategoryQuery } from '@aff-services/shared/models/dtos';
+import {
+  BaseResponse,
+  CrawlCategoryResponse,
+  CreateCategoryDTO,
+  EcommerceCategoryQuery,
+  UpdateEcommerceCategoryDTO,
+} from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -13,5 +19,23 @@ export class CategoryController {
   getEcommerceCategory(data: EcommerceCategoryQuery): Promise<CrawlCategoryResponse[]> {
     this.logger.log(`${this.getEcommerceCategory.name} called`);
     return this.categoryService.getEcommerceCategory(data);
+  }
+
+  @MessagePattern({ cmd: CMD.ADMIN_UPDATE_ECOMMERCE_CATEGORY })
+  updateEcommerceCategory(data: UpdateEcommerceCategoryDTO): Promise<BaseResponse> {
+    this.logger.log(`${this.updateEcommerceCategory.name} called`);
+    return this.categoryService.updateEcommerceCategory(data);
+  }
+
+  @MessagePattern({ cmd: CMD.ADMIN_CREATE_CATEGORY })
+  createCategory(data: CreateCategoryDTO): Promise<BaseResponse> {
+    this.logger.log(`${this.createCategory.name} called`);
+    return this.categoryService.createCategory(data);
+  }
+
+  @MessagePattern({ cmd: CMD.ADMIN_GET_CATEGORY })
+  getCategory() {
+    this.logger.log(`${this.getCategory.name} called`);
+    return this.categoryService.getCategory();
   }
 }

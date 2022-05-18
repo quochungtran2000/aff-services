@@ -5,10 +5,11 @@ import {
 } from '@aff-services/shared/models/dtos';
 import { Controller, Get, HttpException, Logger, Param, Query, Req, Res } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { query, Request, Response } from 'express';
+import { query, Request, Response, Router } from 'express';
 import { ProductService } from '../../services/product/product.service';
 
-@ApiTags('Product')
+// @SwaggerHeaders()
+@ApiTags('Sản Phẩm')
 @Controller('website/product')
 export class ProductController {
   private readonly logger = new Logger(`Api-Gateway.${ProductController.name}`);
@@ -45,3 +46,4 @@ export class ProductController {
     }
   }
 }
+

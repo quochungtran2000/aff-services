@@ -1,7 +1,7 @@
 import { CRAWL_CATEGORY } from '@aff-services/shared/models/entities';
 import { removeAccent } from '@aff-services/shared/utils/helpers';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsIn, IsNotEmpty, IsString } from 'class-validator';
 
 export type TCrawlCategory = {
   name: string;
@@ -95,13 +95,13 @@ export class CrawlCategoryDTO {
 }
 
 export class CrawlCategoryResponse {
-  @ApiProperty({ type: String, example: 'iasd' })
+  @ApiProperty({ type: String, example: 'c1686' })
   id: string;
 
-  @ApiProperty({ type: String, example: 'example title' })
+  @ApiProperty({ type: String, example: 'Giày - Dép nam' })
   title: string;
 
-  @ApiProperty({ type: String, example: 'example slug' })
+  @ApiProperty({ type: String, example: '/giay-dep-nam/c1686' })
   slug: string;
 
   @ApiProperty({ type: String, example: false })
@@ -110,7 +110,19 @@ export class CrawlCategoryResponse {
   @ApiProperty({ type: String, example: false })
   crawl: boolean;
 
-  @ApiProperty({ type: CrawlCategoryResponse, isArray: true })
+  @ApiProperty({
+    type: CrawlCategoryResponse,
+    isArray: true,
+    example: [
+      {
+        id: 'c5340',
+        title: 'Giày lười nam',
+        slug: '/giay-luoi-nam/c5340',
+        active: false,
+        crawl: false,
+      },
+    ],
+  })
   subCategory?: CrawlCategoryResponse[];
 
   public static fromEntity(entity: Partial<CRAWL_CATEGORY>) {
@@ -150,4 +162,34 @@ export class EcommerceCategoryQuery {
   @IsNotEmpty()
   @IsIn([MerchantEnum.LAZADA, MerchantEnum.SHOPEE, MerchantEnum.TIKI])
   merchant: MerchantEnum;
+}
+
+export class UpdateEcommerceCategoryDTO {
+  @ApiProperty({ type: String, example: 'c1686' })
+  @IsNotEmpty()
+  id: string;
+
+  @ApiProperty({ type: String, example: 'Giày - Dép nam' })
+  title: string;
+
+  @ApiProperty({ type: String, example: '/giay-dep-nam/c1686' })
+  slug: string;
+
+  @ApiProperty({ type: String, example: false })
+  @IsBoolean()
+  active: boolean;
+
+  @ApiProperty({ type: String, example: false })
+  @IsBoolean()
+  crawl: boolean;
+
+  public static from(dto: Partial<UpdateEcommerceCategoryDTO>) {
+    const result = new UpdateEcommerceCategoryDTO();
+    result.id = dto.id;
+    // result.title = dto.title;
+    // result.slug = dto.slug;
+    result.active = dto.active;
+    result.crawl = dto.crawl;
+    return result;
+  }
 }
