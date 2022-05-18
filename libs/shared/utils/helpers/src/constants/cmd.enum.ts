@@ -22,8 +22,10 @@ export enum CMD {
   ADMIN_UPDATE_PRODUCT_TEMPLATE = 'admin_update_product_template',
   ADMIN_GET_PRODUCT_TEMPLATE = 'admin_get_product_template',
   ADMIN_GET_PRODUCT_TEMPLATE_DETAIL = 'admin_get_product_template_detail',
-  ADMIN_GET_ECOMMERCE_CATEGORY = 'admin_ecommerce_category',
+  ADMIN_GET_ECOMMERCE_CATEGORY = 'admin_get_ecommerce_category',
+  ADMIN_UPDATE_ECOMMERCE_CATEGORY = 'admin_update_ecommerce_category',
   ADMIN_GET_CATEGORY = 'admin_get_category',
+  ADMIN_CREATE_CATEGORY = 'admin_create_category',
 
   // Webiste
   WEBSITE_GET_PRODUCT = 'website_get_product',

@@ -33,6 +33,7 @@ export class UserRepo {
   async findUserLogin(username: string) {
     return this.userRepo
       .createQueryBuilder('u')
+      .leftJoinAndSelect('u.role', 'r')
       .where('u.username = :username')
       .orWhere('u.email = :username')
       .orWhere('u.phone_number = :username')

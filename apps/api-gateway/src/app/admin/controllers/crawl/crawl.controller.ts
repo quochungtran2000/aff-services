@@ -4,7 +4,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CrawlService } from '../../services/crawl/crawl.service';
 
-@ApiTags('Crawl')
+@ApiTags('Thu thập dữ liệu')
 @Controller('admin/crawl')
 export class CrawlController {
   private readonly logger = new Logger(`Api-Gateway.${CrawlController.name}`);

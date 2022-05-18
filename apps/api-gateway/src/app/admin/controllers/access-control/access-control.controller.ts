@@ -14,7 +14,7 @@ import {
   UpdateRoleParam,
 } from '@aff-services/shared/models/dtos';
 
-@ApiTags('Access Control')
+@ApiTags('Phân Quyền')
 @UseGuards(JwtAuthGuard)
 @SwaggerHeaders()
 @SwaggerException()

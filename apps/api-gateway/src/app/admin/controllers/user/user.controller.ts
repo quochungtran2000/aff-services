@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { UserService } from '../../services/user/user.service';
 
-@ApiTags('User Management')
+@ApiTags('Quản lý người dùng')
 @UseGuards(JwtAuthGuard)
 @Controller('admin/user')
 export class UserController {
