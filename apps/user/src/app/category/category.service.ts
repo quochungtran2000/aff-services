@@ -1,6 +1,7 @@
 import {
   CreateCategoryDTO,
   EcommerceCategoryQuery,
+  UpdateCategoryDTO,
   UpdateEcommerceCategoryDTO,
 } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
@@ -29,5 +30,15 @@ export class CategoryService {
   async getCategory() {
     this.logger.log(`${this.getCategory.name} called`);
     return await this.categoryRepo.getCategory();
+  }
+
+  async updateCategory(data: UpdateCategoryDTO) {
+    this.logger.log(`${this.updateCategory.name} called`);
+    return await this.categoryRepo.updateCategory(data);
+  }
+
+  async deleteCategory(categoryId: number) {
+    this.logger.log(`${this.deleteCategory.name} called`);
+    return await this.categoryRepo.deleteCategory(categoryId);
   }
 }
