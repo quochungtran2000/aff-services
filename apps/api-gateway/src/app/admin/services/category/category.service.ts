@@ -3,6 +3,7 @@ import {
   CrawlCategoryResponse,
   CreateCategoryDTO,
   EcommerceCategoryQuery,
+  UpdateCategoryDTO,
   UpdateEcommerceCategoryDTO,
 } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
@@ -46,5 +47,15 @@ export class CategoryService {
   async createCategory(data: CreateCategoryDTO): Promise<BaseResponse> {
     this.logger.log(`${this.createCategory.name} called`);
     return await this.client.send<BaseResponse>({ cmd: CMD.ADMIN_CREATE_CATEGORY }, data).toPromise();
+  }
+
+  async updateCategory(data: UpdateCategoryDTO): Promise<BaseResponse> {
+    this.logger.log(`${this.updateCategory.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.ADMIN_UPDATE_CATEGORY }, data).toPromise();
+  }
+
+  async deleteCategory(categoryId: number): Promise<BaseResponse> {
+    this.logger.log(`${this.createCategory.name} called`);
+    return await this.client.send<BaseResponse>({ cmd: CMD.ADMIN_DELETE_CATEGORY }, { categoryId }).toPromise();
   }
 }

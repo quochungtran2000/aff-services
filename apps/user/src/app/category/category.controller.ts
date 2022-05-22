@@ -3,6 +3,7 @@ import {
   CrawlCategoryResponse,
   CreateCategoryDTO,
   EcommerceCategoryQuery,
+  UpdateCategoryDTO,
   UpdateEcommerceCategoryDTO,
 } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
@@ -37,5 +38,17 @@ export class CategoryController {
   getCategory() {
     this.logger.log(`${this.getCategory.name} called`);
     return this.categoryService.getCategory();
+  }
+
+  @MessagePattern({ cmd: CMD.ADMIN_UPDATE_CATEGORY })
+  updateCategory(data: UpdateCategoryDTO) {
+    this.logger.log(`${this.updateCategory.name} called`);
+    return this.categoryService.updateCategory(data);
+  }
+
+  @MessagePattern({ cmd: CMD.ADMIN_DELETE_CATEGORY })
+  deleteCategory(data: { categoryId: number }) {
+    this.logger.log(`${this.deleteCategory.name} called`);
+    return this.categoryService.deleteCategory(data.categoryId);
   }
 }

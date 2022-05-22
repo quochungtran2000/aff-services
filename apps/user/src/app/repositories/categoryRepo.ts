@@ -4,6 +4,7 @@ import {
   CrawlCategoryResponse,
   CreateCategoryDTO,
   EcommerceCategoryQuery,
+  UpdateCategoryDTO,
   UpdateEcommerceCategoryDTO,
 } from '@aff-services/shared/models/dtos';
 import { CATEGORY, CRAWL_CATEGORY, MAPPING_CATEGORY } from '@aff-services/shared/models/entities';
@@ -111,6 +112,48 @@ export class CategoryRepo {
       return CategoryResponse.fromEntities(data);
     } catch (error) {
       this.logger.error(`${this.getCategory.name} error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    }
+  }
+
+  async deleteCategory(categoryId: number): Promise<BaseResponse> {
+    try {
+      this.logger.log(`${this.deleteCategory.name} data:${JSON.stringify({ categoryId })}`);
+
+      const exists = await this.categoryRepo.findOneOrFail(categoryId);
+
+      await this.categoryRepo
+        .createQueryBuilder()
+        .delete()
+        .from(CATEGORY)
+        .where('category_id =:categoryId')
+        .setParameters({ categoryId: exists.categoryId })
+        .execute();
+
+      return { message: 'Xóa thành công', status: 200 };
+    } catch (error) {
+      this.logger.error(`${this.deleteCategory.name} error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    }
+  }
+
+  async updateCategory({ categoryId, ...data }: UpdateCategoryDTO) {
+    try {
+      this.logger.log(`${this.updateCategory.name} data:${JSON.stringify({ categoryId })}`);
+
+      const exists = await this.categoryRepo.findOneOrFail(categoryId);
+
+      await this.categoryRepo
+        .createQueryBuilder()
+        .update(CATEGORY)
+        .set(data)
+        .where('category_id =:categoryId')
+        .setParameters({ categoryId: exists.categoryId })
+        .execute();
+
+      return { message: 'Cập nhật thành công', status: 200 };
+    } catch (error) {
+      this.logger.error(`${this.updateCategory.name} error:${error.message}`);
       throw new RpcException({ message: error.message, status: error.status || 500 });
     }
   }

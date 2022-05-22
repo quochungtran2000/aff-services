@@ -1,21 +1,6 @@
 import { CATEGORY, CRAWL_CATEGORY } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsString, Min } from 'class-validator';
-
-// export class CreateCategoryDto {
-//   @ApiProperty({ type: String, example: 'Máy tính' })
-//   @IsNotEmpty()
-//   title: string;
-
-//   slug: string;
-
-//   public static from(dto: Partial<CreateCategoryDto>) {
-//     const result = new CreateCategoryDto();
-//     // result.title;
-
-//     return result;
-//   }
-// }
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateCategoryDTO {
   @ApiProperty({ type: String, example: 'Điện Thoại Di Động' })
@@ -37,6 +22,43 @@ export class CreateCategoryDTO {
     result.mapCategory = dto.mapCategory;
     result.createdAt = new Date();
     result.updatedAt = new Date();
+    return result;
+  }
+}
+
+export class UpdateCategoryDTO {
+  @ApiProperty({ type: Number, example: 123 })
+  @IsNumber()
+  categoryId: number;
+
+  @ApiProperty({ type: String, example: 'Điện thoại di động' })
+  @IsString()
+  title: string;
+
+  @ApiProperty({ type: Boolean, example: true })
+  @IsBoolean()
+  active: boolean;
+
+  @ApiProperty({ type: Boolean, example: false })
+  @IsBoolean()
+  crawl: boolean;
+
+  // @ApiProperty({ type: Boolean, example: true })
+  // @IsBoolean()
+  // app: boolean;
+
+  // @ApiProperty({ type: Boolean, example: false })
+  // @IsBoolean()
+  // website: boolean;
+
+  public static from(dto: Partial<UpdateCategoryDTO>) {
+    const result = new UpdateCategoryDTO();
+    result.categoryId = dto.categoryId;
+    result.title = dto.title;
+    result.active = dto.active;
+    result.crawl = dto.crawl;
+    // result.app = dto.app;
+    // result.website = dto.website;
     return result;
   }
 }
