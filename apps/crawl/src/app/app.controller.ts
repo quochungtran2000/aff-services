@@ -1,4 +1,5 @@
 import { CrawlPayload } from '@aff-services/shared/models/dtos';
+import { CMD } from '@aff-services/shared/utils/helpers';
 import { Controller, Get } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 
@@ -18,4 +19,9 @@ export class AppController {
   // getProducts() {
   //   return this.appService.getProducts();
   // }
+
+  @MessagePattern({ cmd: CMD.GET_CONFIG })
+  getConfig() {
+    return this.appService.getConfigs();
+  }
 }

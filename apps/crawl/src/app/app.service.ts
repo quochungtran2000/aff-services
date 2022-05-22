@@ -4,12 +4,16 @@ import { getRepository } from 'typeorm';
 import { Product } from '@aff-services/shared/models/entities';
 
 import * as puppeteer from 'puppeteer';
+import { ConfigRepo } from './repositories/configRepo';
 const args = ['--disable-gpu', '--no-sandbox'];
 process.setMaxListeners(Infinity);
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(`Micro.Crawl${AppService.name}`);
+
+  constructor(private readonly configRepo: ConfigRepo) {}
+
   private readonly shopeeCategoryData = [
     {
       type: 'smartphone',
@@ -70,7 +74,6 @@ export class AppService {
     await browser.close();
 
     const cateId = this.getCateId(url, 'tiki');
-    console.log({ products, cateId });
     // const result = await getRepository(Product)
     //   .createQueryBuilder()
     //   .insert()
@@ -126,7 +129,6 @@ export class AppService {
 
       return result;
     } catch (error) {
-      console.log(error);
       this.logger.error(`${this.getTikiProductDetail.name} can't go ${product.url}`);
       return { productImages: [], info: '' };
     }
@@ -180,7 +182,6 @@ export class AppService {
       const merchant = url.startsWith('https://www.')
         ? (url.replace('https://www.', '').split('.vn')[0] as 'tiki' | 'lazada' | 'shopee')
         : (url.replace('https://', '').split('.vn')[0] as 'tiki' | 'lazada' | 'shopee');
-      console.log(merchant);
       switch (merchant) {
         case 'tiki': {
           products = await this.getTikiProducts(browser, url);
@@ -197,13 +198,10 @@ export class AppService {
       }
 
       const categorySlug = this.getCateId(url, merchant);
-      console.log({ merchant, categorySlug });
       const mapCate = this.mappingCategory(merchant, categorySlug);
 
-      console.log({ mapCate });
       const toBeCreated = CreateProductDTO.fromArray(products);
       await browser.close();
-      return { toBeCreated };
     } catch (error) {
       await browser.close();
       this.logger.error(`${this.crawlData.name} Error:${error.message}`);
@@ -242,7 +240,6 @@ export class AppService {
         }
         temp.productUrl = url;
         temp.merchant = 'tiki';
-        console.log(productUrl.replace('.html', '').split('p'));
         temp.productId = productUrl.replace('.html', '').split('p').pop();
         temp.average = +average;
         temp.sold = sold;
@@ -305,7 +302,6 @@ export class AppService {
         const url = `https://shopee.vn/${productUrl}`;
         temp.productUrl = url;
         temp.merchant = 'shopee';
-        console.log(productUrl.replace('.html', '').split('p'));
         temp.productId = productUrl.split('.').pop();
         temp.average = Math.round(average);
         temp.sold = sold;
@@ -344,7 +340,6 @@ export class AppService {
         }
         temp.productUrl = url;
         temp.merchant = 'lazada';
-        console.log(productUrl.replace('.html', '').split('p'));
         const idAndSku = productUrl.split('-i').pop();
         const [productId, sku] = idAndSku.split('-s');
         temp.productId = productId;
@@ -356,5 +351,9 @@ export class AppService {
     });
     await page.close();
     return articles;
+  }
+
+  async getConfigs() {
+    return await this.configRepo.getAll();
   }
 }

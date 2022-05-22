@@ -1,11 +1,11 @@
 import { USER } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
 import { Matches, IsNotEmpty } from 'class-validator';
-import { RequestResetPasswordQuery } from '../queries';
+import { RequestResetPasswordQuery } from './auth.query';
 
 export class LoginPayload {
   @ApiProperty({ type: String, example: 'hung' })
-  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'ádasd' })
+  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'vui lòng nhập đăng nhập đúng định dạng(sdt, email, username)' })
   @IsNotEmpty()
   username: string;
 
@@ -19,11 +19,6 @@ export class LoginPayload {
     data.password = dto.password;
     return data;
   }
-}
-
-export class LoginResponse {
-  @ApiProperty({ type: String, example: 'Access Token' })
-  token: string;
 }
 
 export class MyProfileResponse {
@@ -160,4 +155,12 @@ export class ResetPasswordPayload {
     result.token = query.token;
     return result;
   }
+}
+
+export class LoginResponse {
+  @ApiProperty({ type: String, example: 'Access Token' })
+  token: string;
+
+  @ApiProperty({ type: MyProfileResponse })
+  user: MyProfileResponse;
 }

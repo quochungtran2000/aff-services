@@ -14,4 +14,15 @@ export class CrawlController {
     this.logger.log(`${this.crawlData.name}`);
     return this.crawlService.crawlData(data);
   }
+
+  @MessagePattern({ cmd: CMD.CRAWL_CATEGORY })
+  crawlCategory() {
+    this.logger.log(`${this.crawlCategory.name}`);
+    return this.crawlService.crawlCategory();
+  }
+
+  @MessagePattern({ cmd: CMD.GET_CATEGORY })
+  getCateGory({ merchant }: { merchant }) {
+    return this.crawlService.getCategory(merchant);
+  }
 }

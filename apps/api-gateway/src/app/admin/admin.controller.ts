@@ -1,4 +1,5 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
@@ -7,8 +8,9 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get()
-  getData() {
+  async getData(@Res() res: Response) {
     this.logger.log(`${this.getData.name} called`);
-    return this.adminService.getData();
+    const result = await this.adminService.getData();
+    return res.status(200).json(result);
   }
 }

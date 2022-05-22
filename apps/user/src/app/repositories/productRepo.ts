@@ -57,7 +57,6 @@ export class ProductRepo {
             .orUpdate(['product_name', 'price', 'updated_at', 'thumbnail', 'average'], ['slug'])
             .returning('*')
             .execute();
-          // console.log({ raw });
           // break;
           await this.productProductRepo
             .createQueryBuilder()
@@ -80,7 +79,6 @@ export class ProductRepo {
             const values = relatedProducts.map((product) => {
               return { productTemplateId: raw[0].product_template_id, productId: product.productId };
             });
-            console.log({ relatedProducts: values });
 
             await this.productProductRepo
               .createQueryBuilder()
@@ -115,7 +113,7 @@ export class ProductRepo {
         .take(page_size)
         .skip(skip)
         .setParameters({ search })
-        // .orderBy('pt.product_template_id', 'DESC')
+        // .orderBy('pt.product_template_id', 'DESC') 
         .getManyAndCount();
       return PagingProductTemplateResponse.from(total, data);
     } catch (error) {

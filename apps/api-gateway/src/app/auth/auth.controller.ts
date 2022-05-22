@@ -42,8 +42,7 @@ export class AuthController {
       return res.status(200).json(result);
     } catch (error) {
       this.logger.error(`${this.login.name} Error:${error.message}`);
-      // throw new HttpException(error.status, error.message);
-      return res.status(error.status).json({ message: error.message });
+      throw new HttpException(error.message, error.status || 500);
     }
   }
 

@@ -1,7 +1,6 @@
 import { Product, PRODUCT_TEMPLATE } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
-import { isArray } from 'class-validator';
-import { ProductResponse } from '../responses';
+import { ProductResponse } from './product-response.dto';
 
 export class CreateProductTemplateDTO {
   productName: string;
@@ -144,7 +143,6 @@ export class ProductTemplateDetailResponse {
   products: ProductResponse[];
 
   public static fromEntity(entity: Partial<PRODUCT_TEMPLATE>) {
-    console.log(entity.productProducts[0]);
     const result = new ProductTemplateDetailResponse();
     result.productTemplateId = entity.productTemplateId;
     result.productName = entity.productName;

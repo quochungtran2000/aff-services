@@ -18,6 +18,6 @@ export class AdminService {
     });
   }
   async getData(): Promise<{ message: string }> {
-    return this.client.send({ cmd: CMD.WELCOME_TO_USER }, {}).toPromise();
+    return await this.client.send({ cmd: CMD.WELCOME_TO_USER }, {}).toPromise();
   }
 }
