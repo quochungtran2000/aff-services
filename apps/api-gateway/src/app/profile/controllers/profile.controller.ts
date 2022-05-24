@@ -31,12 +31,11 @@ export class ProfileController {
   @SwaggerNoAuthException()
   @SwaggerNoAuthHeaders()
   @Put("/update")
-  @UseInterceptors(FileInterceptor('file'))
-  async updateUserProfile(@UploadedFile() file: Express.Multer.File, @Body() data: ProfileUpdateRequest, @Res() res: Response) {
+  async updateUserProfile(@Body() data: ProfileUpdateRequest, @Res() res: Response) {
     try {
       this.logger.log(`${this.updateUserProfile.name} called`)
-      const result = await this.profileService.updateUserProfile(file, data);
-      return res.status(200).json(result);
+      const result = await this.profileService.updateUserProfile(data);
+      return res.status(200).json({ success: result.affected === 1});
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
     }

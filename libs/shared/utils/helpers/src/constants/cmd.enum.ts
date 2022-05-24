@@ -22,6 +22,12 @@ export enum CMD {
   ADMIN_UPDATE_PRODUCT_TEMPLATE = 'admin_update_product_template',
   ADMIN_GET_PRODUCT_TEMPLATE = 'admin_get_product_template',
   ADMIN_GET_PRODUCT_TEMPLATE_DETAIL = 'admin_get_product_template_detail',
+  ADMIN_GET_ECOMMERCE_CATEGORY = 'admin_get_ecommerce_category',
+  ADMIN_UPDATE_ECOMMERCE_CATEGORY = 'admin_update_ecommerce_category',
+  ADMIN_GET_CATEGORY = 'admin_get_category',
+  ADMIN_CREATE_CATEGORY = 'admin_create_category',
+  ADMIN_DELETE_CATEGORY = 'admin_delete_category',
+  ADMIN_UPDATE_CATEGORY = 'admin_update_category',
 
   // Webiste
   WEBSITE_GET_PRODUCT = 'website_get_product',
@@ -39,5 +45,7 @@ export enum CMD {
   GET_CONFIG = 'get_config',
 
   //User
-  USER_UPDATE_PROFILE = 'user_update_profile'
+  USER_UPDATE_PROFILE = 'user_update_profile',
+
+  GET_CATEGORY = 'get_category',
 }

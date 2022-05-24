@@ -579,4 +579,8 @@ export class CrawlService {
       this.logger.error(`${this.getLazadaCategories.name} error:${error.message}`);
     }
   }
+
+  async getCategory(merchant) {
+    return await this.categoryRepo.getCateGories(merchant);
+  }
 }

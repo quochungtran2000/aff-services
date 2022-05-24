@@ -1,4 +1,4 @@
-import { CrawlCategoryDTO, TCrawlCategory } from '@aff-services/shared/models/dtos';
+import { CrawlCategoryDTO, CrawlCategoryResponse, TCrawlCategory } from '@aff-services/shared/models/dtos';
 import { CRAWL_CATEGORY } from '@aff-services/shared/models/entities';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -109,5 +109,18 @@ export class CategoryRepo {
     } catch (error) {
       this.logger.error(`${this.updateCrawlLazadaCategory.name} Error:${error.message}`);
     }
+  }
+
+  async getCateGories(merchant: string) {
+    this.logger.log(`${this.getCateGories.name} called`);
+    const qr = this.crawlCategoryRepo
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.subCategory', 'sub1')
+      .leftJoinAndSelect('sub1.subCategory', 'sub2')
+      .where('1=1')
+      .andWhere('p.parent_id is null')
+      .andWhere('p.merchant = :merchant');
+    const data = await qr.setParameters({ merchant }).getMany();
+    return CrawlCategoryResponse.fromEntities(data);
   }
 }

@@ -1,4 +1,4 @@
-import {PagingUserResponse, RegisterPayload, UserQuery} from '@aff-services/shared/models/dtos';
+import {PagingUserResponse, ProfileUpdateRequest, RegisterPayload, UserQuery} from '@aff-services/shared/models/dtos';
 import {USER} from '@aff-services/shared/models/entities';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {Repository, UpdateResult} from 'typeorm';
@@ -33,6 +33,7 @@ export class UserRepo {
   async findUserLogin(username: string) {
     return this.userRepo
       .createQueryBuilder('u')
+      .leftJoinAndSelect('u.role', 'r')
       .where('u.username = :username')
       .orWhere('u.email = :username')
       .orWhere('u.phone_number = :username')
@@ -90,7 +91,7 @@ export class UserRepo {
     }
   }
 
-  async updateUser(data: { userId: number, fullname: string, email: string, phoneNumber: string, imgURL: string }) : Promise<UpdateResult> {
+  async updateUser(data: ProfileUpdateRequest) : Promise<UpdateResult> {
     try {
       return await this.userRepo
         .createQueryBuilder()
@@ -101,7 +102,7 @@ export class UserRepo {
           phoneNumber: data.phoneNumber,
           imgUrl: data.imgURL
         })
-        .where("userId = :=userId", { userId: data.userId })
+        .where("userId =:userId", { userId: data.userId })
         .execute();
     } catch (error) {
       this.logger.error(`${this.updateUser.name} Error:${error.message}`);

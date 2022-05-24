@@ -6,7 +6,7 @@ import { MobileModule } from './mobile/mobile.module';
 import { AuthModule } from './auth/auth.module';
 import { WebsiteModule } from './website/website.module';
 import { LoggingMiddleware } from './middlewares/logging.middleware';
-import { HeaderMiddleware } from './middlewares/header.middleware';
+// import { HeaderMiddleware } from './middlewares/header.middleware';
 // import { AppNameMiddleWare } from './middlewares/app-name.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { config } from './config/configurations';
@@ -29,7 +29,8 @@ import {ProfileModule} from "./profile/profile.module";
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggingMiddleware).forRoutes('*').apply(HeaderMiddleware).forRoutes('*');
+    consumer.apply(LoggingMiddleware).forRoutes('*')
+    // .apply(HeaderMiddleware).forRoutes('*');
     // .apply(AppNameMiddleWare)
     // .forRoutes(
     //   { path: 'admin/*', method: RequestMethod.ALL },

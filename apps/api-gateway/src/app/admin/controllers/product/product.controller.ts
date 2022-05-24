@@ -8,7 +8,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ProductService } from '../../services/product/product.service';
 
-@ApiTags('Product')
+@ApiTags('Sản phẩm')
 @Controller('admin/product')
 export class ProductController {
   private readonly logger = new Logger(`Api-Gateway.${ProductController.name}`);

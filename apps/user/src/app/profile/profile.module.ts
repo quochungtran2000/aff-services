@@ -4,6 +4,8 @@ import {JwtModule} from "@nestjs/jwt";
 import {config} from "../../config/configurations";
 import {ProfileService} from "./profile.service";
 import {ProfileController} from "./profile.controller";
+import {UserRepo} from "../repositories/userRepo";
+import {userProviders} from "../providers/user.providers";
 
 @Module({
   imports: [
@@ -14,6 +16,6 @@ import {ProfileController} from "./profile.controller";
     })
   ],
   controllers: [ProfileController],
-  providers: [ProfileService]
+  providers: [ProfileService, UserRepo, ...userProviders]
 })
 export class ProfileModule {}

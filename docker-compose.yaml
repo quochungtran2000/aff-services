@@ -9,7 +9,7 @@ services:
     ports:
       - '6379:6379'
     volumes:
-      - 'E:\Project_For_Kante\backend\aff-services\redis_data:/bitnami/redis/data'
+      - 'redis_data:/bitnami/redis/data'
 
 volumes:
   redis_data:

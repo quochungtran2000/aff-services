@@ -5,7 +5,7 @@ import { RequestResetPasswordQuery } from './auth.query';
 
 export class LoginPayload {
   @ApiProperty({ type: String, example: 'hung' })
-  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'ádasd' })
+  @Matches(/^[a-zA-Z0-9@.]+$/, { message: 'vui lòng nhập đăng nhập đúng định dạng(sdt, email, username)' })
   @IsNotEmpty()
   username: string;
 
@@ -19,11 +19,6 @@ export class LoginPayload {
     data.password = dto.password;
     return data;
   }
-}
-
-export class LoginResponse {
-  @ApiProperty({ type: String, example: 'Access Token' })
-  token: string;
 }
 
 export class MyProfileResponse {
@@ -45,6 +40,9 @@ export class MyProfileResponse {
   @ApiProperty({ type: String, example: 'user' })
   role: string;
 
+  @ApiProperty({ type: String, example: 'img.url' })
+  imgUrl: string;
+
   public static fromEntity(entity: Partial<USER>) {
     const result = new MyProfileResponse();
     result.userId = entity.userId;
@@ -53,6 +51,7 @@ export class MyProfileResponse {
     result.email = entity.email;
     result.phoneNumber = entity.phoneNumber;
     result.role = entity.role.roleName || 'user';
+    result.imgUrl = entity.imgUrl
     return result;
   }
 }
@@ -160,4 +159,12 @@ export class ResetPasswordPayload {
     result.token = query.token;
     return result;
   }
+}
+
+export class LoginResponse {
+  @ApiProperty({ type: String, example: 'Access Token' })
+  token: string;
+
+  @ApiProperty({ type: MyProfileResponse })
+  user: MyProfileResponse;
 }

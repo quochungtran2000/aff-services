@@ -88,7 +88,6 @@ export class AccessControlRepo {
 
       const toBeCreated = CreateRolePermissionDTO.toBeCreated(roleId, permissionIds);
 
-      console.log({ toBeCreated });
 
       // update permission
       await this.rolePermissionRepo

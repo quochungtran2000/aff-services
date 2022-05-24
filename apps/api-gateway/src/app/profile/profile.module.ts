@@ -4,7 +4,6 @@ import {PassportModule} from "@nestjs/passport";
 import {JwtModule} from "@nestjs/jwt";
 import {config} from "../config/configurations";
 import {ProfileService} from "./services/profile.service";
-import {CloudinaryService} from "./services/cloudinary.service";
 
 @Module({
   imports: [
@@ -15,6 +14,6 @@ import {CloudinaryService} from "./services/cloudinary.service";
     }),
   ],
   controllers: [ProfileController],
-  providers: [ProfileService, CloudinaryService]
+  providers: [ProfileService]
 })
 export class ProfileModule {}
