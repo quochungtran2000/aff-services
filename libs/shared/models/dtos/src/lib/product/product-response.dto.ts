@@ -3,22 +3,34 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ProductResponse {
   @ApiProperty()
+  originalUrl: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
+  @ApiProperty()
+  lastestCrawlAt: Date;
+
+  @ApiProperty()
   productId: string;
 
   @ApiProperty()
-  productName: string;
+  name: string;
 
   @ApiProperty()
   thumbnail: string;
 
-  @ApiProperty()
-  isSale: boolean;
+  // @ApiProperty()
+  // isSale: boolean;
 
-  @ApiProperty()
-  salePrice: number;
+  // @ApiProperty()
+  // salePrice: number;
 
-  @ApiProperty()
-  discountPercent: number;
+  // @ApiProperty()
+  // discountPercent: number;
 
   @ApiProperty()
   average: number;
@@ -35,23 +47,23 @@ export class ProductResponse {
   @ApiProperty()
   slug: string;
 
-  @ApiProperty()
-  productUrl: string;
+  // @ApiProperty()
+  // productUrl: string;
 
   public static fromEntity(entity: Partial<Product>) {
     const result = new ProductResponse();
     result.productId = entity.productId;
-    result.productName = entity.productName;
-    result.productUrl = entity.productUrl;
+    result.name = entity.name;
+    result.originalUrl = entity.originalUrl;
     result.thumbnail = entity.thumbnail;
-    result.isSale = entity.isSale;
-    result.salePrice = entity.salePrice;
-    result.discountPercent = entity.discountPercent;
     result.average = entity.average;
     result.sold = entity.sold;
     result.description = entity.description;
     result.merchant = entity.merchant;
     result.slug = entity.slug;
+    result.createdAt = entity.createdAt;
+    result.updatedAt = entity.updatedAt;
+    result.lastestCrawlAt = entity.lastestCrawlAt;
     return result;
   }
 
@@ -60,24 +72,22 @@ export class ProductResponse {
     for (const entity of entities) {
       const temp = new ProductResponse();
       temp.productId = entity.productId;
-      temp.productName = entity.productName;
-      temp.productUrl = entity.productUrl;
+      temp.name = entity.name;
+      temp.originalUrl = entity.originalUrl;
       temp.thumbnail = entity.thumbnail;
-      temp.isSale = entity.isSale;
-      temp.salePrice = entity.salePrice;
-      temp.discountPercent = entity.discountPercent;
       temp.average = entity.average;
       temp.sold = entity.sold;
       temp.description = entity.description;
       temp.merchant = entity.merchant;
       temp.slug = entity.slug;
+      temp.createdAt = entity.createdAt;
+      temp.updatedAt = entity.updatedAt;
+      temp.lastestCrawlAt = entity.lastestCrawlAt;
       result.push(temp);
     }
     return result;
   }
 }
-
-
 
 export class PagingProductResponse {
   @ApiProperty()

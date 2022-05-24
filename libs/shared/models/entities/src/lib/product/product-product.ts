@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from 'typeorm';
 import { Product } from './product';
 import { PRODUCT_TEMPLATE } from './product-template';
 
@@ -10,9 +10,16 @@ export class PRODUCT_PRODUCT {
   @PrimaryColumn({ name: 'product_id' })
   productId: string;
 
+  // @Column({ name: 'product_template_id' })
+  // vProductTemplateId: string;
+
   @ManyToOne(() => PRODUCT_TEMPLATE, (pt) => pt.productProducts)
   @JoinColumn({ name: 'product_template_id', referencedColumnName: 'productTemplateId' })
   productTemplate: PRODUCT_TEMPLATE;
+
+  // @ManyToOne(() => V_PRODUCT_TEMPLATE, (v) => v.productProducts)
+  // @JoinColumn({ name: 'vProductTemplateId', referencedColumnName: 'id' })
+  // vProduct: PRODUCT_TEMPLATE;
 
   @OneToOne(() => Product, (p) => p.productProduct)
   @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })

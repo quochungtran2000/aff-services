@@ -110,10 +110,10 @@ export class AppService {
       await page.goto(product.url, { waitUntil: 'domcontentloaded' });
       // await page.waitFor(2000);
       await page.waitForSelector('img');
-      await page.screenshot({
-        path: 'capture.jpg',
-        fullPage: true,
-      });
+      // await page.screenshot({
+      //   path: 'capture.jpg',
+      //   fullPage: true,
+      // });
       // page.close();
 
       const result = await page.evaluate(() => {
@@ -274,7 +274,7 @@ export class AppService {
     }
     await this.wait(1000);
 
-    await page.screenshot({ path: 'screenshot.png' });
+    // await page.screenshot({ path: 'screenshot.png' });
 
     const articles = await page.evaluate(() => {
       const results: any[] = [];

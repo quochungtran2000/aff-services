@@ -1,12 +1,16 @@
 import { CrawlCategoryDTO, CrawlCategoryResponse, TCrawlCategory } from '@aff-services/shared/models/dtos';
-import { CRAWL_CATEGORY } from '@aff-services/shared/models/entities';
+import { CATEGORY, CRAWL_CATEGORY } from '@aff-services/shared/models/entities';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class CategoryRepo {
   private readonly logger = new Logger(`Micro-Crawl.${CategoryRepo.name}`);
-  constructor(@Inject('CRAWL_CATEGORY_REPOSITORY') private readonly crawlCategoryRepo: Repository<CRAWL_CATEGORY>) {}
+  constructor(
+    @Inject('CRAWL_CATEGORY_REPOSITORY') private readonly crawlCategoryRepo: Repository<CRAWL_CATEGORY>,
+    @Inject('CATEGORY_REPOSITORY') private readonly categoryRepo: Repository<CATEGORY>
+  ) {}
 
   async insertOrUpdateOne(data: CrawlCategoryDTO[] | CrawlCategoryDTO) {
     try {
@@ -122,5 +126,33 @@ export class CategoryRepo {
       .andWhere('p.merchant = :merchant');
     const data = await qr.setParameters({ merchant }).getMany();
     return CrawlCategoryResponse.fromEntities(data);
+  }
+
+  async getCategoriesWillCrawl(): Promise<CRAWL_CATEGORY[]> {
+    try {
+      this.logger.log(`${this.getCategoriesWillCrawl.name} called`);
+
+      const categories = await this.categoryRepo
+        .createQueryBuilder()
+        // .where('active = true')
+        .andWhere('crawl = true')
+        .getMany();
+
+      // const categoriesWillCrawl = await this.categoryRepo./
+
+      const categoryWillCrawl = await this.crawlCategoryRepo
+        .createQueryBuilder('cc')
+        .leftJoin('cc.mappingCategory', 'mc')
+        .leftJoin('mc.category', 'c')
+        .where('1=1')
+        .andWhere('c.category_id in  (:...categoryIds)')
+        .setParameters({ categoryIds: categories.map((elm) => elm.categoryId) })
+        .getMany();
+
+      return categoryWillCrawl;
+    } catch (error) {
+      this.logger.error(`${this.getCategoriesWillCrawl.name} Error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    }
   }
 }

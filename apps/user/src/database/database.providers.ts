@@ -10,11 +10,15 @@ import {
   MAPPING_CATEGORY,
   PERMISSION,
   Product,
+  PRODUCT_AFFILIATE_LINK,
+  PRODUCT_IMAGE,
   PRODUCT_PRODUCT,
   PRODUCT_TEMPLATE,
+  PRODUCT_VARIANTS,
   ROLE,
   ROLE_PERMISSION,
   USER,
+  V_PRODUCT_TEMPLATE,
 } from '@aff-services/shared/models/entities';
 
 export const databaseProviders = [
@@ -48,6 +52,10 @@ export const databaseProviders = [
           CRAWL_CATEGORY,
           MAPPING_CATEGORY,
           CATEGORY,
+          V_PRODUCT_TEMPLATE,
+          PRODUCT_AFFILIATE_LINK,
+          PRODUCT_VARIANTS,
+          PRODUCT_IMAGE,
         ],
         // synchronize: true,
         // logging: true,

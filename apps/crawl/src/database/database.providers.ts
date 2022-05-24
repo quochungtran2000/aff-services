@@ -2,11 +2,17 @@ import { createConnection } from 'typeorm';
 import { DB_CON_TOKEN } from './database.constant';
 import { config } from '../config/configurations';
 import {
+  CATEGORY,
   CONFIG,
   CRAWL_CATEGORY,
+  MAPPING_CATEGORY,
   Product,
+  PRODUCT_AFFILIATE_LINK,
+  PRODUCT_IMAGE,
   PRODUCT_PRODUCT,
   PRODUCT_TEMPLATE,
+  PRODUCT_VARIANTS,
+  V_PRODUCT_TEMPLATE,
 } from '@aff-services/shared/models/entities';
 
 export const databaseProviders = [
@@ -26,7 +32,19 @@ export const databaseProviders = [
         username: POSTGRES_USER,
         password: POSTGRES_PASSWORD,
         database: POSTGRES_DATABASE,
-        entities: [Product, PRODUCT_PRODUCT, PRODUCT_TEMPLATE, CONFIG, CRAWL_CATEGORY],
+        entities: [
+          Product,
+          PRODUCT_PRODUCT,
+          PRODUCT_TEMPLATE,
+          CONFIG,
+          CRAWL_CATEGORY,
+          MAPPING_CATEGORY,
+          CATEGORY,
+          V_PRODUCT_TEMPLATE,
+          PRODUCT_AFFILIATE_LINK,
+          PRODUCT_VARIANTS,
+          PRODUCT_IMAGE
+        ],
         // synchronize: true,
         // logging: true,
       });

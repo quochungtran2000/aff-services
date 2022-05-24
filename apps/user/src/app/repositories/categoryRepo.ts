@@ -122,6 +122,16 @@ export class CategoryRepo {
 
       const exists = await this.categoryRepo.findOneOrFail(categoryId);
 
+      // remove mapping category before remove category
+
+      await this.mappingCategoryRepo
+        .createQueryBuilder()
+        .delete()
+        .from(MAPPING_CATEGORY)
+        .where('category_id =:categoryId')
+        .setParameters({ categoryId: exists.categoryId })
+        .execute();
+
       await this.categoryRepo
         .createQueryBuilder()
         .delete()

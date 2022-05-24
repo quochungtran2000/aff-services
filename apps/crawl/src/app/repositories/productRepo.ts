@@ -19,11 +19,11 @@ export class ProductRepo {
         .values(data)
         .orUpdate(
           [
-            'product_name',
+            'name',
+            'is_complete_crawl',
+            'is_complete_update',
+            'originalUrl',
             'thumbnail',
-            'is_sale',
-            'sale_price',
-            'discount_percent',
             'average',
             'sold',
             'description',
@@ -31,6 +31,7 @@ export class ProductRepo {
             'slug',
             'product_url',
             'updated_at',
+            'lastest_crawl_at',
           ],
           ['product_id']
         )

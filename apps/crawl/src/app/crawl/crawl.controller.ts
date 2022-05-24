@@ -10,9 +10,9 @@ export class CrawlController {
   constructor(private readonly crawlService: CrawlService) {}
 
   @MessagePattern({ cmd: CMD.CRAWL_DATA })
-  crawlData(data: CrawlPayload) {
+  crawlData() {
     this.logger.log(`${this.crawlData.name}`);
-    return this.crawlService.crawlData(data);
+    return this.crawlService.crawlProductV2();
   }
 
   @MessagePattern({ cmd: CMD.CRAWL_CATEGORY })

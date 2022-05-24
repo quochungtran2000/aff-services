@@ -21,4 +21,13 @@ export class ConfigRepo {
     this.logger.log(`${this.getAll.name} called`);
     return await this.configRepo.createQueryBuilder('c').getMany();
   }
+
+  async getDbConfigMerchantUrl(merchant: string) {
+    this.logger.log(`${this.getDbConfigMerchantUrl.name} merchant:${merchant}`);
+    return await this.configRepo
+      .createQueryBuilder('c')
+      .where(`c.name = :name`)
+      .setParameters({ name: merchant + '_url' })
+      .getOne();
+  }
 }
