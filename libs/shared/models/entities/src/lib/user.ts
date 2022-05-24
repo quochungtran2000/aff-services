@@ -33,4 +33,7 @@ export class USER {
   @OneToOne(() => ROLE)
   @JoinColumn({ name: 'role_id', referencedColumnName: 'roleId' })
   role: ROLE;
+
+  @Column({name : 'img_url', nullable: true})
+  imgUrl: string;
 }

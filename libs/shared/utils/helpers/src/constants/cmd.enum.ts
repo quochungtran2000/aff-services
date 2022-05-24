@@ -37,4 +37,7 @@ export enum CMD {
 
   //Config
   GET_CONFIG = 'get_config',
+
+  //User
+  USER_UPDATE_PROFILE = 'user_update_profile'
 }
