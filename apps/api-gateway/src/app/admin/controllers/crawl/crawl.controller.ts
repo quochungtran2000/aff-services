@@ -1,5 +1,5 @@
 import { BaseResponse, CrawlPayload } from '@aff-services/shared/models/dtos';
-import { Body, Controller, Get, HttpException, Logger, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Logger, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CrawlService } from '../../services/crawl/crawl.service';
@@ -57,4 +57,15 @@ export class CrawlController {
       throw new HttpException(error.message, error.status || 500);
     }
   }
+
+  // @Get(':url')
+  // async getProductDetail(@Req() req: Request, @Res() res: Response, @Param('url') url: string) {
+  //   try {
+  //     this.logger.log(`${this.getCategory.name} called`);
+  //     const result = await this.crawlService.getProductDetail(url);
+  //     return res.status(200).json(result);
+  //   } catch (error) {
+  //     throw new HttpException(error.message, error.status || 500);
+  //   }
+  // }
 }
