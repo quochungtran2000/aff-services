@@ -579,7 +579,6 @@ export class CrawlService {
       //         break;
       //     }
 
-      //     console.log({ products }, { length: products?.length });
       //     const toBeCreated = CreateProductDTO.fromArray(products);
       //     await this.productRepo.insertData(toBeCreated);
       //   } catch (error) {
@@ -591,15 +590,15 @@ export class CrawlService {
 
       /** get tiki product detail */
 
-      const url =
-        'https://tiki.vn/dien-thoai-iphone-12-64gb-hang-chinh-hang-p123345348.html?itm_campaign=tiki-reco_UNK_DT_UNK_UNK_infinite-scroll_infinite-scroll_UNK_UNK_MD_realtime-model_PID.70766425&itm_medium=CPC&itm_source=tiki-reco&spid=70766425';
-      const url1 =
-        'https://tiki.vn/op-cho-iphone-13-pro-max-trong-suot-chong-soc-dem-khi-4-goc-p143489022.html?spid=149211635';
+      // const url =
+      //   'https://tiki.vn/dien-thoai-iphone-12-64gb-hang-chinh-hang-p123345348.html?itm_campaign=tiki-reco_UNK_DT_UNK_UNK_infinite-scroll_infinite-scroll_UNK_UNK_MD_realtime-model_PID.70766425&itm_medium=CPC&itm_source=tiki-reco&spid=70766425';
+      // const url1 =
+      //   'https://tiki.vn/op-cho-iphone-13-pro-max-trong-suot-chong-soc-dem-khi-4-goc-p143489022.html?spid=149211635';
 
-      const url2 =
-        'https://tiki.vn/gong-kinh-mat-tron-kim-loai-phong-cach-co-dien-duong-kinh-43-p173760292.html?itm_campaign=HMP_YPD_TKA_PLA_UNK_ALL_UNK_UNK_UNK_UNK_X.143496_Y.1459944_Z.2488676_CN.Product-Ads-21%252F05%252F2022&itm_medium=CPC&itm_source=tiki-ads&spid=173760293';
-      const url3 = 'https://tiki.vn/dien-thoai-iphone-12-64gb-hang-chinh-hang-p123345348.html?spid=97736366';
-      await this.getTikiProductDetail(browser, url);
+      // const url2 =
+      //   'https://tiki.vn/gong-kinh-mat-tron-kim-loai-phong-cach-co-dien-duong-kinh-43-p173760292.html?itm_campaign=HMP_YPD_TKA_PLA_UNK_ALL_UNK_UNK_UNK_UNK_X.143496_Y.1459944_Z.2488676_CN.Product-Ads-21%252F05%252F2022&itm_medium=CPC&itm_source=tiki-ads&spid=173760293';
+      // const url3 = 'https://tiki.vn/dien-thoai-iphone-12-64gb-hang-chinh-hang-p123345348.html?spid=97736366';
+      // await this.getTikiProductDetail(browser, url1);
 
       /** get lazada product detail */
       // const url =
@@ -609,6 +608,13 @@ export class CrawlService {
       // const url2 =
       //   'https://www.lazada.vn/products/man-hinh-vi-tinh-xiaomi-mi-desktop-monitor-1c-bhr4510gl-rmmnt238nf-hang-chinh-hang-man-hinh-238inch-1080p-than-may-mong-goc-nhin-linh-hoat-i1299903577-s4992057885.html?search=1&spm=a2o4n.searchlistcategory.list.i40.389e6162bWxlrW';
       // await this.getLazadaProductDetail(browser, url);
+
+      const url =
+        'https://shopee.vn/-M%C3%A3-ELMALL1TR-gi%E1%BA%A3m-5-max-1tr-Apple-iPhone-13-Pro-Max-Ch%C3%ADnh-h%C3%A3ng-VN-A-i.308461157.10359777835?sp_atk=5324cf69-0769-441a-b69a-7004cd3b2773&xptdk=5324cf69-0769-441a-b69a-7004cd3b2773';
+
+      const url1 =
+        'https://shopee.vn/B%C4%83ng-%C4%90%C3%B4-H%E1%BB%8Da-Ti%E1%BA%BFt-K%E1%BA%BFt-N%E1%BB%91i-Wifi-H%C3%ACnh-D%E1%BA%A5u-Ch%E1%BA%A5m-H%E1%BB%8Fi-%C4%90a-D%E1%BA%A1ng-Vui-Nh%E1%BB%99n-Cho-D%E1%BB%8Bp-Halloween-i.510307075.13002770157?sp_atk=32600d1c-d896-491f-bf32-bef105ce1393&xptdk=32600d1c-d896-491f-bf32-bef105ce1393';
+      await this.getShopeeProductDetail(browser, url1);
     } catch (error) {
       this.logger.error(`${this.crawlProductV2.name} error:${error.message}`);
     } finally {
@@ -801,7 +807,7 @@ export class CrawlService {
           const value = keyValue?.[1]?.textContent;
           if (key && value) arr.push(`${key}: ${value}`);
         });
-        return arr.join(',');
+        return arr.join('; ');
       });
 
       let query;
@@ -867,10 +873,7 @@ export class CrawlService {
         return crawlComments;
       });
 
-      const productDetail = { description, comments, categories, productVariants };
-
-      console.log(productDetail);
-      return productDetail;
+      return { description, comments, categories, productVariants };
     } catch (error) {
       this.logger.error(`${this.getTikiProductDetail.name} error:${error.message}`);
     } finally {
@@ -907,39 +910,6 @@ export class CrawlService {
 
         //** Get variants */
         const variants = await this.getTikiVariant(page);
-        // await page.evaluate(() => {
-        //   let listPrice, salePrice, isSale, discountPercent, productId, sku;
-
-        //   const [ID, SKU] = document.URL.match(/(-p[a-zA-Z0-9]{1,}.html)|(spid=[a-zA-Z0-9]{1,})/g);
-        //   if (ID && SKU) {
-        //     productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-        //     sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-        //   }
-        //   if (document.querySelector('.flash-sale-price')) {
-        //     salePrice = document.querySelector('.flash-sale-price span')?.textContent;
-        //     const priceAndDiscount = document.querySelector('.flash-sale-price div.sale')?.textContent + '';
-        //     // eslint-disable-next-line no-unsafe-optional-chaining
-        //     const [price, discount] = priceAndDiscount?.split('-');
-        //     isSale = true;
-        //     listPrice = price;
-        //     discountPercent = discount;
-        //   } else {
-        //     salePrice = document.querySelector('.product-price .product-price__current-price')?.textContent;
-        //     listPrice = document.querySelector('.product-price .product-price__list-price')?.textContent || salePrice;
-        //     discountPercent = document.querySelector('.product-price .product-price__discount-rate')?.textContent || 0;
-        //     isSale = Boolean(discountPercent);
-        //   }
-        //   const imagesList = document.querySelectorAll(
-        //     '.review-images .review-images__list a[data-view-id=pdp_main_view_photo] .webpimg-container source'
-        //   );
-        //   const images = [];
-        //   imagesList.forEach((element) => {
-        //     const image = element.getAttribute('srcset');
-        //     if (image) images.push(image);
-        //   });
-
-        //   return { productId, sku, salePrice, listPrice, isSale, discountPercent, images };
-        // });
 
         productVariants.push({ ...variants, skuName, skuImage });
       }
@@ -1019,7 +989,7 @@ export class CrawlService {
     }
   }
 
-  async getLazadaProductDetail(browser: puppeteer.Browser, url: string) {
+  async getLazadaProductDetail(browser: puppeteer.Browser, url: string): Promise<ProductDetail> {
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(60000);
     try {
@@ -1116,11 +1086,10 @@ export class CrawlService {
           });
         }
 
-        return result.join(';');
+        return result.join('; ');
       });
 
-      console.log({ categories, productVariants, description, comments });
-      // await this.pageScrollDown(page);
+      return { categories, productVariants, description, comments };
     } catch (error) {
       this.logger.error(`${this.getLazadaProductDetail.name} error:${error.message}`);
     } finally {
@@ -1195,6 +1164,130 @@ export class CrawlService {
       crawlImages.forEach((elm) => {
         const url = elm?.getAttribute('src');
         if (url) images.push(url);
+      });
+      return { productId, sku, salePrice, listPrice, discountPercent, isSale, images };
+    });
+  }
+
+  async getShopeeProductDetail(browser: puppeteer.Browser, url: string): Promise<ProductDetail> {
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(60000);
+    try {
+      this.logger.log(`${this.getShopeeProductDetail.name} goto:${url}`);
+      await page.goto(url);
+      await page.setDefaultNavigationTimeout(60000);
+      await page.setViewport({ width: 1800, height: 6000 });
+
+      await this.pageScrollDown(page);
+      const categories: string[] = await page.$$eval(`.page-product__breadcrumb a`, (breadcrumbItems) => {
+        const breadcrumb = [];
+        breadcrumbItems?.forEach((elm) => {
+          const url = elm?.getAttribute('href');
+          if (url && url !== '#' && url !== '/') {
+            breadcrumb.push(url?.split('.')?.pop());
+          }
+        });
+        return breadcrumb;
+      });
+
+      const description = await page.evaluate(() => {
+        const crawlDescription = document.querySelectorAll('.product-detail.page-product__detail .KqLK01 ._3Xk7SJ');
+        const result: string[] = [];
+
+        if (crawlDescription.length) {
+          crawlDescription.forEach((elm) => {
+            const title = elm.querySelector('label')?.textContent?.trim();
+            const value = elm.querySelector('div')?.textContent?.trim();
+            const divclass = elm.querySelector('div')?.getAttribute('class');
+            if (title && value && !divclass) result.push(`${title}: ${value}`);
+          });
+        }
+
+        return result.join('; ');
+      });
+
+      const variantsOptions = await page.$$('.flex.hInOdW .TvGNLb');
+      for (let i = 0; i < variantsOptions.length; i++) {
+        const options = await page.$$('.flex.hInOdW .TvGNLb');
+        const option = options[i];
+        const button = await option.$('.product-variation');
+        if (button) button.click();
+      }
+
+      await this.wait(2000);
+
+      const productVariants: ProductVariant[] = [];
+      await this.getShopeeProductVariant(page, productVariants);
+
+      await this.pageScrollDown(page);
+
+      const comments: ProductComment[] = await page.evaluate(() => {
+        const productComments = [];
+        const crawlComments = document.querySelectorAll(
+          '.product-ratings .shopee-product-comment-list .shopee-product-rating'
+        );
+        crawlComments.forEach((elm) => {
+          const reviewerName = elm.querySelector('.shopee-product-rating__author-name')?.textContent?.trim();
+          const reviewerSatisfactionLevel = '';
+          const reviewContent = elm.querySelector('.Em3Qhp')?.textContent;
+          const reviewImages = [];
+
+          /** crawl product sku image */
+          const crawlCommentImages = elm.querySelectorAll(
+            '.shopee-product-rating__image-list-wrapper .shopee-rating-media-list-image__wrapper .shopee-rating-media-list-image__content'
+          );
+          crawlCommentImages.forEach((image) => {
+            // eslint-disable-next-line no-unsafe-optional-chaining
+            const [imageUrl] = (image.getAttribute('style') + '')?.match(/(url\(")[a-zA-Z0-9-_:/.]{1,}/g);
+            if (imageUrl) reviewImages.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
+          });
+          productComments.push({ reviewerName, reviewerSatisfactionLevel, reviewContent, reviewImages });
+        });
+        return productComments;
+      });
+
+      return { categories, productVariants, description, comments };
+    } catch (error) {
+      this.logger.error(`${this.getShopeeProductDetail.name} error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getShopeeProductDetail.name} crawl ${url} finished`);
+      await page.close();
+    }
+  }
+
+  async getShopeeProductVariant(page: puppeteer.Page, productVariants: ProductVariant[]) {
+    this.logger.log(`${this.getShopeeProductVariant.name} called`);
+    try {
+      const skuName = 'default';
+      const skuImage = '';
+      const variants = await this.getShopeeVariant(page);
+      productVariants.push({ ...variants, skuName, skuImage });
+    } catch (error) {
+      this.logger.error(`${this.getShopeeProductVariant.name} Error:${error.message}`);
+    }
+  }
+
+  async getShopeeVariant(page: puppeteer.Page) {
+    return await page.evaluate(() => {
+      let productId = '';
+      let sku = '';
+      const [ID, SKU] = document.URL.match(/(-i.[0-9]{1,})|(\.[0-9]{1,})/g);
+      if (ID && SKU) {
+        productId = ID?.replace(/(-|i|\.)/g, '') || '';
+        sku = SKU?.replace(/(-|i|\.)/g, '') || '';
+      }
+      const querySalePrice = '.pmmxKx';
+      const salePrice = document.querySelector(querySalePrice)?.textContent;
+      const queryListPrice = '.CDN0wz';
+      const listPrice = document.querySelector(queryListPrice)?.textContent;
+      const discountPercent = document.querySelector('.lTuS3S')?.textContent;
+      const isSale = Boolean(discountPercent);
+      const images: string[] = [];
+      const crawlImages = document.querySelectorAll('.PZ3-ep .Mzs0kz div.agPpyA');
+      crawlImages.forEach((elm) => {
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        const [imageUrl] = (elm.getAttribute('style') + '')?.match(/url\("[a-zA-Z0-9:/._]{1,}"\)/g);
+        if (imageUrl) images.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
       });
       return { productId, sku, salePrice, listPrice, discountPercent, isSale, images };
     });
