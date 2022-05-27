@@ -588,6 +588,9 @@ export class CrawlService {
       // }
 
       // return crawlList;
+
+      /** get tiki product detail */
+
       const url =
         'https://tiki.vn/dien-thoai-iphone-12-64gb-hang-chinh-hang-p123345348.html?itm_campaign=tiki-reco_UNK_DT_UNK_UNK_infinite-scroll_infinite-scroll_UNK_UNK_MD_realtime-model_PID.70766425&itm_medium=CPC&itm_source=tiki-reco&spid=70766425';
       const url1 =
@@ -596,7 +599,16 @@ export class CrawlService {
       const url2 =
         'https://tiki.vn/gong-kinh-mat-tron-kim-loai-phong-cach-co-dien-duong-kinh-43-p173760292.html?itm_campaign=HMP_YPD_TKA_PLA_UNK_ALL_UNK_UNK_UNK_UNK_X.143496_Y.1459944_Z.2488676_CN.Product-Ads-21%252F05%252F2022&itm_medium=CPC&itm_source=tiki-ads&spid=173760293';
       const url3 = 'https://tiki.vn/dien-thoai-iphone-12-64gb-hang-chinh-hang-p123345348.html?spid=97736366';
-      await this.getTikiProductDetail(browser, url3);
+      await this.getTikiProductDetail(browser, url);
+
+      /** get lazada product detail */
+      // const url =
+      //   'https://www.lazada.vn/products/chi-con-3890k-dien-thoai-realme-narzo-50-4g-2022-4gb64gb-l-mediatek-helio-g96-l-man-hinh-ips-lcd-fhd-66-inches-120hz-l-camera-50mp-ai-l-pin-5000-mah-sac-nhanh-type-c-33w-l-2-khe-sim-1-micro-sd-i1725467303-s7689599948.html?';
+      // const url1 =
+      //   'https://www.lazada.vn/products/cameljeans-giay-nam-giay-the-thao-thuong-ngay-giay-chay-bo-giam-soc-nhe-i1838800306-s8315629489.html?spm=a2o4n.home.just4u.8.19056afeq0tYjc&&scm=1007.17519.162103.0&pvid=286194ed-2725-4e5b-9f7b-ca4b441d7330&search=0&clickTrackInfo=tctags%3A1880304801+115545340%3Btcsceneid%3AHPJFY%3Bbuyernid%3Acd434f6e-7c39-47bb-9a60-4c6280c37e92%3Btcboost%3A0%3Bpvid%3A286194ed-2725-4e5b-9f7b-ca4b441d7330%3Bchannel_id%3A0000%3Bmt%3Ai2i%3Bitem_id%3A1838800306%3Bself_ab_id%3A162103%3Bself_app_id%3A7519%3Blayer_buckets%3A5437.25236_955.3633_955.3631_6059.28889%3Bpos%3A7%3B';
+      // const url2 =
+      //   'https://www.lazada.vn/products/man-hinh-vi-tinh-xiaomi-mi-desktop-monitor-1c-bhr4510gl-rmmnt238nf-hang-chinh-hang-man-hinh-238inch-1080p-than-may-mong-goc-nhin-linh-hoat-i1299903577-s4992057885.html?search=1&spm=a2o4n.searchlistcategory.list.i40.389e6162bWxlrW';
+      // await this.getLazadaProductDetail(browser, url);
     } catch (error) {
       this.logger.error(`${this.crawlProductV2.name} error:${error.message}`);
     } finally {
@@ -825,7 +837,7 @@ export class CrawlService {
         const breadcrumb = [];
         breadcrumbItems?.forEach((elm) => {
           const url = elm?.getAttribute('href');
-          if (url && url !== '#') {
+          if (url && url !== '#' && url !== '/') {
             breadcrumb.push(url?.split('/')?.pop());
           }
         });
@@ -854,8 +866,6 @@ export class CrawlService {
         });
         return crawlComments;
       });
-
-      console.log(comments);
 
       const productDetail = { description, comments, categories, productVariants };
 
@@ -895,42 +905,41 @@ export class CrawlService {
           )
           .catch(() => '');
 
-        this.logger.warn(`get sku price 3`);
-
         //** Get variants */
-        const variants = await page.evaluate(() => {
-          let listPrice, salePrice, isSale, discountPercent, productId, sku;
+        const variants = await this.getTikiVariant(page);
+        // await page.evaluate(() => {
+        //   let listPrice, salePrice, isSale, discountPercent, productId, sku;
 
-          const [ID, SKU] = document.URL.match(/(-p[a-zA-Z0-9]{1,}.html)|(spid=[a-zA-Z0-9]{1,})/g);
-          if (ID && SKU) {
-            productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-            sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-          }
-          if (document.querySelector('.flash-sale-price')) {
-            salePrice = document.querySelector('.flash-sale-price span')?.textContent;
-            const priceAndDiscount = document.querySelector('.flash-sale-price div.sale')?.textContent + '';
-            // eslint-disable-next-line no-unsafe-optional-chaining
-            const [price, discount] = priceAndDiscount?.split('-');
-            isSale = true;
-            listPrice = price;
-            discountPercent = discount;
-          } else {
-            salePrice = document.querySelector('.product-price .product-price__current-price')?.textContent;
-            listPrice = document.querySelector('.product-price .product-price__list-price')?.textContent || salePrice;
-            discountPercent = document.querySelector('.product-price .product-price__discount-rate')?.textContent || 0;
-            isSale = Boolean(discountPercent);
-          }
-          const imagesList = document.querySelectorAll(
-            '.review-images .review-images__list a[data-view-id=pdp_main_view_photo] .webpimg-container source'
-          );
-          const images = [];
-          imagesList.forEach((element) => {
-            const image = element.getAttribute('srcset');
-            if (image) images.push(image);
-          });
+        //   const [ID, SKU] = document.URL.match(/(-p[a-zA-Z0-9]{1,}.html)|(spid=[a-zA-Z0-9]{1,})/g);
+        //   if (ID && SKU) {
+        //     productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+        //     sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+        //   }
+        //   if (document.querySelector('.flash-sale-price')) {
+        //     salePrice = document.querySelector('.flash-sale-price span')?.textContent;
+        //     const priceAndDiscount = document.querySelector('.flash-sale-price div.sale')?.textContent + '';
+        //     // eslint-disable-next-line no-unsafe-optional-chaining
+        //     const [price, discount] = priceAndDiscount?.split('-');
+        //     isSale = true;
+        //     listPrice = price;
+        //     discountPercent = discount;
+        //   } else {
+        //     salePrice = document.querySelector('.product-price .product-price__current-price')?.textContent;
+        //     listPrice = document.querySelector('.product-price .product-price__list-price')?.textContent || salePrice;
+        //     discountPercent = document.querySelector('.product-price .product-price__discount-rate')?.textContent || 0;
+        //     isSale = Boolean(discountPercent);
+        //   }
+        //   const imagesList = document.querySelectorAll(
+        //     '.review-images .review-images__list a[data-view-id=pdp_main_view_photo] .webpimg-container source'
+        //   );
+        //   const images = [];
+        //   imagesList.forEach((element) => {
+        //     const image = element.getAttribute('srcset');
+        //     if (image) images.push(image);
+        //   });
 
-          return { productId, sku, salePrice, listPrice, isSale, discountPercent, images };
-        });
+        //   return { productId, sku, salePrice, listPrice, isSale, discountPercent, images };
+        // });
 
         productVariants.push({ ...variants, skuName, skuImage });
       }
@@ -945,44 +954,47 @@ export class CrawlService {
       const skuName = 'default';
       const skuImage = '';
 
-      const variants = await page.evaluate(() => {
-        let listPrice, salePrice, isSale, discountPercent, productId, sku;
-
-        const [ID, SKU] = document.URL.match(/(-p[a-zA-Z0-9]{1,}.html)|(spid=[a-zA-Z0-9]{1,})/g);
-        if (ID && SKU) {
-          productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-          sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-        }
-        if (document.querySelector('.flash-sale-price')) {
-          salePrice = document.querySelector('.flash-sale-price span')?.textContent;
-          const priceAndDiscount = document.querySelector('.flash-sale-price div.sale')?.textContent + '';
-          // eslint-disable-next-line no-unsafe-optional-chaining
-          const [price, discount] = priceAndDiscount?.split('-');
-          isSale = true;
-          listPrice = price;
-          discountPercent = discount;
-        } else {
-          salePrice = document.querySelector('.product-price .product-price__current-price')?.textContent;
-          listPrice = document.querySelector('.product-price .product-price__list-price')?.textContent || salePrice;
-          discountPercent = document.querySelector('.product-price .product-price__discount-rate')?.textContent || 0;
-          isSale = Boolean(discountPercent);
-        }
-        const imagesList = document.querySelectorAll(
-          '.review-images .review-images__list a[data-view-id=pdp_main_view_photo] .webpimg-container source'
-        );
-        const images = [];
-        imagesList.forEach((element) => {
-          const image = element.getAttribute('srcset');
-          if (image) images.push(image);
-        });
-
-        return { productId, sku, salePrice, listPrice, isSale, discountPercent, images };
-      });
-
-      productVariants.push({ ...variants, skuName, skuImage });
+      const variants = await this.getTikiVariant(page);
+      await productVariants.push({ ...variants, skuName, skuImage });
     } catch (error) {
       this.logger.error(`${this.getTikiProductVariant.name} Error:${error.message}`);
     }
+  }
+
+  async getTikiVariant(page: puppeteer.Page) {
+    return page.evaluate(() => {
+      let listPrice, salePrice, isSale, discountPercent, productId, sku;
+
+      const [ID, SKU] = document.URL.match(/(-p[a-zA-Z0-9]{1,}.html)|(spid=[a-zA-Z0-9]{1,})/g);
+      if (ID && SKU) {
+        productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+        sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+      }
+      if (document.querySelector('.flash-sale-price')) {
+        salePrice = document.querySelector('.flash-sale-price span')?.textContent;
+        const priceAndDiscount = document.querySelector('.flash-sale-price div.sale')?.textContent + '';
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        const [price, discount] = priceAndDiscount?.split('-');
+        isSale = true;
+        listPrice = price;
+        discountPercent = discount;
+      } else {
+        salePrice = document.querySelector('.product-price .product-price__current-price')?.textContent;
+        listPrice = document.querySelector('.product-price .product-price__list-price')?.textContent || salePrice;
+        discountPercent = document.querySelector('.product-price .product-price__discount-rate')?.textContent || 0;
+        isSale = Boolean(discountPercent);
+      }
+      const imagesList = document.querySelectorAll(
+        '.review-images .review-images__list a[data-view-id=pdp_main_view_photo] .webpimg-container source'
+      );
+      const images = [];
+      imagesList.forEach((element) => {
+        const image = element.getAttribute('srcset');
+        if (image) images.push(image);
+      });
+
+      return { productId, sku, salePrice, listPrice, isSale, discountPercent, images };
+    });
   }
 
   async pageScrollDown(page: puppeteer.Page) {
@@ -1005,5 +1017,186 @@ export class CrawlService {
     } finally {
       this.logger.log(`${this.pageScrollDown.name} Done`);
     }
+  }
+
+  async getLazadaProductDetail(browser: puppeteer.Browser, url: string) {
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(60000);
+    try {
+      this.logger.log(`${this.getLazadaProductDetail.name} goto ${url}`);
+      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      await this.wait(5000);
+
+      const categories: string[] = await page.$$eval(
+        `.breadcrumb .breadcrumb_item a.breadcrumb_item_anchor`,
+        (breadcrumbItems) => {
+          const breadcrumb = [];
+          breadcrumbItems?.forEach((elm) => {
+            let url = elm.getAttribute('href') + '';
+            if (url.endsWith('/')) url = url?.slice(0, -1);
+            url = url.split('/').pop();
+            if (url) breadcrumb.push(url);
+          });
+          return breadcrumb;
+        }
+      );
+
+      let query;
+      let optionsLength = 0;
+      let op1, op2;
+      const parentQuery = `#module_sku-select .sku-prop-content`;
+      const imageQuery = `.pdp-common-image.sku-variable-img`;
+      const buttonQuery = `.sku-variable-name-text`;
+      const skuOptions = await page.$(parentQuery);
+      if (skuOptions) {
+        op1 = await skuOptions.$$(imageQuery);
+        op2 = await page.$$(buttonQuery);
+      }
+
+      if (op1?.length) {
+        optionsLength = op1.length;
+        query = imageQuery;
+      } else if (op2?.length) {
+        optionsLength = op2.length;
+        query = buttonQuery;
+      }
+
+      //** get Product Variants */
+
+      const productVariants: ProductVariant[] = [];
+      if (optionsLength) {
+        for (let index = 0; index < optionsLength; index++) {
+          await this.getLazadaProductVariants(page, productVariants, query, index);
+        }
+      } else {
+        await this.getLazadaProductVariant(page, productVariants);
+      }
+
+      await this.pageScrollDown(page);
+
+      /** crawl product comments */
+
+      const comments: ProductComment[] = await page.evaluate(() => {
+        const productComments = [];
+        const crawlComments = document.querySelectorAll('#module_product_review .mod-reviews .item');
+        crawlComments.forEach((elm) => {
+          const reviewerName = elm.querySelector('.middle span')?.textContent?.trim();
+          const reviewerSatisfactionLevel = '';
+          const reviewContent = elm.querySelector('.item-content .content')?.textContent;
+          const reviewImages = [];
+
+          /** crawl product sku image */
+          const crawlCommentImages = elm.querySelectorAll('.review-image .pdp-common-image.review-image__item .image');
+          crawlCommentImages.forEach((image) => {
+            // eslint-disable-next-line no-unsafe-optional-chaining
+            const [imageUrl] = (image.getAttribute('style') + '')?.match(/(url\(")[a-zA-Z0-9-_:/.]{1,}/g);
+            if (imageUrl) reviewImages.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
+          });
+          productComments.push({ reviewerName, reviewerSatisfactionLevel, reviewContent, reviewImages });
+        });
+        return productComments;
+      });
+
+      const buttonViewMore = await page.$(
+        '.pdp-view-more-btn.pdp-button.pdp-button_type_text.pdp-button_theme_white.pdp-button_size_m'
+      );
+
+      if (buttonViewMore) buttonViewMore.click();
+      await this.pageScrollDown(page);
+
+      const description = await page.evaluate(() => {
+        const crawlDescription = document.querySelectorAll('.pdp-product-detail .pdp-mod-specification .key-li');
+        const result: string[] = [];
+
+        if (crawlDescription.length) {
+          crawlDescription.forEach((elm) => {
+            const title = elm.querySelector('.key-title')?.textContent?.trim();
+            const value = elm.querySelector('.key-value')?.textContent?.trim();
+            if (title && value) result.push(`${title}: ${value}`);
+          });
+        }
+
+        return result.join(';');
+      });
+
+      console.log({ categories, productVariants, description, comments });
+      // await this.pageScrollDown(page);
+    } catch (error) {
+      this.logger.error(`${this.getLazadaProductDetail.name} error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getLazadaProductDetail.name} crawl ${url} finished`);
+      await page.close();
+    }
+  }
+
+  async getLazadaProductVariants(
+    page: puppeteer.Page,
+    productVariants: ProductVariant[],
+    query: string,
+    index: number
+  ) {
+    this.logger.log(`${this.getLazadaProductVariants.name} called`);
+    try {
+      const parentQuery = `#module_sku-select .sku-prop`;
+      const skuOptions = await page.$(parentQuery);
+      const link = await skuOptions.$$(query);
+      const a = link?.[index];
+      if (a) {
+        await a.click();
+        await this.wait(5000);
+
+        const skuName = await skuOptions.$eval('.sku-name', (el) => el?.textContent).catch(() => '');
+        const querySelectedImage = '.sku-variable-img-wrap-selected';
+
+        const skuImage = await skuOptions
+          .$eval(querySelectedImage, (el) => el.querySelector('.lazyload-wrapper img.image').getAttribute('src'))
+          .catch(() => '');
+
+        const variants = await this.getLazadaVariant(page);
+
+        productVariants.push({ ...variants, skuName, skuImage });
+      }
+    } catch (error) {
+      this.logger.error(`${this.getLazadaProductVariants.name} Error:${error.message}`);
+    }
+  }
+
+  async getLazadaProductVariant(page: puppeteer.Page, productVariants: ProductVariant[]) {
+    this.logger.log(`${this.getLazadaProductVariant.name} called`);
+    try {
+      const skuName = 'default';
+      const skuImage = '';
+      const variants = await this.getLazadaVariant(page);
+      productVariants.push({ ...variants, skuName, skuImage });
+    } catch (error) {
+      this.logger.error(`${this.getLazadaProductVariant.name} Error:${error.message}`);
+    }
+  }
+
+  async getLazadaVariant(page: puppeteer.Page) {
+    return await page.evaluate(() => {
+      let productId = '';
+      let sku = '';
+      const [ID, SKU] = document.URL.match(/-i[0-9]{1,}|-s[0-9]{1,}.html/g);
+      if (ID && SKU) {
+        productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+        sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+      }
+      const querySalePrice = '.pdp-price.pdp-price_type_normal.pdp-price_color_orange.pdp-price_size_xl';
+      const salePrice = document.querySelector(querySalePrice)?.textContent;
+      const queryListPrice = '.pdp-price.pdp-price_type_deleted.pdp-price_color_lightgray.pdp-price_size_xs';
+      const listPrice = document.querySelector(queryListPrice)?.textContent;
+      const discountPercent = document.querySelector('.pdp-product-price__discount')?.textContent;
+      const isSale = Boolean(discountPercent);
+      const images: string[] = [];
+      const crawlImages = document.querySelectorAll(
+        '#module_item_gallery_1 .item-gallery .item-gallery-slider .item-gallery__image-wrapper img'
+      );
+      crawlImages.forEach((elm) => {
+        const url = elm?.getAttribute('src');
+        if (url) images.push(url);
+      });
+      return { productId, sku, salePrice, listPrice, discountPercent, isSale, images };
+    });
   }
 }
