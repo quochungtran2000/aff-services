@@ -184,7 +184,7 @@ export class ProductRepo {
         .where('1=1')
         .andWhere('p.is_complete_crawl = false')
         .andWhere('p.is_complete_update = false')
-        .andWhere('p.merchant = :merchant', { merchant: 'tiki' })
+        // .andWhere('p.merchant = :merchant', { merchant: 'tiki' })
         .take(take)
         .skip(skip)
         .orderBy('p.created_at', 'DESC')
