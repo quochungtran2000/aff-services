@@ -216,3 +216,46 @@ create table product_product (
 alter table product_product add constraint product_product_pkey primary key (product_template_id,product_id);
 alter table product_product add constraint product_product_fkey_product foreign key (product_id) references product(product_id);
 alter table product_product add constraint product_product_fkey_product_template foreign key (product_template_id) references product_template(product_template_id);
+
+
+
+create sequence product_image_id_seq start with 1 increment by 1 no minvalue maxvalue 9999999999;
+
+create table product_variant_image (
+	id integer not null default nextval('product_image_id_seq'::regClass),
+	product_id character varying not null,
+	sku character varying not null,
+	image_url character varying
+);
+
+alter table product_variant_image add constraint product_variant_image_pkey primary key(id);
+alter table product_variant_image add constraint product_variant_image_fkey_product_variants foreign key(product_id,sku) references product_variants(product_id,sku);
+
+create sequence product_comment_id_seq start with 1 increment by 1 no minvalue maxvalue 9999999999;
+
+create table product_comment (
+	product_comment_id integer not null default nextval('product_comment_id_seq'::regClass),
+	product_id character varying not null,
+	customer_name character varying,
+	customer_satisfaction_evel character varying,
+	content character varying
+);
+
+alter table product_comment add constraint product_comment_pkey primary key(product_comment_id);
+alter table product_comment add constraint product_comment_fkey_product foreign key(product_id) references product(product_id);
+
+create sequence product_comment_image_id_seq start with 1 increment by 1 no minvalue maxvalue 9999999999;
+
+create table product_comment_image (
+	product_comment_image_id integer not null default nextval('product_comment_id_seq'::regClass),
+	product_comment_id integer not null,
+	image_url character varying
+);
+
+alter table product_comment_image add constraint product_comment_image_pkey primary key(product_comment_image_id);
+alter table product_comment_image add constraint product_comment_image_fkey_product_comment foreign key(product_comment_id) references product_comment (product_comment_id);
+
+
+
+alter table product add column crawl_category_id character varying;
+alter table product add constraint product_fkey_crawl_category foreign key (crawl_category_id) references crawl_category(crawl_category_id);

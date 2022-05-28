@@ -12,7 +12,7 @@ export class PRODUCT_IMAGE {
   @Column({ name: 'image_url' })
   imageUrl: string;
 
-  @ManyToOne(() => Product, (p) => p.productImages)
-  @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
-  product?: Product;
+  // @ManyToOne(() => Product, (p) => p.productImages)
+  // @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
+  // product?: Product;
 }

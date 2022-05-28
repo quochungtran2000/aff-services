@@ -1,5 +1,5 @@
 import { CrawlCategoryDTO, CrawlCategoryResponse, TCrawlCategory } from '@aff-services/shared/models/dtos';
-import { CATEGORY, CRAWL_CATEGORY } from '@aff-services/shared/models/entities';
+import { CATEGORY, CRAWL_CATEGORY, MAPPING_CATEGORY } from '@aff-services/shared/models/entities';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
@@ -9,7 +9,8 @@ export class CategoryRepo {
   private readonly logger = new Logger(`Micro-Crawl.${CategoryRepo.name}`);
   constructor(
     @Inject('CRAWL_CATEGORY_REPOSITORY') private readonly crawlCategoryRepo: Repository<CRAWL_CATEGORY>,
-    @Inject('CATEGORY_REPOSITORY') private readonly categoryRepo: Repository<CATEGORY>
+    @Inject('CATEGORY_REPOSITORY') private readonly categoryRepo: Repository<CATEGORY>,
+    @Inject('MAPPING_CATEGORY_REPOSITORY') private readonly mappingCategoryRepo: Repository<MAPPING_CATEGORY>
   ) {}
 
   async insertOrUpdateOne(data: CrawlCategoryDTO[] | CrawlCategoryDTO) {

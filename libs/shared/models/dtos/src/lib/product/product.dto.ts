@@ -1,4 +1,30 @@
 import { removeAccent } from '@aff-services/shared/utils/helpers';
+
+export type ProductVariant = {
+  productId: string;
+  sku: string;
+  salePrice: string;
+  listPrice: string;
+  isSale: boolean;
+  discountPercent: string;
+  images: string[];
+  skuName: string;
+  skuImage: string;
+};
+
+export type ProductDetail = {
+  categories: string[];
+  comments: ProductComment[];
+  productVariants: ProductVariant[];
+  description: string;
+};
+
+export type ProductComment = {
+  customerName: string;
+  customerSatisfactionLevel: string;
+  reviewContent: string;
+  reviewImages: string[];
+};
 export class CreateProductDTO {
   productId: string;
   name: string;
@@ -77,3 +103,61 @@ const getProductSlug = (productName: string) => {
   name = name?.toLocaleLowerCase().split(' ').join('-').replace(/-{2,}/g, '-');
   return name;
 };
+
+export class CrawlUpdateProductDetailDTO {
+  productId: string;
+  description: string;
+  categoryId: string;
+}
+
+export class CrawlUpdateProductCommentDTO {
+  content: string;
+  customerName: string;
+  customerSatisfactionLevel: string;
+  productId: string;
+
+  public static from(productId: string, dto: Partial<ProductComment>) {
+    const result = new CrawlUpdateProductCommentDTO();
+    result.productId = productId;
+    result.customerName = dto.customerName
+    result.customerSatisfactionLevel = dto.customerSatisfactionLevel;
+    result.content = dto.reviewContent;
+    return result;
+  }
+}
+
+export class CrawlUpdateProductCommentImageDTO {
+  productCommentId: string;
+  imageUrl: string;
+}
+
+export class CrawlUpdateProductVariantsDTO {
+  productId: string;
+  sku: string;
+  salePrice: number;
+  listPrice: number;
+  discountPercent: number;
+  isSale: boolean;
+  variantName: string;
+  variantImageUrl: string;
+
+  public static from(productId: string, dto: Partial<ProductVariant>) {
+    const result = new CrawlUpdateProductVariantsDTO();
+    result.productId = productId?.replace(/[\D]/g, '');
+    result.salePrice = Number(dto.salePrice?.replace(/[\D]/g, '') + '');
+    result.listPrice = Number(dto.listPrice?.replace(/[\D]/g, '') + '');
+    result.sku = dto.sku?.replace(/[\D]/g, '');
+    result.discountPercent = Number(dto.discountPercent?.replace(/[\D]/g, '') + '');
+    result.isSale = Boolean(dto.isSale) || false;
+    result.variantName = dto.skuName || '';
+    result.variantImageUrl = dto.skuImage || '';
+    return result;
+  }
+}
+
+export class CrawlUpdateProductVariantImage {
+  id: number;
+  productId: string;
+  sku: string;
+  imageUrl: string;
+}

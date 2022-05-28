@@ -8,10 +8,12 @@ import {
   MAPPING_CATEGORY,
   Product,
   PRODUCT_AFFILIATE_LINK,
-  PRODUCT_IMAGE,
+  PRODUCT_COMMENT,
+  PRODUCT_COMMENT_IMAGE,
   PRODUCT_PRODUCT,
   PRODUCT_TEMPLATE,
   PRODUCT_VARIANTS,
+  PRODUCT_VARIANT_IMAGE,
   V_PRODUCT_TEMPLATE,
 } from '@aff-services/shared/models/entities';
 
@@ -43,7 +45,9 @@ export const databaseProviders = [
           V_PRODUCT_TEMPLATE,
           PRODUCT_AFFILIATE_LINK,
           PRODUCT_VARIANTS,
-          PRODUCT_IMAGE
+          PRODUCT_VARIANT_IMAGE,
+          PRODUCT_COMMENT,
+          PRODUCT_COMMENT_IMAGE,
         ],
         // synchronize: true,
         // logging: true,

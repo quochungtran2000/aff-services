@@ -1,6 +1,8 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { CRAWL_CATEGORY } from '../category';
 import { PRODUCT_AFFILIATE_LINK } from './product-affiliate-link';
-import { PRODUCT_IMAGE } from './product-image';
+import { PRODUCT_COMMENT } from './product-comment';
+// import { PRODUCT_IMAGE } from './product-image';
 import { PRODUCT_PRODUCT } from './product-product';
 import { PRODUCT_VARIANTS } from './product-variants';
 
@@ -39,6 +41,9 @@ export class Product {
   @Column({ name: 'merchant' })
   merchant: string;
 
+  @Column({ name: 'crawl_category_id' })
+  crawlCategoryId: string;
+
   @Column({ name: 'created_at', type: 'timestamp', default: '() => now()' })
   createdAt: Date;
 
@@ -60,7 +65,14 @@ export class Product {
   @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
   variants: PRODUCT_VARIANTS[];
 
-  @OneToMany(() => PRODUCT_IMAGE, (image) => image.product)
+  @OneToMany(() => PRODUCT_COMMENT, (pc) => pc.product)
   @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
-  productImages: PRODUCT_IMAGE[];
+  comments: PRODUCT_COMMENT[];
+
+  @ManyToOne(() => CRAWL_CATEGORY, (cc) => cc.products)
+  @JoinColumn({ name: 'crawl_category_id', referencedColumnName: 'crawlCategoryId' })
+  crawlCategory: CRAWL_CATEGORY;
+  // @OneToMany(() => PRODUCT_IMAGE, (image) => image.product)
+  // @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
+  // productImages: PRODUCT_IMAGE[];
 }

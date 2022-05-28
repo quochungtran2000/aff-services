@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { Product } from './product';
+import { PRODUCT_VARIANT_IMAGE } from './product-variant-image';
 
 @Entity({ schema: 'public', name: 'product_variants' })
 export class PRODUCT_VARIANTS {
@@ -30,4 +31,11 @@ export class PRODUCT_VARIANTS {
   @ManyToOne(() => Product, (p) => p.variants)
   @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
   product: Product;
+
+  @OneToMany(() => PRODUCT_VARIANT_IMAGE, (pvi) => pvi.productVariants)
+  @JoinColumn([
+    { name: 'product_id', referencedColumnName: 'productId' },
+    { name: 'sku', referencedColumnName: 'sku' },
+  ])
+  images: PRODUCT_VARIANT_IMAGE[];
 }

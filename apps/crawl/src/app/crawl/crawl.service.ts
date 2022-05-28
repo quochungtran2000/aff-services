@@ -1,9 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ProductRepo } from '../repositories/productRepo';
 import * as puppeteer from 'puppeteer';
-import { CrawlCategoryDTO, CrawlPayload, CreateProductDTO, TCrawlCategory } from '@aff-services/shared/models/dtos';
+import {
+  CreateProductDTO,
+  ProductComment,
+  ProductDetail,
+  ProductVariant,
+  TCrawlCategory,
+} from '@aff-services/shared/models/dtos';
 import { ConfigRepo } from '../repositories/configRepo';
 import { CategoryRepo } from '../repositories/categoryRepo';
+import { Product } from '@aff-services/shared/models/entities';
 const args = ['--disable-gpu', '--no-sandbox'];
 process.setMaxListeners(Infinity);
 enum MerchangeEnum {
@@ -14,35 +21,10 @@ enum MerchangeEnum {
 
 type Merchange = 'tiki' | 'lazada' | 'shopee';
 
-type ProductVariant = {
-  productId: string;
-  sku: string;
-  salePrice: string;
-  listPrice: string;
-  isSale: boolean;
-  discountPercent: string | number;
-  images: string[];
-  skuName: string;
-  skuImage: string;
-};
-
-type ProductDetail = {
-  categories: string[];
-  comments: ProductComment[];
-  productVariants: ProductVariant[];
-  description: string;
-};
-
-type ProductComment = {
-  reviewerName: string;
-  reviewerSatisfactionLevel: string;
-  reviewContent: string;
-  reviewImages: string[];
-};
-
 @Injectable()
 export class CrawlService {
   private readonly logger = new Logger(`Micro-Crawl.${CrawlService.name}`);
+  private take = 12;
 
   constructor(
     private readonly productRepo: ProductRepo,
@@ -609,12 +591,16 @@ export class CrawlService {
       //   'https://www.lazada.vn/products/man-hinh-vi-tinh-xiaomi-mi-desktop-monitor-1c-bhr4510gl-rmmnt238nf-hang-chinh-hang-man-hinh-238inch-1080p-than-may-mong-goc-nhin-linh-hoat-i1299903577-s4992057885.html?search=1&spm=a2o4n.searchlistcategory.list.i40.389e6162bWxlrW';
       // await this.getLazadaProductDetail(browser, url);
 
-      const url =
-        'https://shopee.vn/-M%C3%A3-ELMALL1TR-gi%E1%BA%A3m-5-max-1tr-Apple-iPhone-13-Pro-Max-Ch%C3%ADnh-h%C3%A3ng-VN-A-i.308461157.10359777835?sp_atk=5324cf69-0769-441a-b69a-7004cd3b2773&xptdk=5324cf69-0769-441a-b69a-7004cd3b2773';
+      // const url =
+      //   'https://shopee.vn/-M%C3%A3-ELMALL1TR-gi%E1%BA%A3m-5-max-1tr-Apple-iPhone-13-Pro-Max-Ch%C3%ADnh-h%C3%A3ng-VN-A-i.308461157.10359777835?sp_atk=5324cf69-0769-441a-b69a-7004cd3b2773&xptdk=5324cf69-0769-441a-b69a-7004cd3b2773';
 
-      const url1 =
-        'https://shopee.vn/B%C4%83ng-%C4%90%C3%B4-H%E1%BB%8Da-Ti%E1%BA%BFt-K%E1%BA%BFt-N%E1%BB%91i-Wifi-H%C3%ACnh-D%E1%BA%A5u-Ch%E1%BA%A5m-H%E1%BB%8Fi-%C4%90a-D%E1%BA%A1ng-Vui-Nh%E1%BB%99n-Cho-D%E1%BB%8Bp-Halloween-i.510307075.13002770157?sp_atk=32600d1c-d896-491f-bf32-bef105ce1393&xptdk=32600d1c-d896-491f-bf32-bef105ce1393';
-      await this.getShopeeProductDetail(browser, url1);
+      // const url1 =
+      //   'https://shopee.vn/B%C4%83ng-%C4%90%C3%B4-H%E1%BB%8Da-Ti%E1%BA%BFt-K%E1%BA%BFt-N%E1%BB%91i-Wifi-H%C3%ACnh-D%E1%BA%A5u-Ch%E1%BA%A5m-H%E1%BB%8Fi-%C4%90a-D%E1%BA%A1ng-Vui-Nh%E1%BB%99n-Cho-D%E1%BB%8Bp-Halloween-i.510307075.13002770157?sp_atk=32600d1c-d896-491f-bf32-bef105ce1393&xptdk=32600d1c-d896-491f-bf32-bef105ce1393';
+      // const productDetail = await this.getShopeeProductDetail(browser, url);
+      // const updateProductDetail = await this.productRepo.insertProductDetail(productDetail);
+      // console.log({ ...productDetail });
+
+      await this.crawlProductDetail(browser);
     } catch (error) {
       this.logger.error(`${this.crawlProductV2.name} error:${error.message}`);
     } finally {
@@ -858,8 +844,8 @@ export class CrawlService {
         const crawlComments: ProductComment[] = [];
         const reviewComments = document.querySelectorAll('.customer-reviews .review-comment');
         reviewComments.forEach((elm) => {
-          const reviewerName = elm.querySelector('.review-comment__user-name')?.textContent;
-          const reviewerSatisfactionLevel = elm.querySelector('.review-comment__title')?.textContent;
+          const customerName = elm.querySelector('.review-comment__user-name')?.textContent;
+          const customerSatisfactionLevel = elm.querySelector('.review-comment__title')?.textContent;
           const reviewContent = elm.querySelector('.review-comment__content')?.textContent;
           const reviewImages: string[] = [];
           const images = elm.querySelectorAll('.review-comment__images div.review-comment__image');
@@ -868,7 +854,7 @@ export class CrawlService {
             const [imageUrl] = (image.getAttribute('style') + '')?.match(/url\("[a-zA-Z0-9:/.]{1,}"\)/g);
             if (imageUrl) reviewImages.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
           });
-          crawlComments.push({ reviewerName, reviewerSatisfactionLevel, reviewContent, reviewImages });
+          crawlComments.push({ customerName, customerSatisfactionLevel, reviewContent, reviewImages });
         });
         return crawlComments;
       });
@@ -936,10 +922,13 @@ export class CrawlService {
       let listPrice, salePrice, isSale, discountPercent, productId, sku;
 
       const [ID, SKU] = document.URL.match(/(-p[a-zA-Z0-9]{1,}.html)|(spid=[a-zA-Z0-9]{1,})/g);
-      if (ID && SKU) {
-        productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-        sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-      }
+      // if (ID && SKU) {
+
+      // eslint-disable-next-line prefer-const
+      productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+      // eslint-disable-next-line prefer-const
+      sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+      // }
       if (document.querySelector('.flash-sale-price')) {
         salePrice = document.querySelector('.flash-sale-price span')?.textContent;
         const priceAndDiscount = document.querySelector('.flash-sale-price div.sale')?.textContent + '';
@@ -947,11 +936,11 @@ export class CrawlService {
         const [price, discount] = priceAndDiscount?.split('-');
         isSale = true;
         listPrice = price;
-        discountPercent = discount;
+        discountPercent = discount || '';
       } else {
         salePrice = document.querySelector('.product-price .product-price__current-price')?.textContent;
         listPrice = document.querySelector('.product-price .product-price__list-price')?.textContent || salePrice;
-        discountPercent = document.querySelector('.product-price .product-price__discount-rate')?.textContent || 0;
+        discountPercent = document.querySelector('.product-price .product-price__discount-rate')?.textContent || '';
         isSale = Boolean(discountPercent);
       }
       const imagesList = document.querySelectorAll(
@@ -1050,8 +1039,8 @@ export class CrawlService {
         const productComments = [];
         const crawlComments = document.querySelectorAll('#module_product_review .mod-reviews .item');
         crawlComments.forEach((elm) => {
-          const reviewerName = elm.querySelector('.middle span')?.textContent?.trim();
-          const reviewerSatisfactionLevel = '';
+          const customerName = elm.querySelector('.middle span')?.textContent?.trim();
+          const customerSatisfactionLevel = '';
           const reviewContent = elm.querySelector('.item-content .content')?.textContent;
           const reviewImages = [];
 
@@ -1062,7 +1051,7 @@ export class CrawlService {
             const [imageUrl] = (image.getAttribute('style') + '')?.match(/(url\(")[a-zA-Z0-9-_:/.]{1,}/g);
             if (imageUrl) reviewImages.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
           });
-          productComments.push({ reviewerName, reviewerSatisfactionLevel, reviewContent, reviewImages });
+          productComments.push({ customerName, customerSatisfactionLevel, reviewContent, reviewImages });
         });
         return productComments;
       });
@@ -1147,10 +1136,10 @@ export class CrawlService {
       let productId = '';
       let sku = '';
       const [ID, SKU] = document.URL.match(/-i[0-9]{1,}|-s[0-9]{1,}.html/g);
-      if (ID && SKU) {
-        productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-        sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
-      }
+      // if (ID && SKU) {
+      productId = ID?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+      sku = SKU?.replace(/(-p)|(.html)|(spid=)/g, '') || '';
+      // }
       const querySalePrice = '.pdp-price.pdp-price_type_normal.pdp-price_color_orange.pdp-price_size_xl';
       const salePrice = document.querySelector(querySalePrice)?.textContent;
       const queryListPrice = '.pdp-price.pdp-price_type_deleted.pdp-price_color_lightgray.pdp-price_size_xs';
@@ -1227,21 +1216,23 @@ export class CrawlService {
           '.product-ratings .shopee-product-comment-list .shopee-product-rating'
         );
         crawlComments.forEach((elm) => {
-          const reviewerName = elm.querySelector('.shopee-product-rating__author-name')?.textContent?.trim();
-          const reviewerSatisfactionLevel = '';
+          const customerName = elm.querySelector('.shopee-product-rating__author-name')?.textContent?.trim();
+          const customerSatisfactionLevel = '';
           const reviewContent = elm.querySelector('.Em3Qhp')?.textContent;
           const reviewImages = [];
 
           /** crawl product sku image */
-          const crawlCommentImages = elm.querySelectorAll(
-            '.shopee-product-rating__image-list-wrapper .shopee-rating-media-list-image__wrapper .shopee-rating-media-list-image__content'
-          );
+          const commentImagesSelector =
+            '.shopee-product-rating__image-list-wrapper .shopee-rating-media-list-image__wrapper .shopee-rating-media-list-image__content';
+          const crawlCommentImages = elm.querySelectorAll(commentImagesSelector);
           crawlCommentImages.forEach((image) => {
+            const backgroundUrlRegex = /(url\(")[a-zA-Z0-9-_:/.]{1,}/g;
             // eslint-disable-next-line no-unsafe-optional-chaining
-            const [imageUrl] = (image.getAttribute('style') + '')?.match(/(url\(")[a-zA-Z0-9-_:/.]{1,}/g);
-            if (imageUrl) reviewImages.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
+            const [imageUrl] = (image.getAttribute('style') + '')?.match(backgroundUrlRegex);
+            const imageUrlRegex = /(url\(")|("\))/g;
+            if (imageUrl) reviewImages.push((imageUrl + '').replace(imageUrlRegex, ''));
           });
-          productComments.push({ reviewerName, reviewerSatisfactionLevel, reviewContent, reviewImages });
+          productComments.push({ customerName, customerSatisfactionLevel, reviewContent, reviewImages });
         });
         return productComments;
       });
@@ -1271,11 +1262,13 @@ export class CrawlService {
     return await page.evaluate(() => {
       let productId = '';
       let sku = '';
-      const [ID, SKU] = document.URL.match(/(-i.[0-9]{1,})|(\.[0-9]{1,})/g);
-      if (ID && SKU) {
-        productId = ID?.replace(/(-|i|\.)/g, '') || '';
-        sku = SKU?.replace(/(-|i|\.)/g, '') || '';
-      }
+      const shopeeUrlRegex = /(-i.[0-9]{1,})|(\.[0-9]{1,})/g;
+      const [ID, SKU] = document.URL.match(shopeeUrlRegex);
+      const idAndSkuRegex = /(-|i|\.)/g;
+      // if (ID && SKU) {
+      productId = ID?.replace(idAndSkuRegex, '') || '';
+      sku = SKU?.replace(idAndSkuRegex, '') || '';
+      // }
       const querySalePrice = '.pmmxKx';
       const salePrice = document.querySelector(querySalePrice)?.textContent;
       const queryListPrice = '.CDN0wz';
@@ -1285,11 +1278,64 @@ export class CrawlService {
       const images: string[] = [];
       const crawlImages = document.querySelectorAll('.PZ3-ep .Mzs0kz div.agPpyA');
       crawlImages.forEach((elm) => {
+        const backgroundUrlRegex = /url\("[a-zA-Z0-9:/._]{1,}"\)/g;
         // eslint-disable-next-line no-unsafe-optional-chaining
-        const [imageUrl] = (elm.getAttribute('style') + '')?.match(/url\("[a-zA-Z0-9:/._]{1,}"\)/g);
-        if (imageUrl) images.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
+        const [imageUrl] = (elm.getAttribute('style') + '')?.match(backgroundUrlRegex);
+        const imageUrlRegex = /(url\(")|("\))/g;
+        if (imageUrl) images.push((imageUrl + '').replace(imageUrlRegex, ''));
       });
       return { productId, sku, salePrice, listPrice, discountPercent, isSale, images };
     });
+  }
+
+  async crawlProductDetail(browser: puppeteer.Browser) {
+    try {
+      this.logger.log(`${this.crawlProductDetail.name} called`);
+      const { total } = await this.productRepo.getProductNeedCrawlAndUpdate(this.take);
+      let totalCrawl = 0;
+      let skip = 0;
+      while (totalCrawl < total) {
+        let totalCrawlCount = 0;
+        const toBeCrawl = await this.productRepo.getProductNeedCrawlAndUpdate(this.take, skip);
+        for (const element of toBeCrawl.data) {
+          try {
+            totalCrawlCount = totalCrawlCount + 1;
+            console.log({ element });
+            const productDetail = await this.swithToCrawl(browser, element);
+            console.log(productDetail);
+
+            /** Update Product Detail */
+            await this.productRepo.insertProductDetail(element, productDetail);
+          } catch (error) {
+            console.log(error.message);
+            skip = skip + 1;
+          } finally {
+            totalCrawl = totalCrawl + this.take;
+          }
+        }
+      }
+    } catch (error) {
+      this.logger.error(`${this.crawlProductDetail.name} Error:${error.message}`);
+    }
+  }
+
+  async swithToCrawl(browser: puppeteer.Browser, toBeCrawl: Product): Promise<ProductDetail> {
+    // let func: any;
+    switch (toBeCrawl.merchant) {
+      case MerchangeEnum.TIKI: {
+        return await this.getTikiProductDetail(browser, toBeCrawl.originalUrl);
+      }
+      case MerchangeEnum.SHOPEE: {
+        return await this.getShopeeProductDetail(browser, toBeCrawl.originalUrl);
+      }
+      case MerchangeEnum.LAZADA: {
+        return await this.getLazadaProductDetail(browser, toBeCrawl.originalUrl);
+      }
+      default:
+        return;
+    }
+    // if (!func) throw new Error('Not in Tiki, Lazada, Shopee');
+    // console.log({ func });
+    // return await func(browser, toBeCrawl.originalUrl);
   }
 }
