@@ -3,25 +3,24 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ProductResponse } from './product-response.dto';
 
 export class CreateProductTemplateDTO {
+  productTemplateId: number;
   productName: string;
+  productShortName: string;
   thumbnail: string;
-  price: number;
-  average: number;
   slug: string;
+  slug1: string;
   createdAt: Date;
   updatedAt: Date;
-  productId: string;
 
   public static fromProduct(entity: Partial<Product>) {
     const result = new CreateProductTemplateDTO();
-    result.productName = entity.productName;
+    result.productName = entity.name;
+    result.productShortName = entity.slug;
     result.thumbnail = entity.thumbnail;
-    result.price = entity.salePrice;
-    result.average = entity.average;
     result.slug = entity.slug;
+    result.slug1 = entity.slug + entity.productId;
     result.createdAt = new Date();
     result.updatedAt = new Date();
-    result.productId = entity.productId;
     return result;
   }
 
@@ -29,14 +28,13 @@ export class CreateProductTemplateDTO {
     const result: CreateProductTemplateDTO[] = [];
     for (const entity of entities) {
       const temp = new CreateProductTemplateDTO();
-      temp.productName = entity.productName;
+      temp.productName = entity.name;
+      temp.productShortName = entity.slug;
       temp.thumbnail = entity.thumbnail;
-      temp.price = entity.salePrice;
-      temp.average = entity.average;
       temp.slug = entity.slug;
+      temp.slug1 = entity.slug + entity.productId;
       temp.createdAt = new Date();
       temp.updatedAt = new Date();
-      temp.productId = entity.productId;
       result.push(temp);
     }
     return result;
@@ -53,11 +51,11 @@ export class ProductTemplateResponse {
   @ApiProperty()
   thumbnail: string;
 
-  @ApiProperty()
-  price: number;
+  // @ApiProperty()
+  // price: number;
 
-  @ApiProperty()
-  average: number;
+  // @ApiProperty()
+  // average: number;
 
   @ApiProperty()
   slug: string;
@@ -73,8 +71,8 @@ export class ProductTemplateResponse {
     result.productTemplateId = entity.productTemplateId;
     result.productName = entity.productName;
     result.thumbnail = entity.thumbnail;
-    result.price = entity.price;
-    result.average = entity.average;
+    // result.price = entity.price;
+    // result.average = entity.average;
     result.slug = entity.slug;
     result.createdAt = entity.createdAt;
     result.updatedAt = entity.updatedAt;
@@ -88,8 +86,8 @@ export class ProductTemplateResponse {
       temp.productTemplateId = entity.productTemplateId;
       temp.productName = entity.productName;
       temp.thumbnail = entity.thumbnail;
-      temp.price = entity.price;
-      temp.average = entity.average;
+      // temp.price = entity.price;
+      // temp.average = entity.average;
       temp.slug = entity.slug;
       temp.createdAt = entity.createdAt;
       temp.updatedAt = entity.updatedAt;
@@ -124,11 +122,11 @@ export class ProductTemplateDetailResponse {
   @ApiProperty()
   thumbnail: string;
 
-  @ApiProperty()
-  price: number;
+  // @ApiProperty()
+  // price: number;
 
-  @ApiProperty()
-  average: number;
+  // @ApiProperty()
+  // average: number;
 
   @ApiProperty()
   slug: string;
@@ -147,8 +145,8 @@ export class ProductTemplateDetailResponse {
     result.productTemplateId = entity.productTemplateId;
     result.productName = entity.productName;
     result.thumbnail = entity.thumbnail;
-    result.price = entity.price;
-    result.average = entity.average;
+    // result.price = entity.price;
+    // result.average = entity.average;
     result.slug = entity.slug;
     result.createdAt = entity.createdAt;
     result.updatedAt = entity.updatedAt;

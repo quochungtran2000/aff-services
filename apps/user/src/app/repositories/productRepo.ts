@@ -12,7 +12,7 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProductRepo {
-  private readonly logger = new Logger(`Micro-Crawl.${ProductRepo.name}`);
+  private readonly logger = new Logger(`Micro-User.${ProductRepo.name}`);
 
   constructor(
     @Inject('PRODUCT_REPOSITORY') private readonly productRepo: Repository<Product>,
@@ -31,66 +31,184 @@ export class ProductRepo {
       this.logger.log(`${this.adminUpdateProductTemplate.name} called`);
 
       // const result = await this.productService.getProducts();
-      const total = await this.productRepo.count({ merchant: 'tiki' });
+      const total = await this.productRepo
+        .createQueryBuilder('p')
+        .where(`p.merchant = 'tiki'`)
+        .andWhere('length(p.slug) > 13')
+        .getCount();
       const size = 10;
       let page = 1;
       const totalPage = Math.round(total / size) + 1;
 
+      console.log({ total, totalPage });
       while (page < totalPage) {
-        const skip = (page - 1) * size;
-        const data = await this.productRepo
-          .createQueryBuilder()
-          .where(`merchant = :merchant`, { merchant: 'tiki' })
-          .take(size)
-          .skip(skip)
-          .getMany();
-
-        const tobeUpdate = CreateProductTemplateDTO.fromProducts(data);
-
-        for (const update of tobeUpdate) {
-          const { productId, ...data } = update;
-          const { raw } = await this.productTemplateRepo
-            .createQueryBuilder()
-            .insert()
-            .into(PRODUCT_TEMPLATE)
-            .values(data)
-            .orUpdate(['product_name', 'price', 'updated_at', 'thumbnail', 'average'], ['slug'])
-            .returning('*')
-            .execute();
-          // break;
-          await this.productProductRepo
-            .createQueryBuilder()
-            .insert()
-            .into(PRODUCT_PRODUCT)
-            .values({ productTemplateId: raw[0].product_template_id, productId })
-            .orIgnore(true)
-            .execute();
-          this.logger.log(`PP[${raw[0].product_template_id}-${productId}]`);
-
-          const relatedProducts = await this.productRepo
-            .createQueryBuilder()
-            .where('1 = 1')
-            .andWhere('product_id != :productId')
-            .andWhere(`(product_name like '%' || :productName || '%' or slug like  '%' || :slug || '%' )`)
-            .setParameters({ productId, productName: data.productName, slug: data.slug })
+        try {
+          const skip = (page - 1) * size;
+          const data = await this.productRepo
+            .createQueryBuilder('p')
+            .where(`p.merchant = 'tiki'`)
+            .andWhere('length(p.slug) > 13')
+            .take(size)
+            .skip(skip)
             .getMany();
 
-          if (relatedProducts.length) {
-            const values = relatedProducts.map((product) => {
-              return { productTemplateId: raw[0].product_template_id, productId: product.productId };
-            });
+          for (const update of data) {
+            // const { productId, ...data } = update;
+            // let needUpdate = false;
+            const tobeUpdate = CreateProductTemplateDTO.fromProduct(update);
+            // console.log({ tobeUpdate });
+            let productTemplate: PRODUCT_TEMPLATE;
 
-            await this.productProductRepo
+            // const { raw } = await this.productTemplateRepo
+            //   .createQueryBuilder()
+            //   .insert()
+            //   .into(PRODUCT_TEMPLATE)
+            //   .values(tobeUpdate)
+            //   .orUpdate(
+            //     ['product_name', 'product_short_name', 'thumbnail', 'slug', 'updated_at'],
+            //     ['product_template_id']
+            //   )
+            //   // .orIgnore(true)
+            //   .returning('*')
+            //   .execute();
+
+            this.logger.log(`${this.adminUpdateProductTemplate.name} 1`);
+            productTemplate = await this.productTemplateRepo
               .createQueryBuilder()
-              .insert()
-              .into(PRODUCT_PRODUCT)
-              .values(values)
-              .orIgnore(true)
-              .execute();
+              .where('slug1 = :slug', { slug: tobeUpdate.slug1 })
+              .getOne();
+
+            this.logger.log(`${this.adminUpdateProductTemplate.name} 2`);
+            if (!productTemplate) {
+              const { generatedMaps } = await this.productProductRepo
+                .createQueryBuilder()
+                .insert()
+                .into(PRODUCT_TEMPLATE)
+                .values(tobeUpdate)
+                .returning('*')
+                .execute();
+
+              productTemplate = generatedMaps[0] as PRODUCT_TEMPLATE;
+              this.logger.log(`${this.adminUpdateProductTemplate.name} 3`);
+            } else {
+              this.logger.log(`${this.adminUpdateProductTemplate.name} 4`);
+              await this.productTemplateRepo.update(
+                { productTemplateId: productTemplate.productTemplateId },
+                {
+                  productName: tobeUpdate.productName,
+                  productShortName: tobeUpdate.productShortName,
+                  thumbnail: tobeUpdate.thumbnail,
+                  updatedAt: new Date(),
+                }
+              );
+            }
+
+            // const a = await this.productTemplateRepo.save(await this.productTemplateRepo.create({ ...tobeUpdate }));
+            // console.log({ a, count });
+            // count = count + 1;
+            // console.log({a});
+            // return;
+
+            if (productTemplate) {
+              this.logger.log(`${this.adminUpdateProductTemplate.name} 5`);
+              try {
+                await this.productProductRepo
+                  .createQueryBuilder()
+                  .insert()
+                  .into(PRODUCT_PRODUCT)
+                  .values({ productTemplateId: productTemplate.productTemplateId, productId: update.productId })
+                  // .orUpdate(['product_template_id', 'product_id'], ['product_template_id', 'product_id'])
+                  .orIgnore(true)
+                  .execute();
+              } catch (error) {
+                this.logger.error(`Update Exits:${error.message}`);
+              }
+
+              // this.logger.log(`PP[${raw[0].product_template_id}-${productId}]`);
+
+              this.logger.log(`${this.adminUpdateProductTemplate.name} 6`);
+
+              const relatedProducts = await this.productRepo
+                .createQueryBuilder()
+                .where('1 = 1')
+                .andWhere('product_id != :productId')
+                .andWhere(
+                  `(name like '%' || :name || '%' or slug like  '%' || :slug || '%' or slug like '%' || :shortName || '%' )`
+                )
+                .andWhere('length(slug) > 13')
+                .setParameters({
+                  productId: update.productId,
+                  name: update.name,
+                  slug: update.slug,
+                  shortName: productTemplate.productShortName,
+                })
+                .getMany();
+
+              console.log(
+                'relatived',
+                relatedProducts?.[0] ? { product: relatedProducts?.[0], template: productTemplate } : ''
+              );
+
+              if (relatedProducts.length) {
+                const values = relatedProducts.map((product) => {
+                  return { productTemplateId: productTemplate.productTemplateId, productId: product.productId };
+                });
+
+                try {
+                  this.logger.log(`${this.adminUpdateProductTemplate.name} 7`);
+                  await this.productProductRepo
+                    .createQueryBuilder()
+                    .insert()
+                    .into(PRODUCT_PRODUCT)
+                    .values(values)
+                    .orIgnore(true)
+                    .execute();
+                } catch (error) {
+                  this.logger.error(`Update Exits:${error.message}`);
+                }
+              }
+            }
+            // if (a) {
+            //   await this.productProductRepo
+            //     .createQueryBuilder()
+            //     .insert()
+            //     .into(PRODUCT_PRODUCT)
+            //     .values({ productTemplateId: a.productTemplateId, productId: update.productId })
+            //     .orIgnore(true)
+            //     .execute();
+            //   // this.logger.log(`PP[${a.productTemplateId}-${productId}]`);
+
+            //   const relatedProducts = await this.productRepo
+            //     .createQueryBuilder()
+            //     .where('1 = 1')
+            //     .andWhere('product_id != :productId')
+            //     .andWhere(`(name like '%' || :name || '%' or slug like  '%' || :slug || '%' )`)
+            //     .andWhere('length(slug) > 13')
+            //     .setParameters({ productId: update.productId, name: update.name, slug: update.slug })
+            //     .getMany();
+
+            //   if (relatedProducts.length) {
+            //     const values = relatedProducts.map((product) => {
+            //       return { productTemplateId: a.productTemplateId, productId: product.productId };
+            //     });
+
+            //     await this.productProductRepo
+            //       .createQueryBuilder()
+            //       .insert()
+            //       .into(PRODUCT_PRODUCT)
+            //       .values(values)
+            //       .orIgnore(true)
+            //       .execute();
+            //   }
+            // }
           }
+        } catch (error) {
+          this.logger.error(`Update Error:${error.message}`);
         }
+
         page = page + 1;
       }
+      return;
     } catch (error) {
       this.logger.error(`${this.adminUpdateProductTemplate.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
@@ -117,7 +235,7 @@ export class ProductRepo {
         .take(page_size)
         .skip(skip)
         .setParameters({ search })
-        // .orderBy('pt.product_template_id', 'DESC') 
+        // .orderBy('pt.product_template_id', 'DESC')
         .getManyAndCount();
       return PagingProductTemplateResponse.from(total, data);
     } catch (error) {

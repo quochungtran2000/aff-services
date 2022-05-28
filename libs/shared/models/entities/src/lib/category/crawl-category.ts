@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { Product } from '../product';
 import { MAPPING_CATEGORY } from './mapping-category';
 
 @Entity({ schema: 'public', name: 'crawl_category' })
@@ -41,4 +42,8 @@ export class CRAWL_CATEGORY {
   @OneToMany(() => MAPPING_CATEGORY, (map) => map.crawlCategory)
   @JoinColumn({ name: 'crawl_category_id', referencedColumnName: 'crawlCategoryId' })
   mappingCategory: MAPPING_CATEGORY[];
+
+  @OneToMany(() => Product, (p) => p.crawlCategory)
+  @JoinColumn({ name: 'crawl_category_id', referencedColumnName: 'crawlCategoryId' })
+  products: Product[];
 }
