@@ -1,5 +1,6 @@
+import { ProductCommentResponseDTO } from '@aff-services/shared/models/dtos';
 import { Controller, Get, HttpException, Logger, Param, Query, Req, Res } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CommentService } from '../../services/comment/comment.service';
 
@@ -10,6 +11,8 @@ export class CommentController {
   private readonly logger = new Logger(`Api-Gateway.${CommentController.name}`);
   constructor(private readonly commentService: CommentService) {}
 
+  @ApiOperation({ summary: 'Lấy danh sách bình luận của 1 sản phẩm' })
+  @ApiResponse({ type: ProductCommentResponseDTO, isArray: true, status: 200 })
   @Get('ecommerce-product/:productId')
   async websiteGetEcommerceProductComment(
     @Req() req: Request,

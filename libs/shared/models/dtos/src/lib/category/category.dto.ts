@@ -116,8 +116,8 @@ export class CategoryResponse {
   @ApiProperty({ type: String, example: 'Điện Thoại Di Động' })
   title: string;
 
-  @ApiProperty({ type: String, example: 'Điện Thoại Di Động' })
-  slug: string;
+  // @ApiProperty({ type: String, example: 'Điện Thoại Di Động' })
+  // slug: string;
 
   @ApiProperty({ type: Boolean, example: true })
   active: boolean;
@@ -138,7 +138,7 @@ export class CategoryResponse {
     const result = new CategoryResponse();
     result.categoryId = entity.categoryId;
     result.title = entity.title;
-    result.slug = entity.slug;
+    // result.slug = entity.slug;
     result.active = entity.active;
     result.crawl = entity.crawl;
     result.createdAt = entity.createdAt;
@@ -156,7 +156,7 @@ export class CategoryResponse {
       const temp = new CategoryResponse();
       temp.categoryId = entity.categoryId;
       temp.title = entity.title;
-      temp.slug = entity.slug;
+      // temp.slug = entity.slug;
       temp.active = entity.active;
       temp.crawl = entity.crawl;
       temp.createdAt = entity.createdAt;

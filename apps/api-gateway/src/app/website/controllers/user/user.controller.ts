@@ -1,14 +1,18 @@
-import { MyProfileResponse } from '@aff-services/shared/models/dtos';
+import { MyProfileResponse, ProductCommentResponseDTO } from '@aff-services/shared/models/dtos';
 import { Controller, Get, HttpException, Logger, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { UserService } from '../../services/user/user.service';
 
+@ApiTags('Người dùng')
 @Controller('website/user')
 export class UserController {
   private readonly logger = new Logger(`Api-Gateway.${UserController.name}`);
   constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({ summary: 'Lấy danh sách sản phẩm người dùng đã lưu' })
+  @ApiResponse({ status: 200, type: ProductCommentResponseDTO, isArray: true })
   @UseGuards(JwtAuthGuard)
   @Get('save-product')
   async getSaveProducts(@Req() req: Request, @Res() res: Response) {

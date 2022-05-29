@@ -51,4 +51,10 @@ export class CategoryController {
     this.logger.log(`${this.deleteCategory.name} called`);
     return this.categoryService.deleteCategory(data.categoryId);
   }
+
+  @MessagePattern({ cmd: CMD.GET_APPLICATIONS_CATEGORY })
+  getApplicationsCategory({ application }: { application: 'website' | 'mobile' }) {
+    this.logger.log(`${this.getApplicationsCategory.name} called`);
+    return this.categoryService.getApplicationsCategory(application);
+  }
 }

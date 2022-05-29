@@ -32,6 +32,7 @@ export enum CMD {
   // Webiste
   WEBSITE_GET_PRODUCT = 'website_get_product',
   WEBSITE_GET_PRODUCTS = 'website_get_products',
+  GET_APPLICATIONS_CATEGORY = 'get_applications_category',
 
   // Mobile
   MOBILE_GET_PRODUCTS = 'mobile_get_products',

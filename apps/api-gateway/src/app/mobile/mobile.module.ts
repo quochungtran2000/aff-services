@@ -7,10 +7,12 @@ import { CommentController } from './controllers/comment/comment.controller';
 import { CommentService } from './services/comment/comment.service';
 import { UserController } from './controllers/user/user.controller';
 import { UserService } from './services/user/user.service';
+import { CategoryController } from './controllers/category/category.controller';
+import { CategoryService } from './services/category/category.service';
 
 @Module({
   imports: [],
-  controllers: [MobileController, ProductController, CommentController, UserController],
-  providers: [MobileService, ProductService, CommentService, UserService],
+  controllers: [MobileController, ProductController, CommentController, UserController, CategoryController],
+  providers: [MobileService, ProductService, CommentService, UserService, CategoryService],
 })
 export class MobileModule {}

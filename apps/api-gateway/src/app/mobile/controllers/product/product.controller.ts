@@ -6,7 +6,7 @@ import {
   SaveProductTemplateParamDTO,
 } from '@aff-services/shared/models/dtos';
 import { Controller, Get, HttpException, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { ProductService } from '../../services/product/product.service';
@@ -17,6 +17,7 @@ export class ProductController {
   private readonly logger = new Logger(`Api-Gateway.${ProductController.name}`);
   constructor(private readonly productService: ProductService) {}
 
+  @ApiOperation({ summary: 'Lấy danh sách sản phẩm' })
   @ApiResponse({ type: PagingProductTemplateResponse })
   @Get('')
   async websiteGetProducts(@Res() res: Response, @Query() data: ProductTemplateQuery) {
@@ -29,6 +30,7 @@ export class ProductController {
     }
   }
 
+  @ApiOperation({ summary: 'Lấy thông chi tiết một sản phẩm' })
   @ApiResponse({ type: ProductTemplateDetailResponse })
   @Get(':id')
   async websiteGetProduct(@Res() res: Response, @Param('id') id: number) {
@@ -41,6 +43,7 @@ export class ProductController {
     }
   }
 
+  @ApiOperation({ summary: 'Lưu sản phẩm để xem sau' })
   @UseGuards(JwtAuthGuard)
   @Post('/save/:productId')
   async mobileSaveProduct(@Res() res: Response, @Req() req: Request, @Param() data: SaveProductTemplateParamDTO) {
