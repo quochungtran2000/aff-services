@@ -1,12 +1,20 @@
 import {
+  BaseResponse,
   CreateProductTemplateDTO,
   PagingProductResponse,
   PagingProductTemplateResponse,
   ProductCommentResponseDTO,
   ProductTemplateDetailResponse,
   ProductTemplateQuery,
+  SaveProductTemplateParamDTO,
 } from '@aff-services/shared/models/dtos';
-import { Product, PRODUCT_COMMENT, PRODUCT_PRODUCT, PRODUCT_TEMPLATE } from '@aff-services/shared/models/entities';
+import {
+  Product,
+  PRODUCT_COMMENT,
+  PRODUCT_PRODUCT,
+  PRODUCT_TEMPLATE,
+  USER_SAVE_PRODUCT,
+} from '@aff-services/shared/models/entities';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
@@ -19,7 +27,8 @@ export class ProductRepo {
     @Inject('PRODUCT_REPOSITORY') private readonly productRepo: Repository<Product>,
     @Inject('PRODUCT_PRODUCT_REPOSITORY') private readonly productProductRepo: Repository<PRODUCT_PRODUCT>,
     @Inject('PRODUCT_TEMPLATE_REPOSITORY') private readonly productTemplateRepo: Repository<PRODUCT_TEMPLATE>,
-    @Inject('PRODUCT_COMMENT_REPOSITORY') private readonly productCommentRepo: Repository<PRODUCT_COMMENT>
+    @Inject('PRODUCT_COMMENT_REPOSITORY') private readonly productCommentRepo: Repository<PRODUCT_COMMENT>,
+    @Inject('USER_SAVE_PRODUCT_REPOSITORY') private readonly userSaveProductRepo: Repository<USER_SAVE_PRODUCT>
   ) {}
 
   async findAndCount() {
@@ -344,6 +353,45 @@ export class ProductRepo {
       throw new RpcException({ status: error.status || 500, message: error.message });
     } finally {
       this.logger.log(`${this.getEcommerceProductComment.name} Done`);
+    }
+  }
+
+  async userSaveProduct(data: SaveProductTemplateParamDTO): Promise<BaseResponse> {
+    try {
+      let insert = true;
+      const { productId, userId } = data;
+      this.logger.log(`${this.userSaveProduct.name} called Data:${JSON.stringify(data)}`);
+
+      const exists = await this.userSaveProductRepo.findOne({ productTemplateId: productId, userId });
+
+      if (exists) {
+        insert = false;
+        await this.userSaveProductRepo
+          .createQueryBuilder()
+          .delete()
+          .from(USER_SAVE_PRODUCT)
+          .where('user_id = :userId')
+          .andWhere('product_template_id = :productId')
+          .setParameters({ productId, userId })
+          .execute();
+      } else {
+        const existsProductTemplate = await this.productTemplateRepo.findOne({ productTemplateId: productId });
+        if (!existsProductTemplate) throw new BadRequestException('Không tìm thấy sản phẩm');
+
+        await this.userSaveProductRepo
+          .createQueryBuilder()
+          .insert()
+          .into(USER_SAVE_PRODUCT)
+          .values({ userId, productTemplateId: productId })
+          .execute();
+      }
+
+      return { status: 200, message: `${insert ? 'Lưu' : 'Xóa'} thành công` };
+    } catch (error) {
+      this.logger.error(`${this.userSaveProduct.name} Error:${error.message}`);
+      throw new RpcException({ status: error.status || 500, message: error.message });
+    } finally {
+      this.logger.log(`${this.userSaveProduct.name} Done`);
     }
   }
 }

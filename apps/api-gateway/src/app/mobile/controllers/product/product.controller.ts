@@ -1,11 +1,14 @@
 import {
+  MyProfileResponse,
   PagingProductTemplateResponse,
   ProductTemplateDetailResponse,
   ProductTemplateQuery,
+  SaveProductTemplateParamDTO,
 } from '@aff-services/shared/models/dtos';
-import { Controller, Get, HttpException, Logger, Param, Query, Res } from '@nestjs/common';
+import { Controller, Get, HttpException, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { ProductService } from '../../services/product/product.service';
 
 @ApiTags('Sản Phẩm')
@@ -35,6 +38,21 @@ export class ProductController {
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/save/:productId')
+  async mobileSaveProduct(@Res() res: Response, @Req() req: Request, @Param() data: SaveProductTemplateParamDTO) {
+    try {
+      this.logger.log(`${this.mobileSaveProduct.name} called`);
+      data.userId = (req.user as MyProfileResponse).userId;
+      const result = await this.productService.mobileSaveProduct(SaveProductTemplateParamDTO.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.mobileSaveProduct.name} Done`);
     }
   }
 }

@@ -259,3 +259,15 @@ alter table product_comment_image add constraint product_comment_image_fkey_prod
 
 alter table product add column crawl_category_id character varying;
 alter table product add constraint product_fkey_crawl_category foreign key (crawl_category_id) references crawl_category(crawl_category_id);
+
+
+create table user_save_product (
+	product_template_id integer not null,
+	user_id integer not null,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table user_save_product add constraint user_save_product_pkey primary key(product_template_id, user_id);
+alter table user_save_product add constraint user_save_product_fkey_product_template foreign key (product_template_id) references product_template(product_template_id);
+alter table user_save_product add constraint user_save_product_fkey_user foreign key (user_id) references public.user(user_id);

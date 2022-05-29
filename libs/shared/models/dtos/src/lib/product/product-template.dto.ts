@@ -171,3 +171,17 @@ export class ProductTemplateQuery {
     return result;
   }
 }
+
+export class SaveProductTemplateParamDTO {
+  @ApiProperty({ type: Number, example: 699 })
+  productId: number;
+
+  userId: number;
+
+  public static from(dto: Partial<SaveProductTemplateParamDTO>) {
+    const result = new SaveProductTemplateParamDTO();
+    result.productId = dto.productId;
+    result.userId = dto.userId;
+    return result;
+  }
+}

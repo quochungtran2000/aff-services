@@ -1,4 +1,4 @@
-import { ProductTemplateQuery } from '@aff-services/shared/models/dtos';
+import { ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { ProductRepo } from '../repositories/productRepo';
 
@@ -51,5 +51,10 @@ export class ProductService {
   async getEcommerceProductComment(productId: string) {
     this.logger.log(`${this.getEcommerceProductComment.name} called`);
     return await this.productRepo.getEcommerceProductComment(productId);
+  }
+
+  async userSaveProduct(data: SaveProductTemplateParamDTO) {
+    this.logger.log(`${this.userSaveProduct.name} called`);
+    return await this.productRepo.userSaveProduct(data);
   }
 }

@@ -1,4 +1,4 @@
-import { ProductTemplateQuery } from '@aff-services/shared/models/dtos';
+import { ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -68,5 +68,13 @@ export class ProductController {
   getEcommerceProductComment({ productId }: { productId: string }) {
     this.logger.log(`${this.getEcommerceProductComment.name} productId:${productId}`);
     return this.productService.getEcommerceProductComment(productId);
+  }
+
+  // save product
+
+  @MessagePattern({ cmd: CMD.USER_SAVE_PRODUCT })
+  userSaveProduct(data: SaveProductTemplateParamDTO) {
+    this.logger.log(`${this.userSaveProduct.name} called`);
+    return this.productService.userSaveProduct(data);
   }
 }

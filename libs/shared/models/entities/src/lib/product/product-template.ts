@@ -1,4 +1,5 @@
 import { Column, Entity, Generated, JoinColumn, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { USER_SAVE_PRODUCT } from '../user';
 import { PRODUCT_PRODUCT } from './product-product';
 
 @Entity({ schema: 'public', name: 'product_template' })
@@ -38,4 +39,8 @@ export class PRODUCT_TEMPLATE {
   @OneToMany(() => PRODUCT_PRODUCT, (pp) => pp.productTemplate)
   @JoinColumn({ name: 'product_template_id', referencedColumnName: 'productTemplateId' })
   productProducts: PRODUCT_PRODUCT[];
+
+  @OneToMany(() => USER_SAVE_PRODUCT, (usp) => usp.products)
+  @JoinColumn({ name: 'product_template_id', referencedColumnName: 'productTemplateId' })
+  saveProducts: PRODUCT_TEMPLATE[];
 }

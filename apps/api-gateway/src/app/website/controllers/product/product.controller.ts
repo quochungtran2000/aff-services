@@ -1,11 +1,14 @@
 import {
+  MyProfileResponse,
   PagingProductTemplateResponse,
   ProductTemplateDetailResponse,
   ProductTemplateQuery,
+  SaveProductTemplateParamDTO,
 } from '@aff-services/shared/models/dtos';
-import { Controller, Get, HttpException, Logger, Param, Query, Req, Res } from '@nestjs/common';
+import { Controller, Get, HttpException, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { query, Request, Response, Router } from 'express';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { ProductService } from '../../services/product/product.service';
 
 // @SwaggerHeaders()
@@ -31,6 +34,8 @@ export class ProductController {
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.websiteGetProducts.name} Done`);
     }
   }
 
@@ -43,7 +48,23 @@ export class ProductController {
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.websiteGetProduct.name} Done`);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/save/:productId')
+  async websiteSaveProduct(@Res() res: Response, @Req() req: Request, @Param() data: SaveProductTemplateParamDTO) {
+    try {
+      this.logger.log(`${this.websiteSaveProduct.name} called`);
+      data.userId = (req.user as MyProfileResponse).userId;
+      const result = await this.productService.websiteSaveProduct(SaveProductTemplateParamDTO.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.websiteSaveProduct.name} Done`);
     }
   }
 }
-

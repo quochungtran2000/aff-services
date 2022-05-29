@@ -1,9 +1,10 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { ROLE } from './role';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ROLE } from '../role';
+import { USER_SAVE_PRODUCT } from './user-save-product';
 
 @Entity({ schema: 'public', name: 'user' })
 export class USER {
-  @PrimaryGeneratedColumn({ name: 'user_id' })
+  @PrimaryGeneratedColumn({ name: 'user_id', type: 'integer' })
   userId: number;
 
   @Column({ name: 'username', nullable: false })
@@ -33,4 +34,8 @@ export class USER {
   @OneToOne(() => ROLE)
   @JoinColumn({ name: 'role_id', referencedColumnName: 'roleId' })
   role: ROLE;
+
+  // @OneToMany(() => USER_SAVE_PRODUCT, 'customer')
+  // @JoinColumn({ name: 'user_id', referencedColumnName: 'userId' })
+  // saveProducts: USER_SAVE_PRODUCT[];
 }
