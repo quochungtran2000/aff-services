@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from 'typeorm';
 import { PRODUCT_TEMPLATE } from '../product';
 import { USER } from './user';
 
@@ -16,7 +16,7 @@ export class USER_SAVE_PRODUCT {
   @Column({ name: 'updated_at', type: 'timestamp', default: '() => now()' })
   updatedAt: Date;
 
-  @ManyToOne(() => PRODUCT_TEMPLATE, (pt) => pt.saveProducts)
+  @OneToOne(() => PRODUCT_TEMPLATE, (pt) => pt.saveProducts)
   @JoinColumn({ name: 'product_template_id', referencedColumnName: 'productTemplateId' })
   products: PRODUCT_TEMPLATE;
 

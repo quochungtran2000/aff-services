@@ -6,6 +6,7 @@ import {
   ProductCommentResponseDTO,
   ProductTemplateDetailResponse,
   ProductTemplateQuery,
+  ProductTemplateResponse,
   SaveProductTemplateParamDTO,
 } from '@aff-services/shared/models/dtos';
 import {
@@ -392,6 +393,26 @@ export class ProductRepo {
       throw new RpcException({ status: error.status || 500, message: error.message });
     } finally {
       this.logger.log(`${this.userSaveProduct.name} Done`);
+    }
+  }
+
+  async getSaveProduct(userId: number) {
+    try {
+      this.logger.log(`${this.getSaveProduct.name} called userId:${userId}`);
+      const [data, total] = await this.productTemplateRepo
+        .createQueryBuilder('pt')
+        .leftJoin('pt.saveProducts', 'sp')
+        .where('1=1')
+        .andWhere('sp.user_id = :userId')
+        .setParameters({ userId })
+        .getManyAndCount();
+
+      return { total, data: ProductTemplateResponse.fromEntities(data) };
+    } catch (error) {
+      this.logger.error(`${this.getSaveProduct.name} Error:${error.message}`);
+      throw new RpcException({ status: error.status || 500, message: error.message });
+    } finally {
+      this.logger.log(`${this.getSaveProduct.name} Done`);
     }
   }
 }

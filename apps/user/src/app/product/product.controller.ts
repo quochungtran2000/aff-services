@@ -77,4 +77,10 @@ export class ProductController {
     this.logger.log(`${this.userSaveProduct.name} called`);
     return this.productService.userSaveProduct(data);
   }
+
+  @MessagePattern({ cmd: CMD.GET_SAVE_PRODUCT })
+  getSaveProduct({ userId }: { userId: number }) {
+    this.logger.log(`${this.getSaveProduct.name} called`);
+    return this.productService.getSaveProduct(userId);
+  }
 }

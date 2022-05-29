@@ -1,4 +1,4 @@
-import { Column, Entity, Generated, JoinColumn, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Generated, JoinColumn, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { USER_SAVE_PRODUCT } from '../user';
 import { PRODUCT_PRODUCT } from './product-product';
 
@@ -40,7 +40,7 @@ export class PRODUCT_TEMPLATE {
   @JoinColumn({ name: 'product_template_id', referencedColumnName: 'productTemplateId' })
   productProducts: PRODUCT_PRODUCT[];
 
-  @OneToMany(() => USER_SAVE_PRODUCT, (usp) => usp.products)
+  @OneToOne(() => USER_SAVE_PRODUCT, (usp) => usp.products)
   @JoinColumn({ name: 'product_template_id', referencedColumnName: 'productTemplateId' })
-  saveProducts: PRODUCT_TEMPLATE[];
+  saveProducts: USER_SAVE_PRODUCT;
 }

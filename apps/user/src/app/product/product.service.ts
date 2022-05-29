@@ -57,4 +57,9 @@ export class ProductService {
     this.logger.log(`${this.userSaveProduct.name} called`);
     return await this.productRepo.userSaveProduct(data);
   }
+
+  async getSaveProduct(userId: number) {
+    this.logger.log(`${this.getSaveProduct.name} called`);
+    return await this.productRepo.getSaveProduct(userId);
+  }
 }

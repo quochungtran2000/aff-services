@@ -49,5 +49,6 @@ export enum CMD {
   GET_ECOMMERCE_COMMENT = 'get_ecommerce_comment',
 
   // User
-  USER_SAVE_PRODUCT = 'user_save_product'
+  USER_SAVE_PRODUCT = 'user_save_product',
+  GET_SAVE_PRODUCT = 'get_save_product',
 }
