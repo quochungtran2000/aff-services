@@ -1,57 +1,105 @@
 import { Product, PRODUCT_VARIANTS } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ProductResponse {
-  @ApiProperty()
-  originalUrl: string;
+export class ProductVariantReponseDTO {
+  @ApiProperty({ type: String, example: '123547428' })
+  sku: string;
 
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiProperty()
-  lastestCrawlAt: Date;
-
-  @ApiProperty()
+  @ApiProperty({ type: String, example: '123547395' })
   productId: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'Hồng' })
+  variantName: string;
+
+  @ApiProperty({
+    type: String,
+    example: 'https://salt.tikicdn.com/cache/100x100/ts/product/a8/95/83/f78f7caa2f3c0b1032c04470e35be2c2.jpg.webp',
+  })
+  variantImageUrl: string;
+
+  @ApiProperty({ type: Number, example: '2301203' })
+  listPrice: number;
+
+  @ApiProperty({ type: Number, example: '23123' })
+  salePrice: number;
+
+  @ApiProperty({ type: Boolean, example: true })
+  isSale: boolean;
+
+  @ApiProperty({ type: Number, example: 28 })
+  discountPercent: number;
+
+  @ApiProperty({
+    type: String,
+    isArray: true,
+    example: [
+      'https://salt.tikicdn.com/cache/100x100/ts/product/a8/95/83/f78f7caa2f3c0b1032c04470e35be2c2.jpg.webp',
+      'https://salt.tikicdn.com/cache/100x100/ts/review/d8/9a/d7/984f5cdc411c2d39d67b816f6e6913a3.jpg.webp',
+      'https://salt.tikicdn.com/cache/100x100/ts/review/8e/53/ab/d4b0c1bf8a662e222492a1309a705b70.jpg.webp',
+      'https://salt.tikicdn.com/cache/100x100/ts/review/84/28/ba/fe46b9aeae9690c0d81ab67aa355abc8.jpg.webp',
+      'https://salt.tikicdn.com/cache/100x100/ts/review/31/c1/29/dddfcb99a853c86e3397942070e2f804.jpg.webp',
+    ],
+  })
+  images: string[];
+
+  public static fromEntity(entity: Partial<PRODUCT_VARIANTS>) {
+    const result = new ProductVariantReponseDTO();
+    result.sku = entity.sku;
+    result.productId = entity.productId;
+    result.variantName = entity.variantName;
+    result.variantImageUrl = entity.variantImageUrl;
+    result.listPrice = entity.listPrice;
+    result.salePrice = entity.salePrice;
+    result.isSale = entity.isSale;
+    result.discountPercent = entity.discountPercent;
+    result.images = [];
+    entity?.images?.map((image) => result.images.push(image.imageUrl));
+    return result;
+  }
+}
+
+export class ProductResponse {
+  @ApiProperty({ type: String, example: 'https://tiki.vn/dien-thoai-iphone-13-128gb-hang-chinh-hang-p123547395.html' })
+  originalUrl: string;
+
+  @ApiProperty({ type: Date, example: new Date() })
+  createdAt: Date;
+
+  @ApiProperty({ type: Date, example: new Date() })
+  updatedAt: Date;
+
+  @ApiProperty({ type: Date, example: new Date() })
+  lastestCrawlAt: Date;
+
+  @ApiProperty({ type: String, example: '123547395' })
+  productId: string;
+
+  @ApiProperty({ type: String, example: 'Điện Thoại iPhone 13 128GB  - Hàng  Chính Hãng' })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    example: 'https://salt.tikicdn.com/cache/200x200/ts/product/9e/44/ea/2b7ba151d4de1904beca5a66d383dad4.jpg',
+  })
   thumbnail: string;
 
-  // @ApiProperty()
-  // isSale: boolean;
-
-  // @ApiProperty()
-  // salePrice: number;
-
-  // @ApiProperty()
-  // discountPercent: number;
-
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: 98 })
   average: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: '1239' })
   sold: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'Thương hiệu: Apple; Xuất xứ thương hiệu: Mỹ; Xuất xứ: Trung Quốc' })
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'tiki' })
   merchant: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'dien-thoai-iphone-13-128gb' })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: ProductVariantReponseDTO, isArray: true })
   variants: ProductVariantReponseDTO[];
-
-  // @ApiProperty()
-  // productUrl: string;
 
   public static fromEntity(entity: Partial<Product>) {
     const result = new ProductResponse();
@@ -107,50 +155,6 @@ export class PagingProductResponse {
     const result = new PagingProductResponse();
     result.total = total;
     result.data = ProductResponse.fromEntities(data);
-    return result;
-  }
-}
-
-export class ProductVariantReponseDTO {
-  @ApiProperty()
-  sku: string;
-
-  @ApiProperty()
-  productId: string;
-
-  @ApiProperty()
-  variantName: string;
-
-  @ApiProperty()
-  variantImageUrl: string;
-
-  @ApiProperty()
-  listPrice: number;
-
-  @ApiProperty()
-  salePrice: number;
-
-  @ApiProperty()
-  isSale: boolean;
-
-  @ApiProperty()
-  discountPercent: number;
-
-  @ApiProperty()
-  images: string[];
-
-  public static fromEntity(entity: Partial<PRODUCT_VARIANTS>) {
-    const result = new ProductVariantReponseDTO();
-    result.sku = entity.sku;
-    result.productId = entity.productId;
-    result.variantName = entity.variantName;
-    result.variantImageUrl = entity.variantImageUrl;
-    result.listPrice = entity.listPrice;
-    result.salePrice = entity.salePrice;
-    result.isSale = entity.isSale;
-    result.discountPercent = entity.discountPercent;
-    result.images = [];
-    entity?.images?.map((image) => result.images.push(image.imageUrl));
     return result;
   }
 }

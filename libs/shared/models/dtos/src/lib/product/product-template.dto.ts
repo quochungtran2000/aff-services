@@ -42,22 +42,25 @@ export class CreateProductTemplateDTO {
 }
 
 export class ProductTemplateResponse {
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: 674 })
   productTemplateId: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'Điện Thoại iPhone 13 128GB  - Hàng  Chính Hãng' })
   productName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    example: 'https://salt.tikicdn.com/cache/200x200/ts/product/9e/44/ea/2b7ba151d4de1904beca5a66d383dad4.jpg',
+  })
   thumbnail: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'dien-thoai-iphone-13-128gb' })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   updatedAt: Date;
 
   public static fromEntity(entity: Partial<PRODUCT_TEMPLATE>) {
@@ -88,7 +91,7 @@ export class ProductTemplateResponse {
 }
 
 export class PagingProductTemplateResponse {
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: 1 })
   total: number;
 
   @ApiProperty({ type: ProductTemplateResponse, isArray: true })
@@ -103,22 +106,25 @@ export class PagingProductTemplateResponse {
 }
 
 export class ProductTemplateDetailResponse {
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: 674 })
   productTemplateId: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'Điện Thoại iPhone 13 128GB  - Hàng  Chính Hãng' })
   productName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    example: 'https://salt.tikicdn.com/cache/200x200/ts/product/9e/44/ea/2b7ba151d4de1904beca5a66d383dad4.jpg',
+  })
   thumbnail: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'dien-thoai-iphone-13-128gb' })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   updatedAt: Date;
 
   @ApiProperty({ type: ProductResponse, isArray: true })
