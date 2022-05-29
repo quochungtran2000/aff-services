@@ -14,36 +14,37 @@ export class ProductService {
 
   async adminUpdateProductTemplate() {
     this.logger.log(`${this.adminGetProduct.name} called`);
-    return await this.productRepo.adminUpdateProductTemplate();
+    // return await this.productRepo.adminUpdateProductTemplate();
+    return;
   }
 
   async admingetProductTemplate(data: ProductTemplateQuery) {
     this.logger.log(`${this.admingetProductTemplate.name} called`);
-    return await this.productRepo.getProductTemplate(data);
+    return await this.productRepo.getProductTemplateV2(data);
   }
 
   async adminGetProductTemplateDetail(id: number) {
     this.logger.log(`${this.adminGetProductTemplateDetail.name} called`);
-    return await this.productRepo.getProductTemplateDetail(id);
+    return this.productRepo.getProductTemplateDetailV2(id);
   }
 
   async websiteGetProducts(data: ProductTemplateQuery) {
     this.logger.log(`${this.websiteGetProducts.name} called`);
-    return await this.productRepo.getProductTemplate(data);
+    return await this.productRepo.getProductTemplateV2(data);
   }
 
   async websiteGetProduct(id: number) {
     this.logger.log(`${this.websiteGetProduct.name} called`);
-    return await this.productRepo.getProductTemplateDetail(id);
+    return await this.productRepo.getProductTemplateDetailV2(id);
   }
 
   async mobileGetProducts(data: ProductTemplateQuery) {
     this.logger.log(`${this.mobileGetProducts.name} called`);
-    return await this.productRepo.getProductTemplate(data);
+    return await this.productRepo.getProductTemplateV2(data);
   }
 
   async mobileGetProduct(id: number) {
     this.logger.log(`${this.mobileGetProduct.name} called`);
-    return await this.productRepo.getProductTemplateDetail(id);
+    return await this.productRepo.getProductTemplateDetailV2(id);
   }
 }

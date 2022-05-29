@@ -1,4 +1,4 @@
-import { Product } from '@aff-services/shared/models/entities';
+import { Product, PRODUCT_VARIANTS } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ProductResponse {
@@ -47,6 +47,9 @@ export class ProductResponse {
   @ApiProperty()
   slug: string;
 
+  @ApiProperty()
+  variants: ProductVariantReponseDTO[];
+
   // @ApiProperty()
   // productUrl: string;
 
@@ -64,6 +67,8 @@ export class ProductResponse {
     result.createdAt = entity.createdAt;
     result.updatedAt = entity.updatedAt;
     result.lastestCrawlAt = entity.lastestCrawlAt;
+    result.variants = entity?.variants?.map((variant) => ProductVariantReponseDTO.fromEntity(variant)) || [];
+
     return result;
   }
 
@@ -83,6 +88,8 @@ export class ProductResponse {
       temp.createdAt = entity.createdAt;
       temp.updatedAt = entity.updatedAt;
       temp.lastestCrawlAt = entity.lastestCrawlAt;
+      temp.variants = entity?.variants?.map((variant) => ProductVariantReponseDTO.fromEntity(variant)) || [];
+
       result.push(temp);
     }
     return result;
@@ -100,6 +107,50 @@ export class PagingProductResponse {
     const result = new PagingProductResponse();
     result.total = total;
     result.data = ProductResponse.fromEntities(data);
+    return result;
+  }
+}
+
+export class ProductVariantReponseDTO {
+  @ApiProperty()
+  sku: string;
+
+  @ApiProperty()
+  productId: string;
+
+  @ApiProperty()
+  variantName: string;
+
+  @ApiProperty()
+  variantImageUrl: string;
+
+  @ApiProperty()
+  listPrice: number;
+
+  @ApiProperty()
+  salePrice: number;
+
+  @ApiProperty()
+  isSale: boolean;
+
+  @ApiProperty()
+  discountPercent: number;
+
+  @ApiProperty()
+  images: string[];
+
+  public static fromEntity(entity: Partial<PRODUCT_VARIANTS>) {
+    const result = new ProductVariantReponseDTO();
+    result.sku = entity.sku;
+    result.productId = entity.productId;
+    result.variantName = entity.variantName;
+    result.variantImageUrl = entity.variantImageUrl;
+    result.listPrice = entity.listPrice;
+    result.salePrice = entity.salePrice;
+    result.isSale = entity.isSale;
+    result.discountPercent = entity.discountPercent;
+    result.images = [];
+    entity?.images?.map((image) => result.images.push(image.imageUrl));
     return result;
   }
 }

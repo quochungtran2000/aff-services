@@ -33,7 +33,7 @@ export class ProductRepo {
       // const result = await this.productService.getProducts();
       const total = await this.productRepo
         .createQueryBuilder('p')
-        .where(`p.merchant = 'tiki'`)
+        // .where(`p.merchant = 'tiki'`)
         .andWhere('length(p.slug) > 13')
         .getCount();
       const size = 10;
@@ -46,7 +46,7 @@ export class ProductRepo {
           const skip = (page - 1) * size;
           const data = await this.productRepo
             .createQueryBuilder('p')
-            .where(`p.merchant = 'tiki'`)
+            // .where(`p.merchant = 'tiki'`)
             .andWhere('length(p.slug) > 13')
             .take(size)
             .skip(skip)
@@ -237,6 +237,70 @@ export class ProductRepo {
     } catch (error) {
       this.logger.error(`${this.getProductTemplate.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
+    }
+  }
+
+  async getProductTemplateV2(query: ProductTemplateQuery) {
+    try {
+      this.logger.log(`${this.getProductTemplate.name} called`);
+      const { page_size, skip, search, categoryId } = query;
+      const qr = this.productTemplateRepo
+        .createQueryBuilder('pt')
+        .leftJoin('pt.productProducts', 'pp')
+        .leftJoin('pp.product', 'p')
+        .leftJoin('p.variants', 'va')
+        .leftJoin('va.images', 'vai')
+        .leftJoin('p.crawlCategory', 'cc')
+        .leftJoin('cc.mappingCategory', 'mc')
+        .leftJoin('mc.category', 'c')
+        .where('1 = 1')
+        .andWhere('p.is_complete_update = true')
+        .andWhere('p.is_complete_crawl = true');
+
+      if (search) qr.andWhere(`UPPER(pt.product_name) like '%' || UPPER(:search) || '%'`);
+      if (categoryId) qr.andWhere(`c.category_id in (:...categoryIds)`);
+
+      const [data, total] = await qr
+        .take(page_size)
+        .skip(skip)
+        .setParameters({ search, categoryIds: [categoryId] })
+        .orderBy('pt.productTemplateId', 'ASC')
+        .getManyAndCount();
+      return PagingProductTemplateResponse.from(total, data);
+      // return { total, data };
+    } catch (error) {
+      this.logger.error(`${this.getProductTemplate.name} Error:${error.message}`);
+      throw new RpcException({ status: error.status || 500, message: error.message });
+    }
+  }
+
+  async getProductTemplateDetailV2(productTemplateId) {
+    try {
+      this.logger.log(`${this.getProductTemplateDetailV2.name} called productTemplateId:${productTemplateId}`);
+      const productDetail = await this.productTemplateRepo
+        .createQueryBuilder('pt')
+        .leftJoinAndSelect('pt.productProducts', 'pp')
+        .leftJoinAndSelect('pp.product', 'p')
+        .leftJoinAndSelect('p.variants', 'va')
+        .leftJoinAndSelect('va.images', 'vai')
+        // .leftJoin('p.crawlCategory', 'cc')
+        // .leftJoin('cc.mappingCategory', 'mc')
+        // .leftJoin('mc.category', 'c')
+        .where('1 = 1')
+        .andWhere('p.is_complete_update = true')
+        .andWhere('p.is_complete_crawl = true')
+        .andWhere('pt.product_template_id = :productTemplateId')
+        .setParameters({ productTemplateId })
+        .getOne();
+
+      if (!productDetail) throw new BadRequestException('Không tìm thấy sản phẩm');
+
+      return ProductTemplateDetailResponse.fromEntity(productDetail);
+    } catch (error) {
+      this.logger.error(`${this.getProductTemplateDetailV2.name} Error:${error.message}`);
+      throw new RpcException({ status: error.status || 500, message: error.message });
+    } finally {
+      this.logger.log(`${this.getProductTemplateDetailV2.name} Done!.`);
     }
   }
 

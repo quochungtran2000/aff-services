@@ -51,12 +51,6 @@ export class ProductTemplateResponse {
   @ApiProperty()
   thumbnail: string;
 
-  // @ApiProperty()
-  // price: number;
-
-  // @ApiProperty()
-  // average: number;
-
   @ApiProperty()
   slug: string;
 
@@ -71,8 +65,6 @@ export class ProductTemplateResponse {
     result.productTemplateId = entity.productTemplateId;
     result.productName = entity.productName;
     result.thumbnail = entity.thumbnail;
-    // result.price = entity.price;
-    // result.average = entity.average;
     result.slug = entity.slug;
     result.createdAt = entity.createdAt;
     result.updatedAt = entity.updatedAt;
@@ -86,8 +78,6 @@ export class ProductTemplateResponse {
       temp.productTemplateId = entity.productTemplateId;
       temp.productName = entity.productName;
       temp.thumbnail = entity.thumbnail;
-      // temp.price = entity.price;
-      // temp.average = entity.average;
       temp.slug = entity.slug;
       temp.createdAt = entity.createdAt;
       temp.updatedAt = entity.updatedAt;
@@ -122,12 +112,6 @@ export class ProductTemplateDetailResponse {
   @ApiProperty()
   thumbnail: string;
 
-  // @ApiProperty()
-  // price: number;
-
-  // @ApiProperty()
-  // average: number;
-
   @ApiProperty()
   slug: string;
 
@@ -138,7 +122,7 @@ export class ProductTemplateDetailResponse {
   updatedAt: Date;
 
   @ApiProperty({ type: ProductResponse, isArray: true })
-  products: ProductResponse[];
+  items: ProductResponse[];
 
   public static fromEntity(entity: Partial<PRODUCT_TEMPLATE>) {
     const result = new ProductTemplateDetailResponse();
@@ -150,9 +134,8 @@ export class ProductTemplateDetailResponse {
     result.slug = entity.slug;
     result.createdAt = entity.createdAt;
     result.updatedAt = entity.updatedAt;
-    const products = [];
-    entity.productProducts?.map((product) => products.push(ProductResponse.fromEntity(product.product)));
-    result.products = products;
+
+    result.items = entity?.productProducts?.map((product) => ProductResponse.fromEntity(product.product));
     return result;
   }
 }
@@ -167,6 +150,9 @@ export class ProductTemplateQuery {
   @ApiProperty()
   search: string;
 
+  @ApiProperty()
+  categoryId: string;
+
   skip: number;
 
   public static from(dto: Partial<ProductTemplateQuery>) {
@@ -175,6 +161,7 @@ export class ProductTemplateQuery {
     result.page_size = dto.page_size || 12;
     result.skip = (result.page - 1) * result.page_size;
     result.search = dto.search;
+    result.categoryId = dto.categoryId;
     return result;
   }
 }
