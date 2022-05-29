@@ -2,10 +2,11 @@ import {
   CreateProductTemplateDTO,
   PagingProductResponse,
   PagingProductTemplateResponse,
+  ProductCommentResponseDTO,
   ProductTemplateDetailResponse,
   ProductTemplateQuery,
 } from '@aff-services/shared/models/dtos';
-import { Product, PRODUCT_PRODUCT, PRODUCT_TEMPLATE } from '@aff-services/shared/models/entities';
+import { Product, PRODUCT_COMMENT, PRODUCT_PRODUCT, PRODUCT_TEMPLATE } from '@aff-services/shared/models/entities';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
@@ -17,7 +18,8 @@ export class ProductRepo {
   constructor(
     @Inject('PRODUCT_REPOSITORY') private readonly productRepo: Repository<Product>,
     @Inject('PRODUCT_PRODUCT_REPOSITORY') private readonly productProductRepo: Repository<PRODUCT_PRODUCT>,
-    @Inject('PRODUCT_TEMPLATE_REPOSITORY') private readonly productTemplateRepo: Repository<PRODUCT_TEMPLATE>
+    @Inject('PRODUCT_TEMPLATE_REPOSITORY') private readonly productTemplateRepo: Repository<PRODUCT_TEMPLATE>,
+    @Inject('PRODUCT_COMMENT_REPOSITORY') private readonly productCommentRepo: Repository<PRODUCT_COMMENT>
   ) {}
 
   async findAndCount() {
@@ -321,6 +323,27 @@ export class ProductRepo {
     } catch (error) {
       this.logger.error(`${this.getProductTemplateDetail.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
+    }
+  }
+
+  async getEcommerceProductComment(productId: string) {
+    try {
+      this.logger.log(`${this.getEcommerceProductComment.name} called productId:${productId}`);
+
+      const data = await this.productCommentRepo
+        .createQueryBuilder('pc')
+        .leftJoinAndSelect('pc.images', 'i')
+        .where('1=1')
+        .andWhere('pc.product_id = :productId')
+        .setParameters({ productId })
+        .getMany();
+
+      return data?.map((element) => ProductCommentResponseDTO.fromEntity(element));
+    } catch (error) {
+      this.logger.error(`${this.getProductTemplateDetail.name} Error:${error.message}`);
+      throw new RpcException({ status: error.status || 500, message: error.message });
+    } finally {
+      this.logger.log(`${this.getEcommerceProductComment.name} Done`);
     }
   }
 }

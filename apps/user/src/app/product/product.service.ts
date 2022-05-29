@@ -47,4 +47,9 @@ export class ProductService {
     this.logger.log(`${this.mobileGetProduct.name} called`);
     return await this.productRepo.getProductTemplateDetailV2(id);
   }
+
+  async getEcommerceProductComment(productId: string) {
+    this.logger.log(`${this.getEcommerceProductComment.name} called`);
+    return await this.productRepo.getEcommerceProductComment(productId);
+  }
 }

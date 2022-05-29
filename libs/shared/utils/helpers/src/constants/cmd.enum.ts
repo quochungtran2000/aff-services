@@ -44,4 +44,7 @@ export enum CMD {
   //Config
   GET_CONFIG = 'get_config',
   GET_CATEGORY = 'get_category',
+
+  // Comment
+  GET_ECOMMERCE_COMMENT = 'get_ecommerce_comment',
 }

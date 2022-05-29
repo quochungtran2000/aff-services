@@ -61,4 +61,12 @@ export class ProductController {
     this.logger.log(`${this.mobileGetProduct.name} called`);
     return this.productService.mobileGetProduct(id);
   }
+
+  // Comment
+
+  @MessagePattern({ cmd: CMD.GET_ECOMMERCE_COMMENT })
+  getEcommerceProductComment({ productId }: { productId: string }) {
+    this.logger.log(`${this.getEcommerceProductComment.name} productId:${productId}`);
+    return this.productService.getEcommerceProductComment(productId);
+  }
 }

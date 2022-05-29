@@ -1,4 +1,6 @@
+import { PRODUCT_COMMENT } from '@aff-services/shared/models/entities';
 import { removeAccent } from '@aff-services/shared/utils/helpers';
+import { ApiProperty } from '@nestjs/swagger';
 
 export type ProductVariant = {
   productId: string;
@@ -119,7 +121,7 @@ export class CrawlUpdateProductCommentDTO {
   public static from(productId: string, dto: Partial<ProductComment>) {
     const result = new CrawlUpdateProductCommentDTO();
     result.productId = productId;
-    result.customerName = dto.customerName
+    result.customerName = dto.customerName;
     result.customerSatisfactionLevel = dto.customerSatisfactionLevel;
     result.content = dto.reviewContent;
     return result;
@@ -160,4 +162,40 @@ export class CrawlUpdateProductVariantImage {
   productId: string;
   sku: string;
   imageUrl: string;
+}
+
+export class ProductCommentResponseDTO {
+  @ApiProperty({ type: String, example: 'Nguyễn Đức Duy' })
+  customerName: string;
+
+  @ApiProperty({ type: String, example: 'Cực kì hài lòng' })
+  customerSatisfactionLevel: string;
+
+  @ApiProperty({
+    type: String,
+    example:
+      'Tiki giao hàng nhanh. Sản phẩm chính hãng vn/a. Giá tốt, có thêm chương trình giảm nhờ mua hàng qua thẻ tín dụng. Iphone 13 tốc độ nhanh, camera chụp đẹp, lựa chọn phù hợp túi tiền, đầy đủ công nghệ mới. Xứng đáng nâng cấp nếu đang dùng bản iPhone X hoặc cũ hơn.',
+  })
+  content: string;
+
+  @ApiProperty({
+    type: String,
+    isArray: true,
+    example: [
+      'https://salt.tikicdn.com/ts/review/ba/bc/dc/039a82478e728552421fa65c55f3fb11.jpg',
+      'https://salt.tikicdn.com/ts/review/4e/43/9f/37816f769165389917caa840817c563f.jpg',
+      'https://salt.tikicdn.com/ts/review/de/5c/e3/84af064f70eb1f7c947132c2b41a3fc2.jpg',
+      'https://salt.tikicdn.com/ts/review/12/a7/73/55c38b9824b0950fd1f9e6719b105264.jpg',
+    ],
+  })
+  images: string[];
+
+  public static fromEntity(entity: Partial<PRODUCT_COMMENT>) {
+    const result = new ProductCommentResponseDTO();
+    result.customerName = entity.customerName;
+    result.customerSatisfactionLevel = entity.customerSatisfactionLevel;
+    result.content = entity.content;
+    result.images = entity?.images?.map((image) => image.imageUrl) || [];
+    return result;
+  }
 }
