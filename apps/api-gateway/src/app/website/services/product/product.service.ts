@@ -1,4 +1,4 @@
-import { ProductTemplateQuery } from '@aff-services/shared/models/dtos';
+import { ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -32,5 +32,10 @@ export class ProductService {
   async websiteGetProduct(id: number) {
     this.logger.log(`${this.websiteGetProducts.name} called`);
     return await this.client.send({ cmd: CMD.WEBSITE_GET_PRODUCT }, { id }).toPromise();
+  }
+
+  async websiteSaveProduct(data: SaveProductTemplateParamDTO) {
+    this.logger.log(`${this.websiteGetProducts.name} called`);
+    return await this.client.send({ cmd: CMD.USER_SAVE_PRODUCT }, data).toPromise();
   }
 }

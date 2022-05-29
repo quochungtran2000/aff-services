@@ -119,7 +119,7 @@ export class CrawlUpdateProductCommentDTO {
   public static from(productId: string, dto: Partial<ProductComment>) {
     const result = new CrawlUpdateProductCommentDTO();
     result.productId = productId;
-    result.customerName = dto.customerName
+    result.customerName = dto.customerName;
     result.customerSatisfactionLevel = dto.customerSatisfactionLevel;
     result.content = dto.reviewContent;
     return result;

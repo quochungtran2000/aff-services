@@ -14,6 +14,7 @@ import {
   PRODUCT_TEMPLATE,
   PRODUCT_VARIANTS,
   PRODUCT_VARIANT_IMAGE,
+  USER_SAVE_PRODUCT,
   V_PRODUCT_TEMPLATE,
 } from '@aff-services/shared/models/entities';
 
@@ -48,6 +49,7 @@ export const databaseProviders = [
           PRODUCT_VARIANT_IMAGE,
           PRODUCT_COMMENT,
           PRODUCT_COMMENT_IMAGE,
+          USER_SAVE_PRODUCT,
         ],
         // synchronize: true,
         // logging: true,

@@ -41,4 +41,9 @@ export class CategoryService {
     this.logger.log(`${this.deleteCategory.name} called`);
     return await this.categoryRepo.deleteCategory(categoryId);
   }
+
+  async getApplicationsCategory(application) {
+    this.logger.log(`${this.getApplicationsCategory.name} called`);
+    return await this.categoryRepo.getApplicationsCategory(application);
+  }
 }

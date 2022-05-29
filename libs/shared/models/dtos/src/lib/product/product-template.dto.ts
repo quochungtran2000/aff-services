@@ -42,28 +42,25 @@ export class CreateProductTemplateDTO {
 }
 
 export class ProductTemplateResponse {
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: 674 })
   productTemplateId: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'Điện Thoại iPhone 13 128GB  - Hàng  Chính Hãng' })
   productName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    example: 'https://salt.tikicdn.com/cache/200x200/ts/product/9e/44/ea/2b7ba151d4de1904beca5a66d383dad4.jpg',
+  })
   thumbnail: string;
 
-  // @ApiProperty()
-  // price: number;
-
-  // @ApiProperty()
-  // average: number;
-
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'dien-thoai-iphone-13-128gb' })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   updatedAt: Date;
 
   public static fromEntity(entity: Partial<PRODUCT_TEMPLATE>) {
@@ -71,8 +68,6 @@ export class ProductTemplateResponse {
     result.productTemplateId = entity.productTemplateId;
     result.productName = entity.productName;
     result.thumbnail = entity.thumbnail;
-    // result.price = entity.price;
-    // result.average = entity.average;
     result.slug = entity.slug;
     result.createdAt = entity.createdAt;
     result.updatedAt = entity.updatedAt;
@@ -86,8 +81,6 @@ export class ProductTemplateResponse {
       temp.productTemplateId = entity.productTemplateId;
       temp.productName = entity.productName;
       temp.thumbnail = entity.thumbnail;
-      // temp.price = entity.price;
-      // temp.average = entity.average;
       temp.slug = entity.slug;
       temp.createdAt = entity.createdAt;
       temp.updatedAt = entity.updatedAt;
@@ -98,7 +91,7 @@ export class ProductTemplateResponse {
 }
 
 export class PagingProductTemplateResponse {
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: 1 })
   total: number;
 
   @ApiProperty({ type: ProductTemplateResponse, isArray: true })
@@ -113,32 +106,29 @@ export class PagingProductTemplateResponse {
 }
 
 export class ProductTemplateDetailResponse {
-  @ApiProperty()
+  @ApiProperty({ type: Number, example: 674 })
   productTemplateId: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'Điện Thoại iPhone 13 128GB  - Hàng  Chính Hãng' })
   productName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    example: 'https://salt.tikicdn.com/cache/200x200/ts/product/9e/44/ea/2b7ba151d4de1904beca5a66d383dad4.jpg',
+  })
   thumbnail: string;
 
-  // @ApiProperty()
-  // price: number;
-
-  // @ApiProperty()
-  // average: number;
-
-  @ApiProperty()
+  @ApiProperty({ type: String, example: 'dien-thoai-iphone-13-128gb' })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date, example: new Date() })
   updatedAt: Date;
 
   @ApiProperty({ type: ProductResponse, isArray: true })
-  products: ProductResponse[];
+  items: ProductResponse[];
 
   public static fromEntity(entity: Partial<PRODUCT_TEMPLATE>) {
     const result = new ProductTemplateDetailResponse();
@@ -150,9 +140,8 @@ export class ProductTemplateDetailResponse {
     result.slug = entity.slug;
     result.createdAt = entity.createdAt;
     result.updatedAt = entity.updatedAt;
-    const products = [];
-    entity.productProducts?.map((product) => products.push(ProductResponse.fromEntity(product.product)));
-    result.products = products;
+
+    result.items = entity?.productProducts?.map((product) => ProductResponse.fromEntity(product.product));
     return result;
   }
 }
@@ -167,6 +156,9 @@ export class ProductTemplateQuery {
   @ApiProperty()
   search: string;
 
+  @ApiProperty()
+  categoryId: string;
+
   skip: number;
 
   public static from(dto: Partial<ProductTemplateQuery>) {
@@ -175,6 +167,21 @@ export class ProductTemplateQuery {
     result.page_size = dto.page_size || 12;
     result.skip = (result.page - 1) * result.page_size;
     result.search = dto.search;
+    result.categoryId = dto.categoryId;
+    return result;
+  }
+}
+
+export class SaveProductTemplateParamDTO {
+  @ApiProperty({ type: Number, example: 699 })
+  productId: number;
+
+  userId: number;
+
+  public static from(dto: Partial<SaveProductTemplateParamDTO>) {
+    const result = new SaveProductTemplateParamDTO();
+    result.productId = dto.productId;
+    result.userId = dto.userId;
     return result;
   }
 }

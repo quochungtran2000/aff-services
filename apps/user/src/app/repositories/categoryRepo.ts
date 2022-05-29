@@ -167,4 +167,19 @@ export class CategoryRepo {
       throw new RpcException({ message: error.message, status: error.status || 500 });
     }
   }
+
+  async getApplicationsCategory(application: 'website' | 'mobile') {
+    try {
+      this.logger.log(`${this.getApplicationsCategory.name} data:${JSON.stringify({ application })}`);
+      const qr = this.categoryRepo.createQueryBuilder('c').where('1=1');
+      // .andWhere('c.active = true');
+      // if (application === 'website') qr.andWhere('c.website = true');
+      // if (application === 'mobile') qr.andWhere('c.app = true');
+      const data = await qr.getMany();
+      return CategoryResponse.fromEntities(data);
+    } catch (error) {
+      this.logger.error(`${this.getApplicationsCategory.name} error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    }
+  }
 }

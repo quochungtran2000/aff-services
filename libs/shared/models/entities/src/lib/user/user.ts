@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { ROLE } from './role';
+import { ROLE } from '../role';
 
 @Entity({ schema: 'public', name: 'user' })
 export class USER {
-  @PrimaryGeneratedColumn({ name: 'user_id' })
+  @PrimaryGeneratedColumn({ name: 'user_id', type: 'integer' })
   userId: number;
 
   @Column({ name: 'username', nullable: false })
@@ -34,6 +34,6 @@ export class USER {
   @JoinColumn({ name: 'role_id', referencedColumnName: 'roleId' })
   role: ROLE;
 
-  @Column({name : 'img_url', nullable: true})
+  @Column({ name: 'img_url', nullable: true })
   imgUrl: string;
 }
