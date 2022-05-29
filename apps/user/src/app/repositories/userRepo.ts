@@ -98,11 +98,9 @@ export class UserRepo {
         .update(USER)
         .set({
           fullname: data.fullname,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-          imgUrl: data.imgURL
+          imgUrl: data.imgUrl
         })
-        .where("userId =:userId", { userId: data.userId })
+        .where("username =:username", { username: data.username })
         .execute();
     } catch (error) {
       this.logger.error(`${this.updateUser.name} Error:${error.message}`);

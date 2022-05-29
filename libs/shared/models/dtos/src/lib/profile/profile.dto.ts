@@ -6,8 +6,8 @@ export class ProfileUpdateResponse {
 }
 
 export class ProfileUpdateRequest {
-  @ApiProperty({ type: String, example: "19", required: true})
-  userId: string;
+  @ApiProperty({type : String, example: "lenguyenkhoi21", required: true})
+  username : string;
 
   @ApiProperty({ type: String, example: "Lê Nguyên Khôi", required: false})
   fullname: string;
@@ -19,5 +19,5 @@ export class ProfileUpdateRequest {
   phoneNumber: string;
 
   @ApiProperty({type: String, example: 'link', required: false})
-  imgURL: string;
+  imgUrl: string;
 }

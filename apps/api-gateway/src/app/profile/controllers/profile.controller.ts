@@ -35,7 +35,7 @@ export class ProfileController {
     try {
       this.logger.log(`${this.updateUserProfile.name} called`)
       const result = await this.profileService.updateUserProfile(data);
-      return res.status(200).json({ success: result.affected === 1});
+      return res.status(200).json({ "message": "success"});
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
     }
