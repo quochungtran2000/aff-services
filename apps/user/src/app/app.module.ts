@@ -5,10 +5,17 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AccessControlModule } from './access-control/access-control.module';
 import { ProductModule } from './product/product.module';
-import { CategoryModule } from './category/category.module';
+import {ProfileModule} from "./profile/profile.module";
 
 @Module({
-  imports: [AuthModule, AuthModule, UserModule, AccessControlModule, ProductModule, CategoryModule],
+  imports: [
+    AuthModule,
+    AuthModule,
+    UserModule,
+    AccessControlModule,
+    ProductModule,
+    ProfileModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -40,6 +40,9 @@ export class MyProfileResponse {
   @ApiProperty({ type: String, example: 'user' })
   role: string;
 
+  @ApiProperty({ type: String, example: 'img.url' })
+  imgUrl: string;
+
   public static fromEntity(entity: Partial<USER>) {
     const result = new MyProfileResponse();
     result.userId = entity.userId;
@@ -48,6 +51,7 @@ export class MyProfileResponse {
     result.email = entity.email;
     result.phoneNumber = entity.phoneNumber;
     result.role = entity.role.roleName || 'user';
+    result.imgUrl = entity.imgUrl
     return result;
   }
 }

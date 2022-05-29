@@ -6,3 +6,4 @@ export * from './product';
 export * from './crawl';
 export * from './base';
 export * from './category';
+export * from './profile';
