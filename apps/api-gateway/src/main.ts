@@ -13,7 +13,6 @@ import { config } from './app/config/configurations';
 import { AllExceptionsFilter } from './app/middlewares/http-exception.filter';
 import { MobileModule } from './app/mobile/mobile.module';
 import { WebsiteModule } from './app/website/website.module';
-import {ProfileModule} from "./app/profile/profile.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -57,7 +56,7 @@ async function bootstrap() {
     .build();
 
   const documentMobile = SwaggerModule.createDocument(app, configMobile, {
-    include: [MobileModule, AuthModule, ProfileModule],
+    include: [MobileModule, AuthModule],
   });
   SwaggerModule.setup(`${globalPrefix}/document/mobile`, app, documentMobile);
 

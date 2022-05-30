@@ -1,7 +1,7 @@
-import {PagingUserResponse, ProfileUpdateRequest, RegisterPayload, UserQuery} from '@aff-services/shared/models/dtos';
-import {USER} from '@aff-services/shared/models/entities';
-import {Inject, Injectable, Logger} from '@nestjs/common';
-import {Repository, UpdateResult} from 'typeorm';
+import { PagingUserResponse, RegisterPayload, UserQuery } from '@aff-services/shared/models/dtos';
+import { USER } from '@aff-services/shared/models/entities';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserRepo {
@@ -88,22 +88,6 @@ export class UserRepo {
       return PagingUserResponse.from(total, data);
     } catch (error) {
       this.logger.error(`${this.getUsers.name} Error:${error.message}`);
-    }
-  }
-
-  async updateUser(data: ProfileUpdateRequest) : Promise<UpdateResult> {
-    try {
-      return await this.userRepo
-        .createQueryBuilder()
-        .update(USER)
-        .set({
-          fullname: data.fullname,
-          imgUrl: data.imgUrl
-        })
-        .where("username =:username", { username: data.username })
-        .execute();
-    } catch (error) {
-      this.logger.error(`${this.updateUser.name} Error:${error.message}`);
     }
   }
 }

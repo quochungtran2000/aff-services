@@ -10,7 +10,6 @@ import { LoggingMiddleware } from './middlewares/logging.middleware';
 // import { AppNameMiddleWare } from './middlewares/app-name.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { config } from './config/configurations';
-import {ProfileModule} from "./profile/profile.module";
 
 @Module({
   imports: [
@@ -22,7 +21,6 @@ import {ProfileModule} from "./profile/profile.module";
     MobileModule,
     AuthModule,
     WebsiteModule,
-    ProfileModule
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -36,7 +34,6 @@ export class AppModule implements NestModule {
     //   { path: 'admin/*', method: RequestMethod.ALL },
     //   { path: 'mobile/*', method: RequestMethod.ALL },
     //   { path: 'website/*', method: RequestMethod.ALL }
-    // );  }
+    // );
+  }
 }
-}
-
