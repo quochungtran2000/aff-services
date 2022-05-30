@@ -49,6 +49,7 @@ export class ProductController {
   }
 
   //  Mobile
+
   @MessagePattern({ cmd: CMD.MOBILE_GET_PRODUCTS })
   mobileGetProducts(data: ProductTemplateQuery) {
     this.logger.log(`${this.mobileGetProducts.name} called`);
