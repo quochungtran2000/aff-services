@@ -9,10 +9,19 @@ import { UserController } from './controllers/user/user.controller';
 import { UserService } from './services/user/user.service';
 import { CategoryController } from './controllers/category/category.controller';
 import { CategoryService } from './services/category/category.service';
+import { PostController } from './controllers/post/post.controller';
+import { PostService } from './services/post/post.service';
 
 @Module({
   imports: [],
-  controllers: [MobileController, ProductController, CommentController, UserController, CategoryController],
-  providers: [MobileService, ProductService, CommentService, UserService, CategoryService],
+  controllers: [
+    MobileController,
+    ProductController,
+    CommentController,
+    UserController,
+    CategoryController,
+    PostController,
+  ],
+  providers: [MobileService, ProductService, CommentService, UserService, CategoryService, PostService],
 })
 export class MobileModule {}

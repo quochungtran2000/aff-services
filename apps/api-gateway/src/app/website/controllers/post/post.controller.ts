@@ -1,0 +1,115 @@
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { PostService } from '../../services/post/post.service';
+import { Request, Response } from 'express';
+import {
+  CreatePostDTO,
+  DeletePostDTO,
+  GetMyPostsQueryDTO,
+  GetPostDetailDTO,
+  GetPostQueryDTO,
+  MyProfileResponse,
+  UpdatePostDTO,
+} from '@aff-services/shared/models/dtos';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  Logger,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+
+@ApiTags('Bài viết')
+@Controller('website/post')
+export class PostController {
+  private readonly logger = new Logger(`Api-Gateway.${PostController.name}`);
+  constructor(private readonly postService: PostService) {}
+
+  @Post('')
+  @ApiOperation({ summary: 'Đăng bài viết' })
+  @UseGuards(JwtAuthGuard)
+  async createPost(@Res() res: Response, @Req() req: Request, @Body() data: CreatePostDTO) {
+    try {
+      this.logger.log(`${this.createPost.name} called`);
+      data.postAuthor = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.createPost(CreatePostDTO.from(data));
+      return res.status(201).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Get('')
+  @ApiOperation({ summary: 'Lấy danh sách bài viết' })
+  async getPosts(@Res() res: Response, @Req() req: Request, @Query() query: GetPostQueryDTO) {
+    try {
+      this.logger.log(`${this.getPosts.name} called`);
+      const result = await this.postService.getPosts(GetPostQueryDTO.from(query));
+      return res.status(201).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Get('/detail/:postId')
+  @ApiOperation({ summary: 'Lấy chi tiết bài viết' })
+  async getPost(@Res() res: Response, @Req() req: Request, @Param() param: GetPostDetailDTO) {
+    try {
+      this.logger.log(`${this.getPost.name} called`);
+      const result = await this.postService.getPost(param.postId);
+      return res.status(201).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Get('/my-posts')
+  @ApiOperation({ summary: 'Bài viết của tôi' })
+  @UseGuards(JwtAuthGuard)
+  async getMyPosts(@Res() res: Response, @Req() req: Request, @Query() query: GetMyPostsQueryDTO) {
+    try {
+      this.logger.log(`${this.getPosts.name} called`);
+      query.authorId = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.getMyPosts(GetMyPostsQueryDTO.from(query));
+      return res.status(201).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Put('')
+  @ApiOperation({ summary: 'Cập nhật bài viết' })
+  @UseGuards(JwtAuthGuard)
+  async updatePost(@Res() @Res() res: Response, @Req() req: Request, @Body() data: UpdatePostDTO) {
+    try {
+      this.logger.log(`${this.updatePost.name} called`);
+      data.postAuthor = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.updatePost(UpdatePostDTO.from(data));
+      return res.status(201).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Delete('/:postId')
+  @ApiOperation({ summary: 'Xóa bài viết' })
+  @UseGuards(JwtAuthGuard)
+  async deletePost(@Res() res: Response, @Req() req: Request, @Param() data: DeletePostDTO) {
+    try {
+      this.logger.log(`${this.deletePost.name} called`);
+      data.postAuthor = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.deletePost(DeletePostDTO.from(data));
+      return res.status(201).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+}

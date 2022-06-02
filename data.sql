@@ -271,3 +271,21 @@ create table user_save_product (
 alter table user_save_product add constraint user_save_product_pkey primary key(product_template_id, user_id);
 alter table user_save_product add constraint user_save_product_fkey_product_template foreign key (product_template_id) references product_template(product_template_id);
 alter table user_save_product add constraint user_save_product_fkey_user foreign key (user_id) references public.user(user_id);
+
+create sequence post_id_seq start with 1 increment by 1 no minvalue maxvalue 9999999999;
+
+create table post (
+	post_id integer default nextval('post_id_seq'::regClass) not null,
+	post_title character varying,
+	post_thumbnail character varying,
+	post_content text not null,
+	post_author integer not null,
+	total_view integer default 0,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table post add constraint post_pkey primary key (post_id);
+alter table post add column post_type character varying not null;
+alter table post add constraint post_fkey_author foreign key (post_author) references public.user (user_id);
+alter table post add column is_delete boolean default false;

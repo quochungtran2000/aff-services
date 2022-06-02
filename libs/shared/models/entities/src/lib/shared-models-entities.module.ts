@@ -6,3 +6,4 @@ export * from './product';
 export * from './config';
 export * from './category';
 export * from './user';
+export * from './post';
