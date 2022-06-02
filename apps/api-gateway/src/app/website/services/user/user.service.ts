@@ -23,4 +23,9 @@ export class UserService {
     this.logger.log(`${this.getSaveProducts.name} called userId:${userId}`);
     return await this.client.send<ProductCommentResponseDTO[]>({ cmd: CMD.GET_SAVE_PRODUCT }, { userId }).toPromise();
   }
+
+  async uploadFile(file: any) {
+    this.logger.log(`${this.uploadFile.name} called`);
+    return await this.client.send<any>({ cmd: CMD.UPLOAD_FILE }, { file }).toPromise();
+  }
 }

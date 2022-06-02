@@ -14,4 +14,10 @@ export class UserController {
     this.logger.log(`${this.adminGetUsers.name}`);
     return this.userService.adminGetUsers(query);
   }
+
+  @MessagePattern({ cmd: CMD.UPLOAD_FILE })
+  uploadFile({ file }: any) {
+    this.logger.log(`${this.uploadFile.name} called`);
+    return this.userService.uploadFile(file);
+  }
 }
