@@ -52,4 +52,5 @@ export enum CMD {
   // User
   USER_SAVE_PRODUCT = 'user_save_product',
   GET_SAVE_PRODUCT = 'get_save_product',
+  UPLOAD_FILE = 'upload_file',
 }

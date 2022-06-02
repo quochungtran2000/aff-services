@@ -1,5 +1,17 @@
 import { MyProfileResponse, ProductCommentResponseDTO } from '@aff-services/shared/models/dtos';
-import { Controller, Get, HttpException, Logger, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  Logger,
+  Post,
+  Req,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
@@ -26,5 +38,12 @@ export class UserController {
     } finally {
       this.logger.log(`${this.getSaveProducts.name} Done`);
     }
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: any) {
+    this.logger.log(`${this.uploadFile.name} called`);
+    return await this.userService.uploadFile(file);
   }
 }
