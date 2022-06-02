@@ -1,14 +1,17 @@
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { PostService } from '../../services/post/post.service';
 import { Request, Response } from 'express';
 import {
+  BaseResponse,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
   GetPostDetailDTO,
   GetPostQueryDTO,
   MyProfileResponse,
+  PagingPostReponseDTO,
+  PostResponseDTO,
   UpdatePostDTO,
 } from '@aff-services/shared/models/dtos';
 import {
@@ -34,6 +37,7 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('')
+  @ApiResponse({ status: 201, type: BaseResponse })
   @ApiOperation({ summary: 'Đăng bài viết' })
   @UseGuards(JwtAuthGuard)
   async createPost(@Res() res: Response, @Req() req: Request, @Body() data: CreatePostDTO) {
@@ -48,6 +52,7 @@ export class PostController {
   }
 
   @Get('')
+  @ApiResponse({ status: 200, type: PagingPostReponseDTO })
   @ApiOperation({ summary: 'Lấy danh sách bài viết' })
   async getPosts(@Res() res: Response, @Req() req: Request, @Query() query: GetPostQueryDTO) {
     try {
@@ -60,6 +65,7 @@ export class PostController {
   }
 
   @Get('/detail/:postId')
+  @ApiResponse({ status: 200, type: PostResponseDTO })
   @ApiOperation({ summary: 'Lấy chi tiết bài viết' })
   async getPost(@Res() res: Response, @Req() req: Request, @Param() param: GetPostDetailDTO) {
     try {
@@ -72,6 +78,7 @@ export class PostController {
   }
 
   @Get('/my-posts')
+  @ApiResponse({ status: 200, type: PagingPostReponseDTO })
   @ApiOperation({ summary: 'Bài viết của tôi' })
   @UseGuards(JwtAuthGuard)
   async getMyPosts(@Res() res: Response, @Req() req: Request, @Query() query: GetMyPostsQueryDTO) {
@@ -86,6 +93,7 @@ export class PostController {
   }
 
   @Put('')
+  @ApiResponse({ status: 200, type: BaseResponse })
   @ApiOperation({ summary: 'Cập nhật bài viết' })
   @UseGuards(JwtAuthGuard)
   async updatePost(@Res() @Res() res: Response, @Req() req: Request, @Body() data: UpdatePostDTO) {
@@ -100,6 +108,7 @@ export class PostController {
   }
 
   @Delete('/:postId')
+  @ApiResponse({ status: 200, type: BaseResponse })
   @ApiOperation({ summary: 'Xóa bài viết' })
   @UseGuards(JwtAuthGuard)
   async deletePost(@Res() res: Response, @Req() req: Request, @Param() data: DeletePostDTO) {
