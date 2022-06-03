@@ -12,6 +12,7 @@ import {
   MyProfileResponse,
   PagingPostReponseDTO,
   PostResponseDTO,
+  SavePostParamDTO,
   UpdatePostDTO,
 } from '@aff-services/shared/models/dtos';
 import {
@@ -119,6 +120,38 @@ export class PostController {
       return res.status(201).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @ApiOperation({ summary: 'Lưu bài viết để xem sau' })
+  @UseGuards(JwtAuthGuard)
+  @Post('/save/:postId')
+  async userSavePost(@Res() res: Response, @Req() req: Request, @Param() data: SavePostParamDTO) {
+    try {
+      this.logger.log(`${this.userSavePost.name} called`);
+      data.userId = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.userSavePost(SavePostParamDTO.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.userSavePost.name} Done`);
+    }
+  }
+
+  @ApiOperation({ summary: 'Danh sách bài viết đã lưu' })
+  @UseGuards(JwtAuthGuard)
+  @Get('/save-post')
+  async getSavePosts(@Res() res: Response, @Req() req: Request) {
+    try {
+      this.logger.log(`${this.getSavePosts.name} called`);
+      const userId = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.getSavePosts(userId);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.getSavePosts.name} Done`);
     }
   }
 }

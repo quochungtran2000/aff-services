@@ -1,13 +1,15 @@
 import {
+  BaseResponse,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
   GetPostQueryDTO,
   PagingPostReponseDTO,
   PostResponseDTO,
+  SavePostParamDTO,
   UpdatePostDTO,
 } from '@aff-services/shared/models/dtos';
-import { POST } from '@aff-services/shared/models/entities';
+import { POST, USER_SAVE_POST } from '@aff-services/shared/models/entities';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
@@ -15,7 +17,10 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class PostRepo {
   private readonly logger = new Logger(`Micro-User.${PostRepo.name}`);
-  constructor(@Inject('POST_REPOSITORY') private readonly postRepository: Repository<POST>) {}
+  constructor(
+    @Inject('POST_REPOSITORY') private readonly postRepository: Repository<POST>,
+    @Inject('USER_SAVE_POST_REPOSITORY') private readonly userSavePostRepository: Repository<USER_SAVE_POST>
+  ) {}
 
   async createOrUpdate(data: CreatePostDTO | CreatePostDTO[] | UpdatePostDTO) {
     try {
@@ -173,6 +178,65 @@ export class PostRepo {
       throw new RpcException({ message: error.message, status: error.status || 500 });
     } finally {
       this.logger.log(`${this.deletePost.name} Done`);
+    }
+  }
+
+  async userSavePost(data: SavePostParamDTO): Promise<BaseResponse> {
+    try {
+      const { postId, userId } = data;
+      let insert = true;
+      const exists = await this.userSavePostRepository
+        .createQueryBuilder()
+        .where('1=1')
+        .andWhere('post_id = :postId')
+        .andWhere('user_id = :userId')
+        .setParameters({ postId, userId })
+        .getOne();
+
+      if (exists) {
+        insert = false;
+        await this.userSavePostRepository
+          .createQueryBuilder()
+          .delete()
+          .from(USER_SAVE_POST)
+          .where('user_id = :userId')
+          .andWhere('post_id = :postId')
+          .setParameters({ userId, postId })
+          .execute();
+      } else {
+        await this.userSavePostRepository
+          .createQueryBuilder()
+          .insert()
+          .into(USER_SAVE_POST)
+          .values({ postId, userId })
+          .execute();
+      }
+      return { message: `${insert ? 'lưu' : 'xóa'} thành công`, status: 200 };
+    } catch (error) {
+      this.logger.error(`${this.userSavePost.name} Error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    } finally {
+      this.logger.log(`${this.userSavePost.name} Done`);
+    }
+  }
+
+  async getSavePost(userId: number) {
+    try {
+      this.logger.log(`${this.getSavePost.name} called userId:${userId}`);
+      const [data, total] = await this.postRepository
+        .createQueryBuilder('p')
+        .leftJoinAndSelect('p.author', 'au')
+        .leftJoin('p.savePosts', 'sp')
+        .where('1=1')
+        .andWhere('sp.user_id = :userId')
+        .setParameters({ userId })
+        .getManyAndCount();
+      return { total, data: data?.map((element) => PostResponseDTO.fromEntity(element)) };
+    } catch (error) {
+      this.logger.error(`${this.getSavePost.name} Error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    } finally {
+      this.logger.log(`${this.getSavePost.name} Done`);
     }
   }
 }

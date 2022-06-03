@@ -3,6 +3,7 @@ import {
   DeletePostDTO,
   GetMyPostsQueryDTO,
   GetPostQueryDTO,
+  SavePostParamDTO,
   UpdatePostDTO,
 } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
@@ -44,5 +45,15 @@ export class PostService {
     this.logger.log(`${this.deletePost.name} called Data:${JSON.stringify(data)}`);
     await this.postRepo.deletePost(data);
     return { message: 'Xoá bài viết thành công', status: 200 };
+  }
+
+  async userSavePost(data: SavePostParamDTO) {
+    this.logger.log(`${this.userSavePost.name} called Data:${JSON.stringify(data)}`);
+    return await this.postRepo.userSavePost(data);
+  }
+
+  async getSavePost(userId: number) {
+    this.logger.log(`${this.getSavePost.name} called userId:${userId}`);
+    return await this.postRepo.getSavePost(userId);
   }
 }

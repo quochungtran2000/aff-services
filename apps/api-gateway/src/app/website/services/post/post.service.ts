@@ -5,6 +5,7 @@ import {
   GetMyPostsQueryDTO,
   UpdatePostDTO,
   DeletePostDTO,
+  SavePostParamDTO,
 } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
@@ -55,5 +56,15 @@ export class PostService {
   async deletePost(data: DeletePostDTO) {
     this.logger.log(`${this.deletePost.name} called`);
     return this.client.send<BaseResponse>({ cmd: CMD.DELETE_POST }, data).toPromise();
+  }
+
+  async userSavePost(data: SavePostParamDTO) {
+    this.logger.log(`${this.userSavePost.name} called`);
+    return this.client.send<BaseResponse>({ cmd: CMD.USER_SAVE_POST }, data).toPromise();
+  }
+
+  async getSavePosts(userId: number) {
+    this.logger.log(`${this.getSavePosts.name} called`);
+    return this.client.send<any>({ cmd: CMD.GET_SAVE_POST }, { userId }).toPromise();
   }
 }

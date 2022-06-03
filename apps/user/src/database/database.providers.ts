@@ -21,6 +21,7 @@ import {
   ROLE,
   ROLE_PERMISSION,
   USER,
+  USER_SAVE_POST,
   USER_SAVE_PRODUCT,
   V_PRODUCT_TEMPLATE,
 } from '@aff-services/shared/models/entities';
@@ -64,6 +65,7 @@ export const databaseProviders = [
           PRODUCT_COMMENT_IMAGE,
           USER_SAVE_PRODUCT,
           POST,
+          USER_SAVE_POST
         ],
         // synchronize: true,
         // logging: true,

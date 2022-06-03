@@ -3,6 +3,7 @@ import {
   DeletePostDTO,
   GetMyPostsQueryDTO,
   GetPostQueryDTO,
+  SavePostParamDTO,
   UpdatePostDTO,
 } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
@@ -49,5 +50,17 @@ export class PostController {
   deletePost(data: DeletePostDTO) {
     this.logger.log(`${this.deletePost.name} called`);
     return this.postService.deletePost(data);
+  }
+
+  @MessagePattern({ cmd: CMD.USER_SAVE_POST })
+  userSavePost(data: SavePostParamDTO) {
+    this.logger.log(`${this.userSavePost.name} called`);
+    return this.postService.userSavePost(data);
+  }
+
+  @MessagePattern({ cmd: CMD.GET_SAVE_POST })
+  getSavePost({ userId }: { userId: number }) {
+    this.logger.log(`${this.getSavePost.name} called`);
+    return this.postService.getSavePost(userId);
   }
 }

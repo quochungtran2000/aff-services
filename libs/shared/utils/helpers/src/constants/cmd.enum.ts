@@ -61,4 +61,6 @@ export enum CMD {
   UPDATE_POST = 'update_post',
   DELETE_POST = 'delete_post',
   GET_MY_POSTS = 'get_my_post',
+  USER_SAVE_POST = 'user_save_post',
+  GET_SAVE_POST = 'get_save_post',
 }

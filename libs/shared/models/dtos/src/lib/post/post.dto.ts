@@ -226,3 +226,17 @@ export class PagingPostReponseDTO {
   @ApiProperty({ type: PostResponseDTO, isArray: true })
   data: PostResponseDTO[];
 }
+
+export class SavePostParamDTO {
+  @ApiProperty({ type: Number, example: 699 })
+  postId: number;
+
+  userId: number;
+
+  public static from(dto: Partial<SavePostParamDTO>) {
+    const result = new SavePostParamDTO();
+    result.postId = dto.postId;
+    result.userId = dto.userId;
+    return result;
+  }
+}

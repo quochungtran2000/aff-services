@@ -289,3 +289,16 @@ alter table post add constraint post_pkey primary key (post_id);
 alter table post add column post_type character varying not null;
 alter table post add constraint post_fkey_author foreign key (post_author) references public.user (user_id);
 alter table post add column is_delete boolean default false;
+
+
+
+create table user_save_post (
+	post_id integer not null, 
+	user_id integer not null,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table user_save_post add constraint user_save_post_pkey primary key (post_id, user_id);
+alter table user_save_post add constraint user_save_post_fkey_user foreign key (user_id) references public.user (user_id);
+alter table user_save_post add constraint user_save_post_fkey_post foreign key (post_id) references post (post_id);
