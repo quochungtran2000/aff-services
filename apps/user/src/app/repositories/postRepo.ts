@@ -1,5 +1,7 @@
 import {
   BaseResponse,
+  CommentPostDTO,
+  CommentResponseDTO,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
@@ -9,7 +11,7 @@ import {
   SavePostParamDTO,
   UpdatePostDTO,
 } from '@aff-services/shared/models/dtos';
-import { POST, USER_SAVE_POST } from '@aff-services/shared/models/entities';
+import { POST, POST_COMMENT, USER_SAVE_POST } from '@aff-services/shared/models/entities';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
@@ -19,7 +21,8 @@ export class PostRepo {
   private readonly logger = new Logger(`Micro-User.${PostRepo.name}`);
   constructor(
     @Inject('POST_REPOSITORY') private readonly postRepository: Repository<POST>,
-    @Inject('USER_SAVE_POST_REPOSITORY') private readonly userSavePostRepository: Repository<USER_SAVE_POST>
+    @Inject('USER_SAVE_POST_REPOSITORY') private readonly userSavePostRepository: Repository<USER_SAVE_POST>,
+    @Inject('POST_COMMENT_REPOSITORY') private readonly postCommentRepository: Repository<POST_COMMENT>
   ) {}
 
   async createOrUpdate(data: CreatePostDTO | CreatePostDTO[] | UpdatePostDTO) {
@@ -237,6 +240,45 @@ export class PostRepo {
       throw new RpcException({ message: error.message, status: error.status || 500 });
     } finally {
       this.logger.log(`${this.getSavePost.name} Done`);
+    }
+  }
+
+  async commentPost(data: CommentPostDTO) {
+    try {
+      this.logger.log(`${this.commentPost.name} called Data:${JSON.stringify(data)}`);
+
+      await this.postCommentRepository.createQueryBuilder().insert().into(POST_COMMENT).values(data).execute();
+
+      return { message: 'Bình luận thành công', status: 201 };
+    } catch (error) {
+      this.logger.error(`${this.commentPost.name} Error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    } finally {
+      this.logger.log(`${this.commentPost.name} Done`);
+    }
+  }
+
+  async getPostComments(postId: number) {
+    try {
+      this.logger.log(`${this.getPostComments.name} called Data:${postId}`);
+
+      const [data, total] = await this.postCommentRepository
+        .createQueryBuilder('p')
+        .leftJoinAndSelect('p.customer', 'c')
+        .leftJoinAndSelect('p.childrens', 'pc')
+        .leftJoinAndSelect('pc.customer', 'pcc')
+        .where('1=1')
+        .andWhere(`p.post_id = :postId`)
+        .setParameters({ postId })
+        .getManyAndCount();
+
+      return { total, data: data.map((elm) => CommentResponseDTO.fromEntity(elm)) };
+      return { total, data };
+    } catch (error) {
+      this.logger.error(`${this.getPostComments.name} Error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    } finally {
+      this.logger.log(`${this.getPostComments.name} Done`);
     }
   }
 }

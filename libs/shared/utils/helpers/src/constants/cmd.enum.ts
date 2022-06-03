@@ -63,4 +63,8 @@ export enum CMD {
   GET_MY_POSTS = 'get_my_post',
   USER_SAVE_POST = 'user_save_post',
   GET_SAVE_POST = 'get_save_post',
+
+  // Comment
+  COMMENT_POST = 'comment_post',
+  GET_POST_COMMENT = 'get_post_comment',
 }

@@ -1,11 +1,13 @@
 import {
   BaseResponse,
+  CommentPostDTO,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
   GetPostDetailDTO,
   GetPostQueryDTO,
   MyProfileResponse,
+  PagingPostCommentReponseDTO,
   PagingPostReponseDTO,
   PostResponseDTO,
   SavePostParamDTO,
@@ -152,6 +154,36 @@ export class PostController {
       throw new HttpException(error.message, error.status || 500);
     } finally {
       this.logger.log(`${this.getSavePosts.name} Done`);
+    }
+  }
+
+  @ApiOperation({ summary: 'Bình luận' })
+  @UseGuards(JwtAuthGuard)
+  @Post('/comment')
+  async commentPost(@Res() res: Response, @Req() req: Request, @Body() data: CommentPostDTO) {
+    try {
+      this.logger.log(`${this.commentPost.name} called`);
+      data.userId = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.commentPost(CommentPostDTO.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.commentPost.name} Done`);
+    }
+  }
+
+  @Get('/:postId/comment')
+  @ApiResponse({ status: 200, type: PagingPostCommentReponseDTO })
+  async getPostComment(@Res() res: Response, @Req() req: Request, @Param('postId') postId: number) {
+    try {
+      this.logger.log(`${this.getPostComment.name} called`);
+      const result = await this.postService.getPostComment(postId);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.getPostComment.name} Done`);
     }
   }
 }

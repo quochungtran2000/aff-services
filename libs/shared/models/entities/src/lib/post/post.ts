@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { USER } from '../user';
 import { USER_SAVE_POST } from '../user/user-save-post';
+import { POST_COMMENT } from './post-comment';
 
 @Entity({ schema: 'public', name: 'post' })
 export class POST {
@@ -41,4 +42,6 @@ export class POST {
   @OneToOne(() => USER_SAVE_POST, (usp) => usp.post)
   @JoinColumn({ name: 'post_id', referencedColumnName: 'postId' })
   savePosts: POST;
+
+  // @OneToMany(() => POST_COMMENT, pc => pc.post )
 }

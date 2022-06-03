@@ -10,6 +10,7 @@ import {
   MAPPING_CATEGORY,
   PERMISSION,
   POST,
+  POST_COMMENT,
   Product,
   PRODUCT_AFFILIATE_LINK,
   PRODUCT_COMMENT,
@@ -65,7 +66,8 @@ export const databaseProviders = [
           PRODUCT_COMMENT_IMAGE,
           USER_SAVE_PRODUCT,
           POST,
-          USER_SAVE_POST
+          USER_SAVE_POST,
+          POST_COMMENT,
         ],
         // synchronize: true,
         // logging: true,

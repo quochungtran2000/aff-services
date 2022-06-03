@@ -1,4 +1,5 @@
 import {
+  CommentPostDTO,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
@@ -55,5 +56,15 @@ export class PostService {
   async getSavePost(userId: number) {
     this.logger.log(`${this.getSavePost.name} called userId:${userId}`);
     return await this.postRepo.getSavePost(userId);
+  }
+
+  async commentPost(data: CommentPostDTO) {
+    this.logger.log(`${this.commentPost.name} called Data:${JSON.stringify(data)}`);
+    return await this.postRepo.commentPost(data);
+  }
+
+  async getPostComments(postId: number) {
+    this.logger.log(`${this.getPostComments.name} called Data:${postId}`);
+    return await this.postRepo.getPostComments(postId);
   }
 }

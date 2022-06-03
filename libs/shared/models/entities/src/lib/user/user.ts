@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { POST } from '../post';
+import { POST_COMMENT } from '../post/post-comment';
 import { ROLE } from '../role';
 import { USER_SAVE_PRODUCT } from './user-save-product';
 
@@ -43,4 +44,8 @@ export class USER {
   @OneToMany(() => POST, (post) => post.author)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'postAuthor' })
   posts: POST[];
+
+  @OneToMany(() => POST_COMMENT, (pc) => pc.customer)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'userId' })
+  comments: POST_COMMENT[];
 }

@@ -1,4 +1,5 @@
 import {
+  CommentPostDTO,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
@@ -62,5 +63,17 @@ export class PostController {
   getSavePost({ userId }: { userId: number }) {
     this.logger.log(`${this.getSavePost.name} called`);
     return this.postService.getSavePost(userId);
+  }
+
+  @MessagePattern({ cmd: CMD.COMMENT_POST })
+  commentPost(data: CommentPostDTO) {
+    this.logger.log(`${this.commentPost.name} called`);
+    return this.postService.commentPost(data);
+  }
+
+  @MessagePattern({ cmd: CMD.GET_POST_COMMENT })
+  getPostComments({ postId }: { postId: number }) {
+    this.logger.log(`${this.getPostComments.name} called`);
+    return this.postService.getPostComments(postId);
   }
 }

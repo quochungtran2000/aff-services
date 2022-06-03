@@ -1,4 +1,4 @@
-import { POST } from '@aff-services/shared/models/entities';
+import { POST, POST_COMMENT } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumberString } from 'class-validator';
 import { UserResponse } from '../user';
@@ -239,4 +239,100 @@ export class SavePostParamDTO {
     result.userId = dto.userId;
     return result;
   }
+}
+
+export class CommentPostDTO {
+  @ApiProperty({ type: Number, example: 699 })
+  @IsNotEmpty()
+  postId: number;
+
+  @ApiProperty({ type: Number, example: 'example' })
+  @IsNotEmpty()
+  content: string;
+
+  @ApiProperty({ type: Number, example: 699 })
+  parentId?: number;
+
+  @ApiProperty({ type: Number, example: 699 })
+  images: string[];
+
+  userId: number;
+
+  public static from(dto: Partial<CommentPostDTO>) {
+    const result = new CommentPostDTO();
+    result.postId = dto.postId;
+    result.content = dto.content;
+    result.parentId = dto.parentId;
+    result.userId = dto.userId;
+    return result;
+  }
+
+  // public static from
+}
+
+export class CommentResponseDTO {
+  @ApiProperty({ type: Number, example: 699 })
+  postCommentId: number;
+
+  @ApiProperty({ type: Number, example: 699 })
+  content: string;
+
+  @ApiProperty({ type: String, example: [], isArray: true })
+  images: string[];
+
+  @ApiProperty({
+    type: CommentResponseDTO,
+    example: [
+      {
+        postCommentId: 1,
+        content: 'Hay qua',
+        images: [],
+        createdAt: '2022-06-03T02:03:10.521Z',
+        updatedAt: '2022-06-03T02:03:10.521Z',
+        customer: {
+          userId: 18,
+          username: 'hungc',
+          fullname: 'Trần Quốc Hùng',
+          email: 'hungc@dxc.com',
+          phoneNumber: '0918266812',
+          roleId: 3,
+          createdAt: '2022-04-02T08:33:47.659Z',
+          updatedAt: '2022-04-02T08:33:47.659Z',
+        },
+        childrens: [],
+      },
+    ],
+    isArray: true,
+  })
+  childrens: CommentResponseDTO[];
+
+  @ApiProperty({ type: Number, example: new Date() })
+  createdAt: Date;
+
+  @ApiProperty({ type: Number, example: new Date() })
+  updatedAt: Date;
+
+  @ApiProperty({ type: UserResponse })
+  customer?: UserResponse;
+
+  public static fromEntity(entity: Partial<POST_COMMENT>) {
+    const result = new CommentResponseDTO();
+    result.postCommentId = entity.postCommentId;
+    result.content = entity.content;
+    result.images = [];
+    result.createdAt = entity.createdAt;
+    result.updatedAt = entity.updatedAt;
+    if (entity.customer) result.customer = UserResponse.fromEntity(entity.customer);
+    result.childrens = [];
+    if (entity.childrens) entity.childrens.map((elm) => result.childrens.push(this.fromEntity(elm)));
+    return result;
+  }
+}
+
+export class PagingPostCommentReponseDTO {
+  @ApiProperty({ type: Number, example: 1 })
+  total: number;
+
+  @ApiProperty({ type: CommentResponseDTO, isArray: true })
+  data: CommentResponseDTO[];
 }

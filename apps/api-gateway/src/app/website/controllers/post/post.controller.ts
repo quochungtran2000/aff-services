@@ -4,6 +4,7 @@ import { PostService } from '../../services/post/post.service';
 import { Request, Response } from 'express';
 import {
   BaseResponse,
+  CommentPostDTO,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
@@ -124,6 +125,7 @@ export class PostController {
   }
 
   @ApiOperation({ summary: 'Lưu bài viết để xem sau' })
+  @ApiResponse({ status: 200, type: BaseResponse })
   @UseGuards(JwtAuthGuard)
   @Post('/save/:postId')
   async userSavePost(@Res() res: Response, @Req() req: Request, @Param() data: SavePostParamDTO) {
@@ -140,6 +142,7 @@ export class PostController {
   }
 
   @ApiOperation({ summary: 'Danh sách bài viết đã lưu' })
+  @ApiResponse({ status: 200, type: PagingPostReponseDTO })
   @UseGuards(JwtAuthGuard)
   @Get('/save-post')
   async getSavePosts(@Res() res: Response, @Req() req: Request) {
@@ -152,6 +155,36 @@ export class PostController {
       throw new HttpException(error.message, error.status || 500);
     } finally {
       this.logger.log(`${this.getSavePosts.name} Done`);
+    }
+  }
+
+  @ApiOperation({ summary: 'Bình luận' })
+  @ApiResponse({ status: 200, type: BaseResponse })
+  @UseGuards(JwtAuthGuard)
+  @Post('/comment')
+  async commentPost(@Res() res: Response, @Req() req: Request, @Body() data: CommentPostDTO) {
+    try {
+      this.logger.log(`${this.commentPost.name} called`);
+      data.userId = (req.user as MyProfileResponse).userId;
+      const result = await this.postService.commentPost(CommentPostDTO.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.commentPost.name} Done`);
+    }
+  }
+
+  @Get('/:postId/comment')
+  async getPostComment(@Res() res: Response, @Req() req: Request, @Param('postId') postId: number) {
+    try {
+      this.logger.log(`${this.getPostComment.name} called`);
+      const result = await this.postService.getPostComment(postId);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    } finally {
+      this.logger.log(`${this.getPostComment.name} Done`);
     }
   }
 }

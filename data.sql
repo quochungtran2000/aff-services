@@ -302,3 +302,21 @@ create table user_save_post (
 alter table user_save_post add constraint user_save_post_pkey primary key (post_id, user_id);
 alter table user_save_post add constraint user_save_post_fkey_user foreign key (user_id) references public.user (user_id);
 alter table user_save_post add constraint user_save_post_fkey_post foreign key (post_id) references post (post_id);
+
+
+create sequence post_comment_id_seq start with 1 increment by 1 no minvalue maxvalue 9999999999;
+
+create table post_comment (
+	post_comment_id integer default nextval('post_comment_id_seq'::regClass),
+	user_id integer not null,
+	post_id integer not null,
+	content character varying,
+	parent_id integer,
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table post_comment add constraint post_comment_pkey primary key (post_comment_id);
+alter table post_comment add constraint post_comment_fkey_user foreign key (user_id) references public.user (user_id);
+alter table post_comment add constraint post_comment_fkey_post foreign key (post_id) references post(post_id);
+alter table post_comment add constraint post_comment_fkey_commnet foreign key (parent_id) references post_comment (post_comment_id);

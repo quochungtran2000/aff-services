@@ -1,4 +1,4 @@
-import { POST, USER_SAVE_POST } from '@aff-services/shared/models/entities';
+import { POST, POST_COMMENT, USER_SAVE_POST } from '@aff-services/shared/models/entities';
 import { Connection } from 'typeorm';
 import { DB_CON_TOKEN } from '../../database/database.constant';
 
@@ -11,6 +11,11 @@ export const postProviders = [
   {
     provide: 'USER_SAVE_POST_REPOSITORY',
     useFactory: (connection: Connection) => connection.getRepository(USER_SAVE_POST),
+    inject: [DB_CON_TOKEN],
+  },
+  {
+    provide: 'POST_COMMENT_REPOSITORY',
+    useFactory: (connection: Connection) => connection.getRepository(POST_COMMENT),
     inject: [DB_CON_TOKEN],
   },
 ];

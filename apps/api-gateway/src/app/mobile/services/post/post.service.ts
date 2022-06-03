@@ -1,5 +1,6 @@
 import {
   BaseResponse,
+  CommentPostDTO,
   CreatePostDTO,
   DeletePostDTO,
   GetMyPostsQueryDTO,
@@ -66,5 +67,15 @@ export class PostService {
   async getSavePosts(userId: number) {
     this.logger.log(`${this.getSavePosts.name} called`);
     return this.client.send<any>({ cmd: CMD.GET_SAVE_POST }, { userId }).toPromise();
+  }
+
+  async commentPost(data: CommentPostDTO) {
+    this.logger.log(`${this.commentPost.name} called`);
+    return this.client.send<any>({ cmd: CMD.COMMENT_POST }, data).toPromise();
+  }
+
+  async getPostComment(postId: number) {
+    this.logger.log(`${this.commentPost.name} called`);
+    return this.client.send<any>({ cmd: CMD.GET_POST_COMMENT }, { postId }).toPromise();
   }
 }
