@@ -1,5 +1,29 @@
-import { USER } from '@aff-services/shared/models/entities';
+import { ROLE, USER } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { RoleResponse } from '../access-control';
+
+// export class RoleResponse {
+//   @ApiProperty({ type: Number, example: 2 })
+//   roleId: number;
+
+//   @ApiProperty({ type: String, example: 'User' })
+//   roleName: string;
+
+//   @ApiProperty({ type: String, example: 'role description' })
+//   description: string;
+
+//   @ApiProperty({ type: String, example: 'slug' })
+//   slug: string;
+
+//   public static fromEntity(entity: Partial<ROLE>) {
+//     const result = new RoleResponse();
+//     result.roleId = entity.roleId;
+//     result.roleName = entity.roleName;
+//     result.description = entity.description;
+//     result.slug = entity.slug;
+//     return result;
+//   }
+// }
 
 export class UserResponse {
   @ApiProperty({ type: Number, example: 2 })
@@ -26,12 +50,19 @@ export class UserResponse {
   @ApiProperty({ type: Date, example: Date.now() })
   updatedAt: Date;
 
+  @ApiProperty({ type: String, example: 'hung@gmail.com' })
+  imgUrl: string;
+
+  @ApiProperty({ type: RoleResponse, required: false })
+  role?: RoleResponse;
+
   public static fromEntity(entity: Partial<USER>) {
     const result = new UserResponse();
     result.userId = entity.userId;
     result.username = entity.username;
     result.fullname = entity.fullname;
     result.email = entity.email;
+    result.imgUrl = entity.imgUrl;
     result.phoneNumber = entity.phoneNumber;
     result.roleId = entity.roleId;
     result.createdAt = entity.createdAt;
@@ -47,12 +78,28 @@ export class UserResponse {
       temp.username = entity.username;
       temp.fullname = entity.fullname;
       temp.email = entity.email;
+      temp.imgUrl = entity.imgUrl;
       temp.phoneNumber = entity.phoneNumber;
       temp.roleId = entity.roleId;
       temp.createdAt = entity.createdAt;
       temp.updatedAt = entity.updatedAt;
       result.push(temp);
     }
+    return result;
+  }
+
+  public static haveRole(entity: Partial<USER>) {
+    const result = new UserResponse();
+    result.userId = entity.userId;
+    result.username = entity.username;
+    result.fullname = entity.fullname;
+    result.email = entity.email;
+    result.imgUrl = entity.imgUrl;
+    result.phoneNumber = entity.phoneNumber;
+    result.roleId = entity.roleId;
+    result.createdAt = entity.createdAt;
+    result.updatedAt = entity.updatedAt;
+    result.role = RoleResponse.fromEntity(entity.role);
     return result;
   }
 }

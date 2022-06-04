@@ -1,4 +1,4 @@
-import { ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
+import { CrawlProductQuery, ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -12,9 +12,9 @@ export class ProductController {
   //  Admin
 
   @MessagePattern({ cmd: CMD.ADMIN_GET_PRODUCTS })
-  adminGetProduct() {
+  adminGetProduct(data: CrawlProductQuery) {
     this.logger.log(`${this.adminGetProduct.name} called`);
-    return this.productService.adminGetProduct();
+    return this.productService.adminGetProduct(data);
   }
 
   @MessagePattern({ cmd: CMD.ADMIN_UPDATE_PRODUCT_TEMPLATE })

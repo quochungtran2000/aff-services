@@ -151,7 +151,7 @@ export class ProductTemplateQuery {
   page: number;
 
   @ApiProperty()
-  page_size: number;
+  pageSize: number;
 
   @ApiProperty()
   search: string;
@@ -164,8 +164,8 @@ export class ProductTemplateQuery {
   public static from(dto: Partial<ProductTemplateQuery>) {
     const result = new ProductTemplateQuery();
     result.page = dto.page || 1;
-    result.page_size = dto.page_size || 12;
-    result.skip = (result.page - 1) * result.page_size;
+    result.pageSize = dto.pageSize || 12;
+    result.skip = (result.page - 1) * result.pageSize;
     result.search = dto.search;
     result.categoryId = dto.categoryId;
     return result;
@@ -182,6 +182,32 @@ export class SaveProductTemplateParamDTO {
     const result = new SaveProductTemplateParamDTO();
     result.productId = dto.productId;
     result.userId = dto.userId;
+    return result;
+  }
+}
+
+export class CrawlProductQuery {
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  pageSize: number;
+
+  @ApiProperty()
+  search: string;
+
+  @ApiProperty()
+  merchant: string;
+
+  skip: number;
+
+  public static from(dto: Partial<CrawlProductQuery>) {
+    const result = new CrawlProductQuery();
+    result.page = dto.page || 1;
+    result.pageSize = dto.pageSize || 12;
+    result.skip = (result.page - 1) * result.pageSize;
+    result.search = dto.search;
+    result.merchant = dto.merchant;
     return result;
   }
 }

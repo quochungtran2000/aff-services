@@ -34,6 +34,9 @@ export class MyProfileResponse {
   @ApiProperty({ type: String, example: 'hung@gmail.com' })
   email: string;
 
+  @ApiProperty({ type: String, example: 'hung@gmail.com' })
+  imgUrl: string;
+
   @ApiProperty({ type: String, example: '091827781' })
   phoneNumber: string;
 
@@ -46,6 +49,7 @@ export class MyProfileResponse {
     result.username = entity.username;
     result.fullname = entity.fullname;
     result.email = entity.email;
+    result.imgUrl = entity.imgUrl;
     result.phoneNumber = entity.phoneNumber;
     result.role = entity.role.roleName || 'user';
     return result;

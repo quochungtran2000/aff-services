@@ -11,6 +11,7 @@ import {
 import { ConfigRepo } from '../repositories/configRepo';
 import { CategoryRepo } from '../repositories/categoryRepo';
 import { Product } from '@aff-services/shared/models/entities';
+import { CrawlRepo } from '../repositories/crawlRepo';
 const args = ['--disable-gpu', '--no-sandbox'];
 process.setMaxListeners(Infinity);
 enum MerchangeEnum {
@@ -29,7 +30,8 @@ export class CrawlService {
   constructor(
     private readonly productRepo: ProductRepo,
     private readonly configRepo: ConfigRepo,
-    private readonly categoryRepo: CategoryRepo
+    private readonly categoryRepo: CategoryRepo,
+    private readonly crawlRepo: CrawlRepo
   ) {}
 
   // async crawlData({ url }: CrawlPayload) {
@@ -1337,5 +1339,9 @@ export class CrawlService {
     // if (!func) throw new Error('Not in Tiki, Lazada, Shopee');
     // console.log({ func });
     // return await func(browser, toBeCrawl.originalUrl);
+  }
+
+  async createCrawlProcess() {
+    return await this.crawlRepo.create();
   }
 }

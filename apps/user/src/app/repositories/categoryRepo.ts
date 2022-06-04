@@ -171,8 +171,8 @@ export class CategoryRepo {
   async getApplicationsCategory(application: 'website' | 'mobile') {
     try {
       this.logger.log(`${this.getApplicationsCategory.name} data:${JSON.stringify({ application })}`);
-      const qr = this.categoryRepo.createQueryBuilder('c').where('1=1');
-      // .andWhere('c.active = true');
+      const qr = this.categoryRepo.createQueryBuilder('c').where('1=1')
+      .andWhere('c.active = true');
       // if (application === 'website') qr.andWhere('c.website = true');
       // if (application === 'mobile') qr.andWhere('c.app = true');
       const data = await qr.getMany();

@@ -1,4 +1,4 @@
-import { ProductTemplateQuery } from '@aff-services/shared/models/dtos';
+import { CrawlProductQuery, ProductTemplateQuery } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -19,9 +19,9 @@ export class ProductService {
     });
   }
 
-  async getProducts() {
+  async getProducts(data: CrawlProductQuery) {
     this.logger.log(`${this.getProducts.name} called`);
-    return await this.client.send({ cmd: CMD.ADMIN_GET_PRODUCTS }, {}).toPromise();
+    return await this.client.send({ cmd: CMD.ADMIN_GET_PRODUCTS }, data).toPromise();
   }
 
   async updateProductTemplate() {

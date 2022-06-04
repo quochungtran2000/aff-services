@@ -1,4 +1,4 @@
-import { PagingUserResponse, RegisterPayload, UserQuery } from '@aff-services/shared/models/dtos';
+import { PagingUserResponse, RegisterPayload, UserQuery, UserResponse } from '@aff-services/shared/models/dtos';
 import { USER } from '@aff-services/shared/models/entities';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -86,6 +86,7 @@ export class UserRepo {
         .getManyAndCount();
 
       return PagingUserResponse.from(total, data);
+      // return { total, data: data.map((elm) => UserResponse.haveRole(elm)) };
     } catch (error) {
       this.logger.error(`${this.getUsers.name} Error:${error.message}`);
     }

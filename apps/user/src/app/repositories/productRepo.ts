@@ -1,5 +1,6 @@
 import {
   BaseResponse,
+  CrawlProductQuery,
   CreateProductTemplateDTO,
   PagingProductResponse,
   PagingProductTemplateResponse,
@@ -32,9 +33,19 @@ export class ProductRepo {
     @Inject('USER_SAVE_PRODUCT_REPOSITORY') private readonly userSaveProductRepo: Repository<USER_SAVE_PRODUCT>
   ) {}
 
-  async findAndCount() {
+  async findAndCount(query: CrawlProductQuery) {
+    const { skip, search, merchant, pageSize } = query;
     this.logger.log(`${this.findAndCount.name} called`);
-    const [data, total] = await this.productRepo.findAndCount();
+    const qr = this.productRepo.createQueryBuilder('p').where('1=1');
+
+    if (merchant) qr.andWhere('UPPER(p.merchant) = UPPER(:merchant)');
+    if (search) qr.andWhere(`UPPER(p.name) like "%" || UPPER(:search) || "%"`);
+
+    const [data, total] = await qr
+      .take(pageSize)
+      .skip(skip)
+      .setParameters({ skip, search, merchant, pageSize })
+      .getManyAndCount();
     return PagingProductResponse.from(total, data);
   }
 
@@ -230,7 +241,7 @@ export class ProductRepo {
   async getProductTemplate(query: ProductTemplateQuery) {
     try {
       this.logger.log(`${this.getProductTemplate.name} called`);
-      const { page_size, skip, search } = query;
+      const { pageSize, skip, search } = query;
       const qr = this.productTemplateRepo
         .createQueryBuilder('pt')
         .leftJoinAndSelect('pt.productProducts', 'pp')
@@ -240,7 +251,7 @@ export class ProductRepo {
       if (search) qr.andWhere(`UPPER(pt.product_name) like '%' || UPPER(:search) || '%'`);
 
       const [data, total] = await qr
-        .take(page_size)
+        .take(pageSize)
         .skip(skip)
         .setParameters({ search })
         // .orderBy('pt.product_template_id', 'DESC')
@@ -255,7 +266,7 @@ export class ProductRepo {
   async getProductTemplateV2(query: ProductTemplateQuery) {
     try {
       this.logger.log(`${this.getProductTemplate.name} called`);
-      const { page_size, skip, search, categoryId } = query;
+      const { pageSize, skip, search, categoryId } = query;
       const qr = this.productTemplateRepo
         .createQueryBuilder('pt')
         .leftJoin('pt.productProducts', 'pp')
@@ -273,7 +284,7 @@ export class ProductRepo {
       if (categoryId) qr.andWhere(`c.category_id in (:...categoryIds)`);
 
       const [data, total] = await qr
-        .take(page_size)
+        .take(pageSize)
         .skip(skip)
         .setParameters({ search, categoryIds: [categoryId] })
         .orderBy('pt.productTemplateId', 'ASC')

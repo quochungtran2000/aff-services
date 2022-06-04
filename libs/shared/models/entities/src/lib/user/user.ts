@@ -2,7 +2,6 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn
 import { POST } from '../post';
 import { POST_COMMENT } from '../post/post-comment';
 import { ROLE } from '../role';
-import { USER_SAVE_PRODUCT } from './user-save-product';
 
 @Entity({ schema: 'public', name: 'user' })
 export class USER {
@@ -21,10 +20,13 @@ export class USER {
   @Column({ name: 'email', nullable: false })
   email: string;
 
+  @Column({ name: 'img_url', nullable: false })
+  imgUrl: string;
+
   @Column({ name: 'phone_number', nullable: false })
   phoneNumber: string;
 
-  @Column({ name: 'role_id', nullable: false })
+  @Column({ name: 'role_id' })
   roleId: number;
 
   @Column({ name: 'created_at', type: 'timestamp', default: '() => now()' })
@@ -33,7 +35,7 @@ export class USER {
   @Column({ name: 'updated_at', type: 'timestamp', default: '() => now()' })
   updatedAt: Date;
 
-  @OneToOne(() => ROLE)
+  @OneToOne(() => ROLE, (role) => role.user)
   @JoinColumn({ name: 'role_id', referencedColumnName: 'roleId' })
   role: ROLE;
 

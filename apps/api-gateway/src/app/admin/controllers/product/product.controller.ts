@@ -1,4 +1,5 @@
 import {
+  CrawlProductQuery,
   PagingProductTemplateResponse,
   ProductTemplateDetailResponse,
   ProductTemplateQuery,
@@ -15,10 +16,10 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
-  async getProducts(@Res() res: Response) {
+  async getProducts(@Res() res: Response, @Query() data: CrawlProductQuery) {
     try {
       this.logger.log(`${this.getProducts.name} called`);
-      const result = await this.productService.getProducts();
+      const result = await this.productService.getProducts(CrawlProductQuery.from(data));
       res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);

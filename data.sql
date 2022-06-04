@@ -320,3 +320,15 @@ alter table post_comment add constraint post_comment_pkey primary key (post_comm
 alter table post_comment add constraint post_comment_fkey_user foreign key (user_id) references public.user (user_id);
 alter table post_comment add constraint post_comment_fkey_post foreign key (post_id) references post(post_id);
 alter table post_comment add constraint post_comment_fkey_commnet foreign key (parent_id) references post_comment (post_comment_id);
+
+
+create sequence crawl_history_id_seq start with 1 increment by 1 no minvalue maxvalue 9999999999;
+
+create table crawl_history (
+	crawl_history_id integer default nextval('crawl_history_id_seq'::regClass),
+	status character varying default 'pending',
+	created_at timestamp default now(),
+	updated_at timestamp default now()
+);
+
+alter table crawl_history add constraint crawl_history_pkey primary key (crawl_history_id) 

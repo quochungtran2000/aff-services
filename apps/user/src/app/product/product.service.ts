@@ -1,4 +1,4 @@
-import { ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
+import { CrawlProductQuery, ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { ProductRepo } from '../repositories/productRepo';
 
@@ -7,9 +7,9 @@ export class ProductService {
   private readonly logger = new Logger(`Micro-User.${ProductService.name}`);
   constructor(private readonly productRepo: ProductRepo) {}
 
-  async adminGetProduct() {
+  async adminGetProduct(query: CrawlProductQuery) {
     this.logger.log(`${this.adminGetProduct.name} called`);
-    return await this.productRepo.findAndCount();
+    return await this.productRepo.findAndCount(query);
   }
 
   async adminUpdateProductTemplate() {
