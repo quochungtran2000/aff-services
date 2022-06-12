@@ -16,8 +16,9 @@ import {
   RequestResetPasswordQuery,
   ResetPasswordPayload,
 } from '@aff-services/shared/models/dtos';
-import * as sgMail from '@sendgrid/mail';
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// import * as sgMail from '@sendgrid/mail';
+// sgMail.setApiKey('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');
+// import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
@@ -105,7 +106,9 @@ export class AuthService {
       const hashUserId = await this.bcryptService.hashPassword(userId + '');
       const code = `${userId}@.${hashUserId}`;
       const urlPath = await this.jwtService.sign({ userId, code });
-      return await this.sendEmail(email, 'Khôi phục mật khẩu', `<span>${urlPath}</span>`);
+      // console.log({ email });
+      // return await this.sendEmail(email, 'Khôi phục mật khẩu', `<span>${urlPath}</span>`);
+      return { urlPath };
     } catch (error) {
       this.logger.error(`${this.forgotPassword.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
@@ -161,18 +164,41 @@ export class AuthService {
     }
   }
 
-  async sendEmail(to: string, subject: string, content: any) {
-    try {
-      this.logger.log(`${this.sendEmail.name} called to:${to} - ${subject}`);
-      const mailResult = await sgMail.send({
-        from: 'tranquochung6810@gmail.com',
-        to: to,
-        subject: subject,
-        html: content,
-      });
-      return mailResult;
-    } catch (error) {
-      this.logger.error(`${this.sendEmail.name} Error:${error.message}`);
-    }
-  }
+  // async sendEmail(to: string, subject: string, content: any) {
+  //   try {
+  //     // this.logger.log(`${this.sendEmail.name} called to:${to} - ${subject}`);
+  //     // const mailResult = await sgMail.send({
+  //     //   from: 'tranquochung6810@gmail.com',
+  //     //   to: to,
+  //     //   subject: subject,
+  //     //   html: content,
+  //     // });
+
+  //     const testAccount = await nodemailer.createTestAccount();
+
+  //     const transporter = nodemailer.createTransport({
+  //       host: 'smtp.ethereal.email',
+  //       port: 587,
+  //       secure: false,
+  //       auth: {
+  //         user: testAccount.user, // generated ethereal user
+  //         pass: testAccount.pass, // generated ethereal password
+  //       },
+  //     });
+
+  //     // send mail with defined transport object
+  //     const mailResult = await transporter.sendMail({
+  //       from: testAccount.user, // sender address
+  //       to: to, // list of receivers
+  //       subject: subject, // Subject line
+  //       text: content, // plain text body
+  //       html: content, // html body
+  //     });
+
+  //     console.log({ mailResult });
+  //     return mailResult;
+  //   } catch (error) {
+  //     this.logger.error(`${this.sendEmail.name} Error:${error.message}`);
+  //   }
+  // }
 }

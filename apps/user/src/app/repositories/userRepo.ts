@@ -1,6 +1,13 @@
-import { PagingUserResponse, RegisterPayload, UserQuery, UserResponse } from '@aff-services/shared/models/dtos';
+import {
+  PagingUserResponse,
+  RegisterPayload,
+  UpdateUserDTO,
+  UserQuery,
+  UserResponse,
+} from '@aff-services/shared/models/dtos';
 import { USER } from '@aff-services/shared/models/entities';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -31,7 +38,7 @@ export class UserRepo {
   }
 
   async findUserLogin(username: string) {
-    return this.userRepo
+    return await this.userRepo
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.role', 'r')
       .where('u.username = :username')
@@ -39,6 +46,14 @@ export class UserRepo {
       .orWhere('u.phone_number = :username')
       .setParameters({ username })
       .getOne();
+  }
+
+  async findExixtsUser(userId: number, phone?: string, email?: string) {
+    const qr = this.userRepo.createQueryBuilder('u').leftJoinAndSelect('u.role', 'r').where('u.user_id != :userId');
+    if (phone) qr.andWhere('u.phone_number = :phone');
+    if (email) qr.andWhere('u.email = :email');
+
+    return await qr.setParameters({ userId, phone, email }).getOne();
   }
 
   async getProfileByUserId(userId: number) {
@@ -89,6 +104,47 @@ export class UserRepo {
       // return { total, data: data.map((elm) => UserResponse.haveRole(elm)) };
     } catch (error) {
       this.logger.error(`${this.getUsers.name} Error:${error.message}`);
+    }
+  }
+
+  async updateUser(data: UpdateUserDTO) {
+    try {
+      const { userId, email, phoneNumber, imgUrl, fullname } = data;
+      this.logger.log(`${this.updateUser.name} data:${JSON.stringify(data)}`);
+
+      const exists = await this.findOneByUserId(userId);
+      if (!exists) throw new BadRequestException('Không tìm thấy người dùng');
+
+      if (email) {
+        const exists = await this.findExixtsUser(userId, null, email);
+        if (exists) throw new BadRequestException('Email đã có người sử dụng');
+      }
+
+      if (phoneNumber) {
+        const exists = await this.findExixtsUser(userId, phoneNumber);
+        if (exists) throw new BadRequestException('Số điện thoại đã có người sử dụng');
+      }
+
+      const result = await this.userRepo
+        .createQueryBuilder()
+        .update(USER)
+        .set({
+          email,
+          phoneNumber,
+          imgUrl,
+          fullname,
+        })
+        .where('user_id = :userId')
+        .setParameters({ userId })
+        .execute();
+
+      console.log(result);
+      return result;
+    } catch (error) {
+      this.logger.error(`${this.updateUser.name} Error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    } finally {
+      this.logger.log(`${this.updateUser.name} Done`);
     }
   }
 }

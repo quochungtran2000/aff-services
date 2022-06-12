@@ -1,5 +1,6 @@
-import { MyProfileResponse, ProductCommentResponseDTO } from '@aff-services/shared/models/dtos';
+import { MyProfileResponse, ProductCommentResponseDTO, UpdateUserDTO } from '@aff-services/shared/models/dtos';
 import {
+  Body,
   Controller,
   Get,
   HttpException,
@@ -35,9 +36,7 @@ export class UserController {
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
-    } finally {
-      this.logger.log(`${this.getSaveProducts.name} Done`);
-    }
+    } 
   }
 
   @Post('upload')
@@ -45,5 +44,19 @@ export class UserController {
   async uploadFile(@UploadedFile() file: any) {
     this.logger.log(`${this.uploadFile.name} called`);
     return await this.userService.uploadFile(file);
+  }
+
+  @ApiOperation({ summary: 'Dùng để cập nhật thông tin user' })
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async updateUser(@Req() req: Request, @Res() res: Response, @Body() data: UpdateUserDTO) {
+    try {
+      this.logger.log(`${this.updateUser.name} called`);
+      data.userId = (req.user as MyProfileResponse).userId;
+      const result = await this.userService.updateUser(UpdateUserDTO.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
   }
 }

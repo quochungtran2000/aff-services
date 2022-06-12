@@ -53,6 +53,7 @@ export enum CMD {
   USER_SAVE_PRODUCT = 'user_save_product',
   GET_SAVE_PRODUCT = 'get_save_product',
   UPLOAD_FILE = 'upload_file',
+  UPDATE_USER = 'update_user',
 
   // Post
   CREATE_POST = 'create_post',

@@ -1,4 +1,4 @@
-import { UserQuery } from '@aff-services/shared/models/dtos';
+import { UpdateUserDTO, UserQuery } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { UserRepo } from '../repositories/userRepo';
 import { v2 as cloudinary } from 'cloudinary';
@@ -37,5 +37,9 @@ export class UserService {
       console.log(error.message);
       throw new RpcException({ message: error.message, status: error.status || 500 });
     }
+  }
+
+  async updateUser(data: UpdateUserDTO) {
+    return this.userRepo.updateUser(data);
   }
 }

@@ -1,5 +1,6 @@
 import { ROLE, USER } from '@aff-services/shared/models/entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsOptional, Matches } from 'class-validator';
 import { RoleResponse } from '../access-control';
 
 // export class RoleResponse {
@@ -115,6 +116,39 @@ export class PagingUserResponse {
     const result = new PagingUserResponse();
     result.total = total;
     result.data = UserResponse.fromEntities(data);
+    return result;
+  }
+}
+
+export class UpdateUserDTO {
+  @IsOptional()
+  @ApiProperty({ type: String, example: 'Trần Quốc Hùng' })
+  fullname: string;
+
+  @IsOptional()
+  @ApiProperty({ type: String, example: 'tranhung@gmail.com' })
+  @Matches(/^[a-zA-Z0-9@._]+$/, { message: 'vui lòng nhập email đúng định dạng' })
+  @IsEmail({}, { message: 'email phải đúng định dạng' })
+  email: string;
+
+  @IsOptional()
+  @ApiProperty({ type: String, example: '0918266809' })
+  @Matches(/[0][0-9]{9}/, { message: 'vui lòng nhập số điện thoại đúng định dạng' })
+  phoneNumber: string;
+
+  @IsOptional()
+  @ApiProperty({ type: String, example: '' })
+  imgUrl: string;
+
+  userId: number;
+
+  public static from(dto: Partial<UpdateUserDTO>) {
+    const result = new UpdateUserDTO();
+    result.fullname = dto.fullname;
+    result.email = dto.email;
+    result.phoneNumber = dto.phoneNumber;
+    result.imgUrl = dto.imgUrl;
+    result.userId = dto.userId;
     return result;
   }
 }
