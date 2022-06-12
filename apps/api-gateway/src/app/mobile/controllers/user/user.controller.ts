@@ -1,9 +1,22 @@
-import { MyProfileResponse, ProductCommentResponseDTO } from '@aff-services/shared/models/dtos';
-import { Controller, Get, HttpException, Logger, Req, Res, UseGuards } from '@nestjs/common';
+import { MyProfileResponse, ProductCommentResponseDTO, UpdateUserDTO } from '@aff-services/shared/models/dtos';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { UserService } from '../../services/user/user.service';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  Logger,
+  Post,
+  Req,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 
 @ApiTags('Người dùng')
 @Controller('mobile/user')
@@ -25,6 +38,27 @@ export class UserController {
       throw new HttpException(error.message, error.status || 500);
     } finally {
       this.logger.log(`${this.getSaveProducts.name} Done`);
+    }
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: any) {
+    this.logger.log(`${this.uploadFile.name} called`);
+    return await this.userService.uploadFile(file);
+  }
+
+  @ApiOperation({ summary: 'Dùng để cập nhật thông tin user' })
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async updateUser(@Req() req: Request, @Res() res: Response, @Body() data: UpdateUserDTO) {
+    try {
+      this.logger.log(`${this.updateUser.name} called`);
+      data.userId = (req.user as MyProfileResponse).userId;
+      const result = await this.userService.updateUser(UpdateUserDTO.from(data));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
     }
   }
 }

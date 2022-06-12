@@ -1,3 +1,4 @@
+import { UpdateUserDTO } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -21,5 +22,15 @@ export class UserService {
   async getSaveProducts(userId: number) {
     this.logger.log(`${this.getSaveProducts.name} called userId:${userId}`);
     return await this.client.send({ cmd: CMD.GET_SAVE_PRODUCT }, { userId }).toPromise();
+  }
+
+  async uploadFile(file: any) {
+    this.logger.log(`${this.uploadFile.name} called`);
+    return await this.client.send<any>({ cmd: CMD.UPLOAD_FILE }, { file }).toPromise();
+  }
+
+  async updateUser(data: UpdateUserDTO) {
+    this.logger.log(`${this.updateUser.name} called`);
+    return await this.client.send({ cmd: CMD.UPDATE_USER }, data).toPromise();
   }
 }

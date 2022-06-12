@@ -36,7 +36,7 @@ export class UserController {
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
-    } 
+    }
   }
 
   @Post('upload')
