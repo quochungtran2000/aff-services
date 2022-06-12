@@ -1,11 +1,11 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ schema: 'public', name: 'crawl_history' })
 export class CRAWL_HISTORY {
-  @PrimaryColumn({ name: 'crawl_hisotry_id' })
+  @PrimaryGeneratedColumn({ name: 'crawl_history_id' })
   crawlHistoryId: number;
 
-  @PrimaryColumn({ name: 'product_id' })
+  @PrimaryColumn({ name: 'status', default: 'pending' })
   status: string;
 
   @Column({ name: 'created_at', type: 'timestamp', default: '() => now()' })

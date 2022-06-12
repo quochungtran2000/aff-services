@@ -13,10 +13,10 @@ export class CrawlController {
   @ApiOperation({ summary: 'Dùng để cào dữ liệu' })
   @ApiResponse({ type: BaseResponse })
   @Post()
-  async crawlData(@Body() data: CrawlPayload, @Req() req: Request, @Res() res: Response) {
+  async crawlData(@Req() req: Request, @Res() res: Response) {
     try {
       this.logger.log(`${this.crawlData.name} called`);
-      const result = await this.crawlService.crawlData(CrawlPayload.from(data));
+      const result = await this.crawlService.crawlData();
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);
@@ -52,6 +52,17 @@ export class CrawlController {
     try {
       this.logger.log(`${this.getCategory.name} called`);
       const result = await this.crawlService.getCategory(merchant);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Get('history')
+  async getCrawlHistory(@Req() req: Request, @Res() res: Response) {
+    try {
+      this.logger.log(`${this.getCrawlHistory.name} called`);
+      const result = await this.crawlService.getCrawlHistory({});
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);

@@ -1,4 +1,3 @@
-import { CrawlPayload } from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -19,10 +18,12 @@ export class CrawlService {
     });
   }
 
-  async crawlData(data: CrawlPayload) {
+  async crawlData() {
     this.logger.log(`${this.crawlData.name} called`);
-    this.client.send({ cmd: CMD.CRAWL_DATA }, data).toPromise();
-    return { message: 'Created crawl request' };
+    const result = await this.client.send({ cmd: CMD.CREATE_CRAWL_HISTORY }, {}).toPromise();
+    this.client.send({ cmd: CMD.CRAWL_DATA }, result).toPromise();
+    return { message: 'Created crawl request', data: result };
+    // return result
   }
 
   async crawlCategory() {
@@ -38,5 +39,9 @@ export class CrawlService {
 
   async getCategory(merchant: string) {
     return await this.client.send({ cmd: CMD.GET_CATEGORY }, { merchant }).toPromise();
+  }
+
+  async getCrawlHistory(query: any) {
+    return await this.client.send({ cmd: CMD.GET_CRAWL_HISTORY }, query).toPromise();
   }
 }

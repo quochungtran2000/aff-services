@@ -67,4 +67,8 @@ export enum CMD {
   // Comment
   COMMENT_POST = 'comment_post',
   GET_POST_COMMENT = 'get_post_comment',
+
+  //Crawl history
+  CREATE_CRAWL_HISTORY = 'create_crwal_history',
+  GET_CRAWL_HISTORY = 'get_craw_history',
 }

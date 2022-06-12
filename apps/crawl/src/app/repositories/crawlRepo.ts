@@ -12,7 +12,7 @@ export class CrawlRepo {
       .createQueryBuilder()
       .insert()
       .into(CRAWL_HISTORY)
-      .values({ status: 'pending' })
+      .values({ status: 'pending', createdAt: new Date(), updatedAt: new Date() })
       .execute();
   }
 
@@ -21,12 +21,27 @@ export class CrawlRepo {
       .createQueryBuilder()
       .update(CRAWL_HISTORY)
       .set({ status: 'crawling' })
-      .where('id = :id', { id })
+      .where('crawl_history_id = :id', { id })
       .execute();
   }
 
   async getAll() {
     this.logger.log(`${this.getAll.name} called`);
     return await this.crawlRepo.createQueryBuilder('c').getMany();
+  }
+
+  // async createOne() {
+  //   this.logger.log(`${this.createOne.name} called`);
+  //   return await this.crawlRepo.save();
+  // }
+
+  async getOneById(id: number) {
+    this.logger.log(`${this.getOneById.name} called Id:${id}`);
+    return this.crawlRepo
+      .createQueryBuilder('ch')
+      .where('1=1')
+      .andWhere('ch.crawl_history_id = :id')
+      .setParameters({ id })
+      .getOneOrFail();
   }
 }

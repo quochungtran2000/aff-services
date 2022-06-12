@@ -10,8 +10,9 @@ import {
 } from '@aff-services/shared/models/dtos';
 import { ConfigRepo } from '../repositories/configRepo';
 import { CategoryRepo } from '../repositories/categoryRepo';
-import { Product } from '@aff-services/shared/models/entities';
+import { CRAWL_HISTORY, Product } from '@aff-services/shared/models/entities';
 import { CrawlRepo } from '../repositories/crawlRepo';
+import { RpcException } from '@nestjs/microservices';
 const args = ['--disable-gpu', '--no-sandbox'];
 process.setMaxListeners(Infinity);
 enum MerchangeEnum {
@@ -535,40 +536,49 @@ export class CrawlService {
     return await this.categoryRepo.getCateGories(merchant);
   }
 
-  async crawlProductV2() {
+  async crawlProductV2(data: { crawlHistoryId: number }) {
+    let crawlRequest: CRAWL_HISTORY;
+    try {
+      crawlRequest = await this.crawlRepo.getOneById(data?.crawlHistoryId);
+    } catch (error) {
+      this.logger.log(`${this.crawlProductV2.name} DONE ✅✅✅✅✅`);
+      throw new RpcException({ message: 'crawl request not found!', status: 400 });
+    }
+    console.log({ crawlRequest });
+    await this.crawlRepo.updateToCrawling(crawlRequest.crawlHistoryId);
     const browser = await puppeteer.launch({ headless: true, handleSIGINT: false, args: args });
     try {
       this.logger.log(`${this.crawlProductV2.name} called`);
-      // const crawlList = await this.categoryRepo.getCategoriesWillCrawl();
+      const crawlList = await this.categoryRepo.getCategoriesWillCrawl();
 
-      // for (const elm of crawlList) {
-      //   try {
-      //     const url = await this.configRepo.getDbConfigMerchantUrl(elm.merchant);
-      //     const page_url = `${url.value}${elm.slug}`;
-      //     let products: any[] = [];
-      //     switch (elm.merchant) {
-      //       case MerchangeEnum.TIKI: {
-      //         if (url && elm.slug) products = await this.getTikiProductsV2(browser, page_url);
-      //         break;
-      //       }
-      //       case MerchangeEnum.SHOPEE: {
-      //         if (url && elm.slug) products = await this.getShopeeProductV2(browser, page_url);
-      //         break;
-      //       }
-      //       case MerchangeEnum.LAZADA: {
-      //         if (url && elm.slug) products = await this.getLazadaProductsV2(browser, page_url);
-      //         break;
-      //       }
-      //       default:
-      //         break;
-      //     }
+      for (const elm of crawlList) {
+        try {
+          const url = await this.configRepo.getDbConfigMerchantUrl(elm.merchant);
+          const page_url = `${url.value}${elm.slug}`;
+          let products: any[] = [];
+          switch (elm.merchant) {
+            case MerchangeEnum.TIKI: {
+              if (url && elm.slug) products = await this.getTikiProductsV2(browser, page_url);
+              break;
+            }
+            case MerchangeEnum.SHOPEE: {
+              if (url && elm.slug) products = await this.getShopeeProductV2(browser, page_url);
+              break;
+            }
+            case MerchangeEnum.LAZADA: {
+              if (url && elm.slug) products = await this.getLazadaProductsV2(browser, page_url);
+              break;
+            }
+            default:
+              break;
+          }
 
-      //     const toBeCreated = CreateProductDTO.fromArray(products);
-      //     await this.productRepo.insertData(toBeCreated);
-      //   } catch (error) {
-      //     this.logger.error(`get products error:${error.message}`);
-      //   }
-      // }
+          const toBeCreated = CreateProductDTO.fromArray(products);
+          await this.productRepo.insertData(toBeCreated);
+        } catch (error) {
+          this.logger.error(`get products error:${error.message}`);
+        }
+      }
 
       // return crawlList;
 
@@ -1342,6 +1352,19 @@ export class CrawlService {
   }
 
   async createCrawlProcess() {
-    return await this.crawlRepo.create();
+    const { generatedMaps } = await this.crawlRepo.create();
+    return generatedMaps[0];
+  }
+
+  async checkExistsCrawlRequest(id: number) {
+    try {
+      this.logger.log(`${this.checkExistsCrawlRequest.name} called Id:${id}`);
+      return this.crawlRepo.getOneById(id);
+    } catch (error) {
+      this.logger.error(`${this.checkExistsCrawlRequest.name} Error:${error.message}`);
+      throw new RpcException({ message: 'crawl request not found', status: error?.status || 500})
+    }finally{
+      this.logger.log(`${this.createCrawlProcess.name} Done`)
+    }
   }
 }
