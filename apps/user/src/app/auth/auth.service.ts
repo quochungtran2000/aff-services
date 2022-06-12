@@ -16,6 +16,8 @@ import {
   RequestResetPasswordQuery,
   ResetPasswordPayload,
 } from '@aff-services/shared/models/dtos';
+import * as sgMail from '@sendgrid/mail';
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 @Injectable()
 export class AuthService {
@@ -103,7 +105,7 @@ export class AuthService {
       const hashUserId = await this.bcryptService.hashPassword(userId + '');
       const code = `${userId}@.${hashUserId}`;
       const urlPath = await this.jwtService.sign({ userId, code });
-      return { urlPath };
+      return await this.sendEmail(email, 'Khôi phục mật khẩu', `<span>${urlPath}</span>`);
     } catch (error) {
       this.logger.error(`${this.forgotPassword.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
@@ -156,6 +158,21 @@ export class AuthService {
     } catch (error) {
       this.logger.error(`${this.resetPassword.name} Error:${error.message}`);
       throw new RpcException({ status: error.status || 500, message: error.message });
+    }
+  }
+
+  async sendEmail(to: string, subject: string, content: any) {
+    try {
+      this.logger.log(`${this.sendEmail.name} called to:${to} - ${subject}`);
+      const mailResult = await sgMail.send({
+        from: 'tranquochung6810@gmail.com',
+        to: to,
+        subject: subject,
+        html: content,
+      });
+      return mailResult;
+    } catch (error) {
+      this.logger.error(`${this.sendEmail.name} Error:${error.message}`);
     }
   }
 }
