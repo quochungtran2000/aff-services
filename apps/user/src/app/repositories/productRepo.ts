@@ -17,7 +17,7 @@ import {
   PRODUCT_TEMPLATE,
   USER_SAVE_PRODUCT,
 } from '@aff-services/shared/models/entities';
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpService, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
 
@@ -30,7 +30,8 @@ export class ProductRepo {
     @Inject('PRODUCT_PRODUCT_REPOSITORY') private readonly productProductRepo: Repository<PRODUCT_PRODUCT>,
     @Inject('PRODUCT_TEMPLATE_REPOSITORY') private readonly productTemplateRepo: Repository<PRODUCT_TEMPLATE>,
     @Inject('PRODUCT_COMMENT_REPOSITORY') private readonly productCommentRepo: Repository<PRODUCT_COMMENT>,
-    @Inject('USER_SAVE_PRODUCT_REPOSITORY') private readonly userSaveProductRepo: Repository<USER_SAVE_PRODUCT>
+    @Inject('USER_SAVE_PRODUCT_REPOSITORY') private readonly userSaveProductRepo: Repository<USER_SAVE_PRODUCT>,
+    private httpService: HttpService
   ) {}
 
   async findAndCount(query: CrawlProductQuery) {
@@ -424,6 +425,16 @@ export class ProductRepo {
       throw new RpcException({ status: error.status || 500, message: error.message });
     } finally {
       this.logger.log(`${this.getSaveProduct.name} Done`);
+    }
+  }
+
+  async getLinkAffiliate() {
+    try {
+      this.logger.log(`${this.getLinkAffiliate.name} called`)
+    } catch (error) {
+      this.logger.error(`${this.getLinkAffiliate.name} Error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getLinkAffiliate.name} DONE ✅`);
     }
   }
 }

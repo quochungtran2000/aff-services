@@ -269,8 +269,11 @@ export class PostRepo {
         .leftJoinAndSelect('pc.customer', 'pcc')
         .where('1=1')
         .andWhere(`p.post_id = :postId`)
+        .andWhere(`p.parent_id is null`)
         .setParameters({ postId })
         .getManyAndCount();
+
+        console.log(data)
 
       return { total, data: data.map((elm) => CommentResponseDTO.fromEntity(elm)) };
       return { total, data };

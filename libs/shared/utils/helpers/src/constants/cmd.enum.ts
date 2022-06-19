@@ -28,6 +28,10 @@ export enum CMD {
   ADMIN_CREATE_CATEGORY = 'admin_create_category',
   ADMIN_DELETE_CATEGORY = 'admin_delete_category',
   ADMIN_UPDATE_CATEGORY = 'admin_update_category',
+  ADMIN_GET_CONFIG = 'admin_get_config',
+  ADMIN_CREATE_CONFIG = 'admin_create_config',
+  ADMIN_UPDATE_CONFIG = 'admin_update_config',
+  ADMIN_DELETE_CONFIG = 'admin_delete_config',
 
   // Webiste
   WEBSITE_GET_PRODUCT = 'website_get_product',

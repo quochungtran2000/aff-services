@@ -1,8 +1,9 @@
-import { UpdateUserDTO, UserQuery } from '@aff-services/shared/models/dtos';
+import { ConfigPayload, UpdateUserDTO, UserQuery } from '@aff-services/shared/models/dtos';
 import { Injectable, Logger } from '@nestjs/common';
 import { UserRepo } from '../repositories/userRepo';
 import { v2 as cloudinary } from 'cloudinary';
 import { RpcException } from '@nestjs/microservices';
+import { ConfigRepo } from '../repositories/configRepo';
 
 cloudinary.config({
   cloud_name: 'hunghamhoc',
@@ -14,7 +15,7 @@ cloudinary.config({
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(`Micro-User.${UserService.name}`);
-  constructor(private readonly userRepo: UserRepo) {}
+  constructor(private readonly userRepo: UserRepo, private readonly configRepo: ConfigRepo) {}
 
   async adminGetUsers(query: UserQuery) {
     this.logger.log(`${this.adminGetUsers.name} called`);
@@ -40,6 +41,26 @@ export class UserService {
   }
 
   async updateUser(data: UpdateUserDTO) {
-    return this.userRepo.updateUser(data);
+    return await this.userRepo.updateUser(data);
+  }
+
+  async getConfigs() {
+    this.logger.log(`${this.getConfigs.name} called`);
+    return await this.configRepo.getConfigs();
+  }
+
+  async createConfig(data: ConfigPayload) {
+    this.logger.log(`${this.createConfig.name} called`);
+    return await this.configRepo.createConfig(data);
+  }
+
+  async updateConfig(data: ConfigPayload) {
+    this.logger.log(`${this.updateConfig.name} called`);
+    return await this.configRepo.updateConfig(data);
+  }
+
+  async deleteConfig(configName: string) {
+    this.logger.log(`${this.deleteConfig.name} called`);
+    return await this.configRepo.deleteConfig(configName);
   }
 }

@@ -7,3 +7,4 @@ export * from './crawl';
 export * from './base';
 export * from './category';
 export * from './post';
+export * from './config';

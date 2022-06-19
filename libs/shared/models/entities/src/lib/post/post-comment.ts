@@ -33,10 +33,10 @@ export class POST_COMMENT {
   // post: POST;
 
   @OneToMany(() => POST_COMMENT, (pc) => pc.parent)
-  @JoinColumn({ name: 'parent_id', referencedColumnName: 'postCommentId' })
+  @JoinColumn({ name: 'post_comment_id', referencedColumnName: 'parentId' })
   childrens: POST_COMMENT[];
 
   @ManyToOne(() => POST_COMMENT, (pc) => pc.childrens)
-  @JoinColumn({ name: 'post_comment_id', referencedColumnName: 'parentId' })
+  @JoinColumn({ name: 'parent_id', referencedColumnName: 'postCommentId' })
   parent: POST_COMMENT;
 }
