@@ -83,7 +83,10 @@ export class UserService {
     const lazadaPromise = this.httpService
       .get(`${accessTraderApi}/commission_policies?camp_id=${lazadaCampaignId}`, configRequest)
       .toPromise()
-      .then(({ data }) => data)
+      .then(({ data }) => {
+        const { product } = data;
+        return { product };
+      })
       .catch(() => {
         return { category: [], default: [], product: [] };
       });
@@ -91,7 +94,10 @@ export class UserService {
     const shopeePromise = this.httpService
       .get(`${accessTraderApi}/commission_policies?camp_id=${shopeeCampaignId}`, configRequest)
       .toPromise()
-      .then(({ data }) => data)
+      .then(({ data }) => {
+        const { product } = data;
+        return { product };
+      })
       .catch(() => {
         return { category: [], default: [], product: [] };
       });
@@ -99,30 +105,65 @@ export class UserService {
     const tikiPromise = this.httpService
       .get(`${accessTraderApi}/commission_policies?camp_id=${tikiCampaignId}`, configRequest)
       .toPromise()
-      .then(({ data }) => data)
+      .then(({ data }) => {
+        const { product } = data;
+        return { product };
+      })
       .catch(() => {
         return { category: [], default: [], product: [] };
       });
 
-    const ordersPromise = this.httpService
-      .get(`${accessTraderApi}/orders`, {
-        headers: {
-          Authorization: `Token ${apiKey}`,
-        },
-      })
-      .toPromise()
-      .then(({ data }) => data)
-      .catch(() => {
-        return { data: [], total: 0, total_page: 0 };
-      });
+    // const ordersPromise = this.httpService
+    //   .get(`${accessTraderApi}/orders`, configRequest)
+    //   .toPromise()
+    //   .then(({ data }) => data)
+    //   .catch(() => {
+    //     return { data: [], total: 0, total_page: 0 };
+    //   });
 
-    const [tiki, shopee, lazada, commission] = await Promise.all([
-      tikiPromise,
-      shopeePromise,
-      lazadaPromise,
-      ordersPromise,
-    ]);
+    const arrPromise = [];
 
-    return { data: { tiki, shopee, lazada, commission } };
+    const renderMonth = (month: number) =>
+      arrPromise.push(
+        this.httpService
+          .get(
+            `${accessTraderApi}/orders?since=${new Date().getFullYear()}-${month}-01T00:00:00Z&until=${new Date().getFullYear()}-${month}-28T00:00:00Z`,
+            configRequest
+          )
+          .toPromise()
+          .then(({ data }) => data)
+          .catch(() => {
+            return { data: [], total: 0, total_page: 0 };
+          })
+      );
+    Array(12)
+      .fill(12)
+      .map((_, i) => renderMonth(i + 1));
+
+    const [T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] = await Promise.all(arrPromise);
+
+    // console.log(T1);
+
+    const [tiki, shopee, lazada] = await Promise.all([tikiPromise, shopeePromise, lazadaPromise]);
+
+    return {
+      tiki: tiki?.product?.reduce((total: number, x: any) => total + x?.sales_price, 0) || 20,
+      shopee: shopee?.product?.reduce((total: number, x: any) => total + x?.sales_price, 0),
+      lazada: lazada?.product?.reduce((total: number, x: any) => total + x?.sales_price, 0),
+      commission: {
+        T1: T1?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T2: T2?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T3: T3?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T4: T4?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T5: T5?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T6: T6?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T7: T7?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T8: T8?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T9: T9?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T10: T10?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T11: T11?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+        T12: T12?.data?.reduce((total: number, x: any) => total + x?.pub_commission, 0),
+      },
+    };
   }
 }
