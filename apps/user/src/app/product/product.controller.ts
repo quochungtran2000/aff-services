@@ -1,4 +1,9 @@
-import { CrawlProductQuery, ProductTemplateQuery, SaveProductTemplateParamDTO } from '@aff-services/shared/models/dtos';
+import {
+  CrawlProductQuery,
+  CreateAffLinkPayload,
+  ProductTemplateQuery,
+  SaveProductTemplateParamDTO,
+} from '@aff-services/shared/models/dtos';
 import { CMD } from '@aff-services/shared/utils/helpers';
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -82,5 +87,11 @@ export class ProductController {
   getSaveProduct({ userId }: { userId: number }) {
     this.logger.log(`${this.getSaveProduct.name} called`);
     return this.productService.getSaveProduct(userId);
+  }
+
+  @MessagePattern({ cmd: CMD.ADMIN_CREATE_AFF_LINK })
+  createAffLink({ productUrl }: CreateAffLinkPayload) {
+    this.logger.log(`${this.createAffLink.name} called`);
+    return this.productService.createAffLink(productUrl);
   }
 }

@@ -6,6 +6,7 @@ import {
   CONFIG,
   CRAWL_CATEGORY,
   CRAWL_HISTORY,
+  CRAWL_PRODUCT_HISTORY,
   MAPPING_CATEGORY,
   Product,
   PRODUCT_AFFILIATE_LINK,
@@ -52,6 +53,7 @@ export const databaseProviders = [
           PRODUCT_COMMENT_IMAGE,
           USER_SAVE_PRODUCT,
           CRAWL_HISTORY,
+          CRAWL_PRODUCT_HISTORY
         ],
         // synchronize: true,
         // logging: true,

@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
 import { CRAWL_CATEGORY } from '../category';
+import { CRAWL_PRODUCT_HISTORY } from './crawl-product-history';
 import { PRODUCT_AFFILIATE_LINK } from './product-affiliate-link';
 import { PRODUCT_COMMENT } from './product-comment';
 // import { PRODUCT_IMAGE } from './product-image';
@@ -75,4 +76,8 @@ export class Product {
   // @OneToMany(() => PRODUCT_IMAGE, (image) => image.product)
   // @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
   // productImages: PRODUCT_IMAGE[];
+
+  @OneToOne(() => CRAWL_PRODUCT_HISTORY)
+  @JoinColumn({ name: 'product_id', referencedColumnName: 'productId' })
+  productHistory: CRAWL_PRODUCT_HISTORY;
 }

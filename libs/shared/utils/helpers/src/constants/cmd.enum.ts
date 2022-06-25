@@ -32,6 +32,7 @@ export enum CMD {
   ADMIN_CREATE_CONFIG = 'admin_create_config',
   ADMIN_UPDATE_CONFIG = 'admin_update_config',
   ADMIN_DELETE_CONFIG = 'admin_delete_config',
+  ADMIN_CREATE_AFF_LINK = 'admin_create_aff_link',
 
   // Webiste
   WEBSITE_GET_PRODUCT = 'website_get_product',
@@ -76,4 +77,6 @@ export enum CMD {
   //Crawl history
   CREATE_CRAWL_HISTORY = 'create_crwal_history',
   GET_CRAWL_HISTORY = 'get_craw_history',
+  GET_CRAWL_PRODUCT_HISTORY = 'get_craw_product_history',
+  CUSTOM_CRAWL = 'custom_crawl',
 }

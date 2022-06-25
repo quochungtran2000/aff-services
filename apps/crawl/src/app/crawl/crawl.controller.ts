@@ -12,7 +12,7 @@ export class CrawlController {
   @MessagePattern({ cmd: CMD.CRAWL_DATA })
   crawlData(data: any) {
     this.logger.log(`${this.crawlData.name}`);
-    return this.crawlService.crawlProductV2(data);
+    return this.crawlService.crawlProductsV3(data);
   }
 
   @MessagePattern({ cmd: CMD.CREATE_CRAWL_HISTORY })
@@ -30,5 +30,10 @@ export class CrawlController {
   @MessagePattern({ cmd: CMD.GET_CATEGORY })
   getCateGory({ merchant }: { merchant }) {
     return this.crawlService.getCategory(merchant);
+  }
+
+  @MessagePattern({ cmd: CMD.CUSTOM_CRAWL })
+  customCrawl({ url }: { url: string }) {
+    return this.crawlService.customCrawl(url);
   }
 }

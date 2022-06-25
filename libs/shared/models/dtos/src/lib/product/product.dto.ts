@@ -1,4 +1,6 @@
 import { removeAccent } from '@aff-services/shared/utils/helpers';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export type ProductVariant = {
   productId: string;
@@ -17,6 +19,8 @@ export type ProductDetail = {
   comments: ProductComment[];
   productVariants: ProductVariant[];
   description: string;
+  average?: number;
+  sold?: number;
 };
 
 export type ProductComment = {
@@ -161,3 +165,76 @@ export class CrawlUpdateProductVariantImage {
   sku: string;
   imageUrl: string;
 }
+
+export class CreateAffLinkPayload {
+  @IsNotEmpty()
+  @ApiProperty({ type: String, example: 'ád' })
+  productUrl: string;
+}
+
+export class CreateProductDTOV2 {
+  productId: string;
+  name: string;
+  slug: string;
+  originalUrl: string;
+  thumbnail: string;
+  isCompleteCrawl: boolean;
+  isCompleteUpdate: boolean;
+  average: number;
+  sold: number;
+  description: string;
+  merchant: 'tiki' | 'shopee' | 'lazada';
+  crawlCategoryId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastestCrawlAt: Date;
+
+  public static tobeCreated(dto: Partial<CreateProductDTOV2>) {
+    const result = new CreateProductDTOV2();
+    result.productId = getProductId(dto.originalUrl);
+    result.name = dto.name;
+    result.slug = getProductSlug(dto.name);
+    result.originalUrl = OriginURL[dto.merchant](dto.originalUrl);
+    result.thumbnail = dto.thumbnail;
+    result.merchant = dto.merchant;
+    result.crawlCategoryId = dto.crawlCategoryId;
+    result.createdAt = new Date();
+    result.updatedAt = new Date();
+    result.isCompleteCrawl = false;
+    result.isCompleteUpdate = false;
+    result.lastestCrawlAt = new Date();
+    return result;
+  }
+  public static tobeCreateds(dtos: Partial<CreateProductDTOV2[]>) {
+    return dtos.map((x) => this.tobeCreated(x));
+  }
+}
+
+const getProductId = (url: string) => {
+  const [productId] = url.match(/(p[0-9]{1,}.html)|(-i.[0-9]{1,}.)/);
+  return productId?.replace(/[-iphtml.]{1,}/g, '');
+};
+
+const OriginURL = {
+  tiki: (url: string) => {
+    let result;
+    if (url.startsWith('//tka.tiki.vn')) {
+      result = url.replace('//tka.tiki.vn', 'https://tka.tiki.vn');
+    } else {
+      result = `https://tiki.vn${url}`;
+    }
+    return result;
+  },
+  shopee: (url: string) => {
+    return `https://shopee.vn${url}`;
+  },
+  lazada: (url: string) => {
+    let result;
+    if (url.startsWith('//www.lazada.vn')) {
+      result = url.replace('//www.lazada.vn', 'https://www.lazada.vn');
+    } else {
+      result = `https://www.lazada.vn${url}`;
+    }
+    return result;
+  },
+};

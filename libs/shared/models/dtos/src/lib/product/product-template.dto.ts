@@ -1,4 +1,5 @@
 import { Product, PRODUCT_TEMPLATE } from '@aff-services/shared/models/entities';
+import { removeAccent } from '@aff-services/shared/utils/helpers';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProductResponse } from './product-response.dto';
 
@@ -15,7 +16,9 @@ export class CreateProductTemplateDTO {
   public static fromProduct(entity: Partial<Product>) {
     const result = new CreateProductTemplateDTO();
     result.productName = entity.name;
-    result.productShortName = entity.slug;
+    result.productShortName = removeAccent('' + entity.slug)
+      .toLowerCase()
+      .trim();
     result.thumbnail = entity.thumbnail;
     result.slug = entity.slug;
     result.slug1 = entity.slug + entity.productId;
@@ -29,7 +32,9 @@ export class CreateProductTemplateDTO {
     for (const entity of entities) {
       const temp = new CreateProductTemplateDTO();
       temp.productName = entity.name;
-      temp.productShortName = entity.slug;
+      temp.productShortName = removeAccent('' + entity.slug)
+        .toLowerCase()
+        .trim();
       temp.thumbnail = entity.thumbnail;
       temp.slug = entity.slug;
       temp.slug1 = entity.slug + entity.productId;

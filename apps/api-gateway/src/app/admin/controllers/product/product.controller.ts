@@ -1,10 +1,11 @@
 import {
   CrawlProductQuery,
+  CreateAffLinkPayload,
   PagingProductTemplateResponse,
   ProductTemplateDetailResponse,
   ProductTemplateQuery,
 } from '@aff-services/shared/models/dtos';
-import { Controller, Get, HttpException, Logger, Param, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Logger, Param, Post, Query, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ProductService } from '../../services/product/product.service';
@@ -57,6 +58,17 @@ export class ProductController {
     try {
       this.logger.log(`${this.adminGetProductDetail.name} called`);
       const result = await this.productService.adminGetProductDetail(id);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @Post('aff-link')
+  async createAffLink(@Res() res: Response, @Body() data: CreateAffLinkPayload) {
+    try {
+      this.logger.log(`${this.createAffLink.name} called`);
+      const result = await this.productService.createAffLink(data);
       return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, error.status || 500);

@@ -9,3 +9,4 @@ export * from './product-variant-image';
 export * from './product-comment';
 export * from './product-comment-image';
 export * from './crawl-history';
+export * from './crawl-product-history';

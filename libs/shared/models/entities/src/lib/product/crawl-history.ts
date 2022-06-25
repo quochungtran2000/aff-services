@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { CRAWL_PRODUCT_HISTORY } from './crawl-product-history';
 
 @Entity({ schema: 'public', name: 'crawl_history' })
 export class CRAWL_HISTORY {
@@ -13,4 +14,8 @@ export class CRAWL_HISTORY {
 
   @Column({ name: 'updated_at', type: 'timestamp', default: '() => now()' })
   updatedAt: Date;
+
+  @OneToMany(() => CRAWL_PRODUCT_HISTORY, (cph) => cph.crawlHistory)
+  @JoinColumn({ name: 'crawl_history_id', referencedColumnName: 'crawlHistoryId' })
+  product_history: CRAWL_PRODUCT_HISTORY[];
 }

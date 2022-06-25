@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ProductRepo } from '../repositories/productRepo';
 import * as puppeteer from 'puppeteer';
 import {
   CreateProductDTO,
+  CreateProductDTOV2,
   ProductComment,
   ProductDetail,
   ProductVariant,
@@ -10,7 +11,7 @@ import {
 } from '@aff-services/shared/models/dtos';
 import { ConfigRepo } from '../repositories/configRepo';
 import { CategoryRepo } from '../repositories/categoryRepo';
-import { CRAWL_HISTORY, Product } from '@aff-services/shared/models/entities';
+import { CRAWL_CATEGORY, CRAWL_HISTORY, Product } from '@aff-services/shared/models/entities';
 import { CrawlRepo } from '../repositories/crawlRepo';
 import { RpcException } from '@nestjs/microservices';
 const args = ['--disable-gpu', '--no-sandbox'];
@@ -22,6 +23,36 @@ enum MerchangeEnum {
 }
 
 type Merchange = 'tiki' | 'lazada' | 'shopee';
+
+type CrawlConfig =
+  | {
+      item: string;
+      thumbnail: string;
+      url: string;
+      name: string;
+      salePrice: string;
+      discountPercent: string;
+      rate: string;
+      sold: string;
+    }
+  | {
+      item: string;
+      thumbnail: string;
+      url: string;
+      name: string;
+      salePrice: string;
+      listPrice: string;
+      discountPercent: string;
+      rate: string;
+    };
+
+type FirstCrawlProduct = {
+  name?: string;
+  thumbnail?: string;
+  originalUrl?: string;
+  merchant?: string;
+  crawlCategoryId?: string;
+};
 
 @Injectable()
 export class CrawlService {
@@ -544,7 +575,6 @@ export class CrawlService {
       this.logger.log(`${this.crawlProductV2.name} DONE ✅✅✅✅✅`);
       throw new RpcException({ message: 'crawl request not found!', status: 400 });
     }
-    console.log({ crawlRequest });
     await this.crawlRepo.updateToCrawling(crawlRequest.crawlHistoryId);
     const browser = await puppeteer.launch({ headless: true, handleSIGINT: false, args: args });
     try {
@@ -610,7 +640,6 @@ export class CrawlService {
       //   'https://shopee.vn/B%C4%83ng-%C4%90%C3%B4-H%E1%BB%8Da-Ti%E1%BA%BFt-K%E1%BA%BFt-N%E1%BB%91i-Wifi-H%C3%ACnh-D%E1%BA%A5u-Ch%E1%BA%A5m-H%E1%BB%8Fi-%C4%90a-D%E1%BA%A1ng-Vui-Nh%E1%BB%99n-Cho-D%E1%BB%8Bp-Halloween-i.510307075.13002770157?sp_atk=32600d1c-d896-491f-bf32-bef105ce1393&xptdk=32600d1c-d896-491f-bf32-bef105ce1393';
       // const productDetail = await this.getShopeeProductDetail(browser, url);
       // const updateProductDetail = await this.productRepo.insertProductDetail(productDetail);
-      // console.log({ ...productDetail });
 
       await this.crawlProductDetail(browser);
     } catch (error) {
@@ -986,7 +1015,7 @@ export class CrawlService {
     } catch (error) {
       this.logger.error(`${this.pageScrollDown.name}`);
     } finally {
-      this.logger.log(`${this.pageScrollDown.name} Done`);
+      // this.logger.log(`${this.pageScrollDown.name} Done`);
     }
   }
 
@@ -1166,7 +1195,7 @@ export class CrawlService {
         const url = elm?.getAttribute('src');
         if (url) images.push(url);
       });
-      return { productId, sku, salePrice, listPrice, discountPercent, isSale, images };
+      return { productId, sku, salePrice, listPrice, discountPercent, isSale, images: images?.splice(1) };
     });
   }
 
@@ -1284,15 +1313,17 @@ export class CrawlService {
       const querySalePrice = '.pmmxKx';
       const salePrice = document.querySelector(querySalePrice)?.textContent;
       const queryListPrice = '.CDN0wz';
-      const listPrice = document.querySelector(queryListPrice)?.textContent;
+      const listPrice = document.querySelector(queryListPrice)?.textContent || salePrice;
       const discountPercent = document.querySelector('.lTuS3S')?.textContent;
       const isSale = Boolean(discountPercent);
       const images: string[] = [];
-      const crawlImages = document.querySelectorAll('.PZ3-ep .Mzs0kz div.agPpyA');
+      const crawlImages = document.querySelectorAll(
+        '.product-briefing.flex.card .flex.flex-column .hGIHhp .PZ3-ep .agPpyA'
+      );
       crawlImages.forEach((elm) => {
         const backgroundUrlRegex = /url\("[a-zA-Z0-9:/._]{1,}"\)/g;
         // eslint-disable-next-line no-unsafe-optional-chaining
-        const [imageUrl] = (elm.getAttribute('style') + '')?.match(backgroundUrlRegex);
+        const [imageUrl] = (elm?.getAttribute('style') + '')?.match(backgroundUrlRegex);
         const imageUrlRegex = /(url\(")|("\))/g;
         if (imageUrl) images.push((imageUrl + '').replace(imageUrlRegex, ''));
       });
@@ -1312,14 +1343,11 @@ export class CrawlService {
         for (const element of toBeCrawl.data) {
           try {
             totalCrawlCount = totalCrawlCount + 1;
-            console.log({ element });
             const productDetail = await this.swithToCrawl(browser, element);
-            console.log(productDetail);
 
             /** Update Product Detail */
             await this.productRepo.insertProductDetail(element, productDetail);
           } catch (error) {
-            console.log(error.message);
             skip = skip + 1;
           } finally {
             totalCrawl = totalCrawl + this.take;
@@ -1347,7 +1375,6 @@ export class CrawlService {
         return;
     }
     // if (!func) throw new Error('Not in Tiki, Lazada, Shopee');
-    // console.log({ func });
     // return await func(browser, toBeCrawl.originalUrl);
   }
 
@@ -1362,9 +1389,680 @@ export class CrawlService {
       return this.crawlRepo.getOneById(id);
     } catch (error) {
       this.logger.error(`${this.checkExistsCrawlRequest.name} Error:${error.message}`);
-      throw new RpcException({ message: 'crawl request not found', status: error?.status || 500})
-    }finally{
-      this.logger.log(`${this.createCrawlProcess.name} Done`)
+      throw new RpcException({ message: 'crawl request not found', status: error?.status || 500 });
+    } finally {
+      this.logger.log(`${this.createCrawlProcess.name} Done`);
     }
   }
+
+  async customCrawl(url: string) {
+    const browser = await puppeteer.launch({ headless: true, handleSIGINT: false, args: args });
+    try {
+      this.logger.log(`${this.customCrawl.name} called url:${url}`);
+      const page = await browser.newPage();
+      await page.goto(url);
+      await page.setDefaultNavigationTimeout(60000);
+      await page.setViewport({ width: 1800, height: 6000 });
+      const bodyHandle = await page.$('body');
+      const { height } = await bodyHandle.boundingBox();
+      await bodyHandle.dispose();
+
+      // Scroll one viewport at a time, pausing to let content load
+      const viewportHeight = page.viewport().height;
+      let viewportIncr = 0;
+      while (viewportIncr + viewportHeight < height) {
+        await page.evaluate((_viewportHeight) => {
+          window.scrollBy(0, _viewportHeight);
+        }, viewportHeight);
+        await this.wait(2000);
+        viewportIncr = viewportIncr + viewportHeight;
+      }
+      await this.wait(1000);
+
+      const cssSelector = '.section-recommend-products-wrapper .stardust-tabs-panels__panel div div a[data-sqe=link]';
+
+      const result = await page.evaluate((cssSelector) => {
+        return 'aaaa' + cssSelector;
+      }, cssSelector);
+      return result;
+    } catch (error) {
+      this.logger.error(`${this.customCrawl.name} Error:${error.message}`);
+      throw new RpcException({ message: 'crawl request not found', status: error?.status || 500 });
+    } finally {
+      await browser.close();
+      this.logger.log(`${this.customCrawl.name} Done`);
+    }
+  }
+
+  async gotoCrawl(crawlRequest: CRAWL_HISTORY, crawlHistoryId: number) {
+    try {
+      crawlRequest = await this.crawlRepo.getOneById(crawlHistoryId);
+      await this.crawlRepo.updateToCrawling(crawlRequest.crawlHistoryId);
+    } catch (error) {
+      throw new RpcException({ message: 'crawl request not found!', status: 400 });
+    }
+  }
+
+  async endCrawl(crawlHistoryId: number) {
+    try {
+      await this.crawlRepo.updateToDone(crawlHistoryId);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async crawlProductsV3(data: { crawlHistoryId: number }) {
+    this.logger.log(`${this.crawlProductsV3.name} called`);
+    this.logger.log(`${this.crawlProductsV3.name} prepare data`);
+
+    let crawlRequest: CRAWL_HISTORY;
+    await this.gotoCrawl(crawlRequest, data.crawlHistoryId);
+
+    const { crawlUrl, crawlConfig } = await this.configRepo.getCrawlConfig();
+    const crawlList = await this.categoryRepo.getCategoriesWillCrawl();
+
+    const browser = await puppeteer.launch({ headless: true, handleSIGINT: false, args: args });
+
+    try {
+      const arrPromises = [];
+      for (const elm of crawlList) {
+        // let products: any[] = [];
+        switch (elm.merchant) {
+          case MerchangeEnum.TIKI: {
+            const url = `${crawlUrl.tiki}${elm.slug}`;
+            if (elm.slug) arrPromises.push(this.getTikiProductsV3(browser, url, crawlConfig.tiki, elm.crawlCategoryId));
+            break;
+          }
+          case MerchangeEnum.SHOPEE: {
+            const url = `${crawlUrl.shopee}${elm.slug}`;
+            if (elm.slug)
+              arrPromises.push(this.getShopeeProductV3(browser, url, crawlConfig.shopee, elm.crawlCategoryId));
+            break;
+          }
+          case MerchangeEnum.LAZADA: {
+            const url = `${crawlUrl.lazada}${elm.slug}`;
+            if (elm.slug)
+              arrPromises.push(this.getLazadaProductsV3(browser, url, crawlConfig.lazada, elm.crawlCategoryId));
+            break;
+          }
+          default:
+            break;
+        }
+      }
+      const arrResult = await Promise.allSettled(arrPromises);
+      await Promise.allSettled(
+        arrResult.map(async (x: any) => {
+          const tobeInsert = CreateProductDTOV2.tobeCreateds(x.value);
+          await this.productRepo.insertData(tobeInsert);
+          await this.crawlRepo.insertIntoCrawlProductHistory(
+            tobeInsert.map((x) => {
+              return { crawlHistoryId: data.crawlHistoryId, productId: x.productId };
+            })
+          );
+        })
+      );
+
+      const config = {
+        option: 'div[data-view-id=pdp_main_select_configuration] div[data-view-id=pdp_main_select_configuration_item]',
+        skuImage: '.option-figure picture.webpimg-container source[type="image/webp"]',
+        description: '.left .group .content.has-table table tr',
+      };
+
+      const { data: toBeCrawlDetails, total } = await this.crawlRepo.getListCrawlProductDetail(data.crawlHistoryId);
+      const crawlDetailPromises = [];
+      let temp = [...toBeCrawlDetails];
+      let count = 0;
+      const result = [];
+      while (count < total) {
+        for (let i = 0; i < 30; i++) {
+          if (temp?.[i])
+            switch (temp[i].product.merchant) {
+              case MerchangeEnum.TIKI: {
+                crawlDetailPromises.push(
+                  this.crawlRepo
+                    .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
+                    .then(() => this.getTikiProductDetailV2(browser, temp[i].product.originalUrl, config))
+                    .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId))
+                );
+
+                // crawlDetailPromises.push(this.getTikiProductDetailV2(browser, temp[i].product.originalUrl, config));
+
+                break;
+              }
+              case MerchangeEnum.SHOPEE: {
+                this.crawlRepo
+                  .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
+                  .then(() => this.getShopeeProductDetailV2(browser, temp[i].product.originalUrl, config))
+                  .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId));
+                // crawlDetailPromises.push(this.getShopeeProductDetailV2(browser, temp[i].product.originalUrl, config));
+                break;
+              }
+              case MerchangeEnum.LAZADA: {
+                this.crawlRepo
+                  .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
+                  .then(() => this.getLazadaProductDetailV2(browser, temp[i].product.originalUrl, config))
+                  .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId));
+                // crawlDetailPromises.push(this.getLazadaProductDetailV2(browser, temp[i].product.originalUrl, config));
+                break;
+              }
+              default:
+                break;
+            }
+        }
+        const abv = await Promise.allSettled(crawlDetailPromises);
+        const dataInsert = abv.map((x: any) => x.value).filter((x) => x);
+        await this.productRepo.insertProductDetailsV2(dataInsert);
+        result.push([...abv.map((x: any) => x?.value)]);
+        count = count + 20;
+        temp = temp?.splice(20);
+      }
+      // for (const elm of toBeCrawlDetails) {
+      //   // let products: any[] = [];
+      //   switch (elm.product.merchant) {
+      //     case MerchangeEnum.TIKI: {
+      //       crawlDetailPromises.push(this.getTikiProductDetailV2(browser, elm.product.originalUrl, config));
+      //       break;
+      //     }
+      //     case MerchangeEnum.SHOPEE: {
+      //       crawlDetailPromises.push(this.getShopeeProductDetailV2(browser, elm.product.originalUrl, config));
+      //       break;
+      //     }
+      //     case MerchangeEnum.LAZADA: {
+      //       crawlDetailPromises.push(this.getLazadaProductDetailV2(browser, elm.product.originalUrl, config));
+      //       break;
+      //     }
+      //     default:
+      //       break;
+      //   }
+      // }
+
+      return { result };
+    } catch (error) {
+      this.logger.error(`${this.crawlProductsV3.name} error:${error.message}`);
+    } finally {
+      browser.close();
+      await this.endCrawl(data.crawlHistoryId);
+      await this.crawlRepo.endSession(data.crawlHistoryId);
+      await this.productRepo.updateProduct();
+      this.logger.log(`${this.crawlProductsV3.name} DONE ✅✅✅✅✅`);
+    }
+  }
+
+  async getTikiProductsV3(browser: puppeteer.Browser, url: string, configs: CrawlConfig, cateId: string) {
+    const page = await browser.newPage();
+    try {
+      this.logger.log(`${this.getTikiProductsV3.name} goto:${url}`);
+      await page.setDefaultNavigationTimeout(60000);
+      await page.goto(url);
+      await this.wait(5000);
+      const articles = await page.evaluate(
+        (configs: CrawlConfig, cateId: string) => {
+          const results: FirstCrawlProduct[] = [];
+          const items = document.querySelectorAll(configs.item);
+          items.forEach((product) => {
+            try {
+              const temp: Partial<FirstCrawlProduct> = {};
+              temp.name = product.querySelector(configs.name).textContent;
+              temp.thumbnail = product.querySelector(configs.thumbnail).getAttribute('src');
+              temp.originalUrl = product.getAttribute('href');
+              temp.merchant = 'tiki';
+              temp.crawlCategoryId = cateId;
+              results.push(temp);
+            } catch (error) {
+              this.logger.error(`Get Product Error:${error.message}`);
+            }
+          });
+          return results;
+        },
+        configs,
+        cateId
+      );
+
+      return articles;
+    } catch (error) {
+      this.logger.log(`${this.getTikiProductsV3.name} Error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getTikiProductsV3.name} Done`);
+      await page.close();
+    }
+  }
+
+  async getShopeeProductV3(browser: puppeteer.Browser, url: string, configs: CrawlConfig, cateId: string) {
+    const page = await browser.newPage();
+
+    try {
+      this.logger.log(`${this.getShopeeProductV3.name} goto:${url}`);
+      await page.goto(url);
+      await page.setDefaultNavigationTimeout(60000);
+      await page.setViewport({ width: 1800, height: 6000 });
+      const bodyHandle = await page.$('body');
+      const { height } = await bodyHandle.boundingBox();
+      await bodyHandle.dispose();
+
+      // Scroll one viewport at a time, pausing to let content load
+      const viewportHeight = page.viewport().height;
+      let viewportIncr = 0;
+      while (viewportIncr + viewportHeight < height) {
+        await page.evaluate((_viewportHeight) => {
+          window.scrollBy(0, _viewportHeight);
+        }, viewportHeight);
+        await this.wait(2000);
+        viewportIncr = viewportIncr + viewportHeight;
+      }
+      await this.wait(1000);
+      await this.wait(1000);
+      await this.wait(1000);
+
+      // await page.screenshot({ path: 'screenshot.png' });
+
+      const articles = await page.evaluate(
+        (configs: CrawlConfig, cateId: string) => {
+          const results: FirstCrawlProduct[] = [];
+          const items = document.querySelectorAll(configs.item);
+
+          items.forEach((product) => {
+            try {
+              const temp: Partial<FirstCrawlProduct> = {};
+              temp.name = product.querySelector(configs.name)?.textContent;
+              temp.thumbnail = product.querySelector(configs.thumbnail)?.getAttribute('src');
+              temp.originalUrl = product.getAttribute('href');
+              temp.merchant = 'shopee';
+              temp.crawlCategoryId = cateId;
+              results.push(temp);
+            } catch (error) {
+              this.logger.error(`Get Product Error:${error.message}`);
+            }
+          });
+          return results;
+        },
+        configs,
+        cateId
+      );
+
+      return articles;
+    } catch (error) {
+      this.logger.error(`${this.getShopeeProductV3.name} Error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getShopeeProductV3.name} Done`);
+      await page.close();
+    }
+  }
+
+  async getLazadaProductsV3(browser: puppeteer.Browser, url: string, configs: CrawlConfig, cateId: string) {
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(60000);
+    try {
+      this.logger.log(`${this.getLazadaProductsV3.name} goto:${url}`);
+      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      await this.wait(5000);
+
+      const articles = await page.evaluate(
+        (configs: CrawlConfig, cateId: string) => {
+          const results: FirstCrawlProduct[] = [];
+          const items = document.querySelectorAll(configs.item);
+          items.forEach((product) => {
+            try {
+              const temp: Partial<FirstCrawlProduct> = {};
+              temp.name = product.querySelector(configs.name).textContent;
+              temp.thumbnail = product.querySelector(configs.thumbnail).getAttribute('src');
+              temp.originalUrl = product.querySelector(configs.url).getAttribute('href');
+              temp.merchant = 'lazada';
+              temp.crawlCategoryId = cateId;
+              results.push(temp);
+            } catch (error) {
+              this.logger.error(`Get Product Error:${error.message}`);
+            }
+          });
+          return results;
+        },
+        configs,
+        cateId
+      );
+
+      return articles;
+    } catch (error) {
+      this.logger.error(`${this.getLazadaProductsV3.name} Error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getLazadaProductsV3.name} Done`);
+      await page.close();
+    }
+  }
+
+  async crawlDetailProduct(browser: puppeteer.Browser, config: any) {
+    try {
+      this.logger.log(`${this.crawlDetailProduct.name} call`);
+    } catch (error) {
+      this.logger.error(`${this.crawlDetailProduct.name} Error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.crawlDetailProduct.name} Done`);
+    }
+  }
+
+  async getTikiProductDetailV2(
+    browser: puppeteer.Browser,
+    url: string,
+    configs: { [key: string]: string }
+  ): Promise<ProductDetail> {
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(600000);
+    await page.setViewport({ width: 1800, height: 6000 });
+    try {
+      this.logger.log(`${this.getTikiProductDetail.name} goto:${url}`);
+      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      await this.wait(5000);
+
+      /** get product description */
+
+      const description = await page.evaluate((configs) => {
+        const arr: string[] = [];
+        const rows = document.querySelectorAll(configs.description);
+        rows.forEach((elm) => {
+          const keyValue = elm?.querySelectorAll('td');
+          // const [key, value] = keyValue
+          const key = keyValue?.[0]?.textContent;
+          const value = keyValue?.[1]?.textContent;
+          if (key && value) arr.push(`${key}: ${value}`);
+        });
+        return arr.join('; ');
+      }, configs);
+
+      const options = await page.$$(configs.option);
+
+      //** get Product Variants */
+
+      const productVariants: ProductVariant[] = [];
+      if (options.length) {
+        for (let index = 0; index < options.length; index++) {
+          await this.getTikiProductVariantsV2(page, productVariants, configs.option, index);
+        }
+      } else {
+        await this.getTikiProductVariant(page, productVariants);
+      }
+
+      //** get Categories */
+
+      const categories: string[] = await page.$$eval(`.breadcrumb a.breadcrumb-item`, (breadcrumbItems) => {
+        const breadcrumb = [];
+        breadcrumbItems?.forEach((elm) => {
+          const url = elm?.getAttribute('href');
+          if (url && url !== '#' && url !== '/') {
+            breadcrumb.push(url?.split('/')?.pop());
+          }
+        });
+        return breadcrumb;
+      });
+
+      await this.pageScrollDown(page);
+
+      /** get customer comments */
+
+      const comments: ProductComment[] = await page.evaluate(() => {
+        const crawlComments: ProductComment[] = [];
+        const reviewComments = document.querySelectorAll('.customer-reviews .review-comment');
+        reviewComments.forEach((elm) => {
+          const customerName = elm.querySelector('.review-comment__user-name')?.textContent;
+          const customerSatisfactionLevel = elm.querySelector('.review-comment__title')?.textContent;
+          const reviewContent = elm.querySelector('.review-comment__content')?.textContent;
+          const reviewImages: string[] = [];
+          const images = elm.querySelectorAll('.review-comment__images div.review-comment__image');
+          images.forEach((image) => {
+            // eslint-disable-next-line no-unsafe-optional-chaining
+            const [imageUrl] = (image.getAttribute('style') + '')?.match(/url\("[a-zA-Z0-9:/.]{1,}"\)/g);
+            if (imageUrl) reviewImages.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
+          });
+          crawlComments.push({ customerName, customerSatisfactionLevel, reviewContent, reviewImages });
+        });
+        return crawlComments;
+      });
+
+      return { description, comments, categories, productVariants };
+    } catch (error) {
+      this.logger.error(`${this.getTikiProductDetail.name} error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getTikiProductDetail.name} crawl ${url} finished`);
+      await page.close();
+    }
+  }
+
+  async getTikiProductVariantsV2(
+    page: puppeteer.Page,
+    productVariants: ProductVariant[],
+    query: string,
+    index: number
+  ) {
+    this.logger.log(`${this.getTikiProductVariantsV2.name} called`);
+    try {
+      const link = await page.$$(query);
+      const a = link?.[index];
+      // await page.screenshot({ path: 'screenshot.png' });
+
+      if (a) {
+        await a.click();
+        await this.wait(5000);
+        // await page.screenshot({ path: `screenshot${index}.png` });
+        //** get sku name */
+        const skuName = await page.$eval(`${query}.active`, (el) => el.textContent);
+
+        //** get sku image */
+        const skuImage = await page
+          .$eval(`${query}.active picture.webpimg-container source`, (el) => el?.getAttribute('srcset'))
+          .catch(() => '');
+
+        //** Get variants */
+        const variants = await this.getTikiVariant(page);
+
+        productVariants.push({ ...variants, skuName, skuImage });
+      }
+    } catch (error) {
+      this.logger.error(`${this.getTikiProductVariantsV2.name} Error:${error.message}`);
+    }
+  }
+
+  async getShopeeProductDetailV2(
+    browser: puppeteer.Browser,
+    url: string,
+    configs: { [key: string]: string }
+  ): Promise<ProductDetail> {
+    const page = await browser.newPage();
+    try {
+      this.logger.log(`${this.getShopeeProductDetailV2.name} goto:${url}`);
+      await page.goto(url);
+      await page.setDefaultNavigationTimeout(600000);
+      await page.setViewport({ width: 1800, height: 6000 });
+
+      await this.pageScrollDown(page);
+      const categories: string[] = await page.$$eval(`.page-product__breadcrumb .ClhheV`, (breadcrumbItems) => {
+        const breadcrumb = [];
+        breadcrumbItems?.forEach((elm) => {
+          const url = elm?.getAttribute('href');
+          if (url && url !== '#' && url !== '/') {
+            breadcrumb.push(url?.split('.')?.pop());
+          }
+        });
+        return breadcrumb;
+      });
+
+      const description = await page.evaluate(() => {
+        const crawlDescription = document.querySelectorAll('.product-detail.page-product__detail .KqLK01 ._3Xk7SJ');
+        const result: string[] = [];
+
+        if (crawlDescription.length) {
+          crawlDescription.forEach((elm) => {
+            const title = elm.querySelector('label')?.textContent?.trim();
+            const value = elm.querySelector('div')?.textContent?.trim();
+            const divclass = elm.querySelector('div')?.getAttribute('class');
+            if (title && value && !divclass) result.push(`${title}: ${value}`);
+          });
+        }
+
+        return result.join('; ');
+      });
+
+      const variantsOptions = await page.$$('.flex.items-center .flex.items-center.TvGNLb');
+      if (variantsOptions.length) {
+        const buttons = await page.$$('.product-variation');
+        for (const elm of buttons) {
+          await elm.click();
+        }
+      }
+
+      await this.wait(10000);
+
+      const productVariants: ProductVariant[] = [];
+      await this.getShopeeProductVariant(page, productVariants);
+
+      await this.pageScrollDown(page);
+
+      const comments: ProductComment[] = await page.evaluate(() => {
+        const productComments = [];
+        const crawlComments = document.querySelectorAll(
+          '.product-ratings .shopee-product-comment-list .shopee-product-rating'
+        );
+        crawlComments.forEach((elm) => {
+          const customerName = elm.querySelector('.shopee-product-rating__author-name')?.textContent?.trim();
+          const customerSatisfactionLevel = '';
+          const reviewContent = elm.querySelector('.Em3Qhp')?.textContent;
+          const reviewImages = [];
+
+          /** crawl product sku image */
+          const commentImagesSelector =
+            '.shopee-product-rating__image-list-wrapper .shopee-rating-media-list-image__wrapper .shopee-rating-media-list-image__content';
+          const crawlCommentImages = elm.querySelectorAll(commentImagesSelector);
+          crawlCommentImages.forEach((image) => {
+            const backgroundUrlRegex = /(url\(")[a-zA-Z0-9-_:/.]{1,}/g;
+            // eslint-disable-next-line no-unsafe-optional-chaining
+            const [imageUrl] = (image.getAttribute('style') + '')?.match(backgroundUrlRegex);
+            const imageUrlRegex = /(url\(")|("\))/g;
+            if (imageUrl) reviewImages.push((imageUrl + '').replace(imageUrlRegex, ''));
+          });
+          productComments.push({ customerName, customerSatisfactionLevel, reviewContent, reviewImages });
+        });
+        return productComments;
+      });
+      if (!productVariants.length) throw new BadRequestException('Hung need update');
+      return { categories, productVariants, description, comments };
+    } catch (error) {
+      this.logger.error(`${this.getShopeeProductDetailV2.name} error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getShopeeProductDetailV2.name} crawl ${url} finished`);
+      await page.close();
+    }
+  }
+
+  async getLazadaProductDetailV2(
+    browser: puppeteer.Browser,
+    url: string,
+    configs: { [key: string]: string }
+  ): Promise<ProductDetail> {
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(600000);
+    await page.setViewport({ width: 1800, height: 6000 });
+    try {
+      this.logger.log(`${this.getLazadaProductDetailV2.name} goto ${url}`);
+      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      await this.wait(5000);
+
+      const categories: string[] = await page.$$eval(
+        `.breadcrumb .breadcrumb_item a.breadcrumb_item_anchor`,
+        (breadcrumbItems) => {
+          const breadcrumb = [];
+          breadcrumbItems?.forEach((elm) => {
+            let url = elm.getAttribute('href') + '';
+            if (url.endsWith('/')) url = url?.slice(0, -1);
+            url = url.split('/').pop();
+            if (url) breadcrumb.push(url);
+          });
+          return breadcrumb;
+        }
+      );
+
+      let query;
+      let optionsLength = 0;
+      let op1, op2;
+      const parentQuery = `#module_sku-select .sku-prop-content`;
+      const imageQuery = `.pdp-common-image.sku-variable-img`;
+      const buttonQuery = `.sku-variable-name-text`;
+      const skuOptions = await page.$(parentQuery);
+      if (skuOptions) {
+        op1 = await skuOptions.$$(imageQuery);
+        op2 = await page.$$(buttonQuery);
+      }
+
+      if (op1?.length) {
+        optionsLength = op1.length;
+        query = imageQuery;
+      } else if (op2?.length) {
+        optionsLength = op2.length;
+        query = buttonQuery;
+      }
+
+      //** get Product Variants */
+
+      const productVariants: ProductVariant[] = [];
+      if (optionsLength) {
+        for (let index = 0; index < optionsLength; index++) {
+          await this.getLazadaProductVariants(page, productVariants, query, index);
+        }
+      } else {
+        await this.getLazadaProductVariant(page, productVariants);
+      }
+
+      await this.pageScrollDown(page);
+
+      /** crawl product comments */
+
+      const comments: ProductComment[] = await page.evaluate(() => {
+        const productComments = [];
+        const crawlComments = document.querySelectorAll('#module_product_review .mod-reviews .item');
+        crawlComments.forEach((elm) => {
+          const customerName = elm.querySelector('.middle span')?.textContent?.trim();
+          const customerSatisfactionLevel = '';
+          const reviewContent = elm.querySelector('.item-content .content')?.textContent;
+          const reviewImages = [];
+
+          /** crawl product sku image */
+          const crawlCommentImages = elm.querySelectorAll('.review-image .pdp-common-image.review-image__item .image');
+          crawlCommentImages.forEach((image) => {
+            // eslint-disable-next-line no-unsafe-optional-chaining
+            const [imageUrl] = (image.getAttribute('style') + '')?.match(/(url\(")[a-zA-Z0-9-_:/.]{1,}/g);
+            if (imageUrl) reviewImages.push((imageUrl + '').replace(/(url\(")|("\))/g, ''));
+          });
+
+          productComments.push({ customerName, customerSatisfactionLevel, reviewContent, reviewImages });
+        });
+        return productComments;
+      });
+
+      const buttonViewMore = await page.$(
+        '.pdp-view-more-btn.pdp-button.pdp-button_type_text.pdp-button_theme_white.pdp-button_size_m'
+      );
+
+      if (buttonViewMore) buttonViewMore.click();
+      await this.pageScrollDown(page);
+
+      const description = await page.evaluate(() => {
+        const crawlDescription = document.querySelectorAll('.pdp-product-detail .pdp-mod-specification .key-li');
+        const result: string[] = [];
+
+        if (crawlDescription.length) {
+          crawlDescription.forEach((elm) => {
+            const title = elm.querySelector('.key-title')?.textContent?.trim();
+            const value = elm.querySelector('.key-value')?.textContent?.trim();
+            if (title && value) result.push(`${title}: ${value}`);
+          });
+        }
+
+        return result.join('; ');
+      });
+
+      return { categories, productVariants, description, comments };
+    } catch (error) {
+      this.logger.error(`${this.getLazadaProductDetailV2.name} error:${error.message}`);
+    } finally {
+      this.logger.log(`${this.getLazadaProductDetailV2.name} crawl ${url} finished`);
+      await page.close();
+    }
+  }
+
+  // async createAffLink = ()
 }

@@ -1,4 +1,4 @@
-import { BaseResponse, CrawlPayload } from '@aff-services/shared/models/dtos';
+import { BaseResponse, CrawlPayload, GetCrawlProductHistoryQuery } from '@aff-services/shared/models/dtos';
 import { Body, Controller, Get, HttpException, Logger, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
@@ -69,6 +69,23 @@ export class CrawlController {
     }
   }
 
+  @Get('history/:id')
+  async getCrawlProductHistory(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id') id: number,
+    @Query() query: GetCrawlProductHistoryQuery
+  ) {
+    try {
+      this.logger.log(`${this.getCrawlProductHistory.name} called`);
+      query.id = id;
+      const result = await this.crawlService.getCrawlProductHistory(GetCrawlProductHistoryQuery.from(query));
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
   // @Get(':url')
   // async getProductDetail(@Req() req: Request, @Res() res: Response, @Param('url') url: string) {
   //   try {
@@ -79,4 +96,16 @@ export class CrawlController {
   //     throw new HttpException(error.message, error.status || 500);
   //   }
   // }
+
+  @Post('custom')
+  async customCrawl(@Req() req: Request, @Res() res: Response, @Body() data: any) {
+    try {
+      const { url } = data;
+      this.logger.log(`${this.customCrawl.name} called`);
+      const result = await this.crawlService.customCrawl(url);
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
 }

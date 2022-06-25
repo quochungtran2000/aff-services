@@ -25,6 +25,8 @@ async function bootstrap() {
   });
   await app.startAllMicroservicesAsync();
 
+  // app.enableCors({ allowedHeaders: 'Authorization', exposedHeaders: ['Authorization'], credentials: true });
+
   await app.listen(3002);
 
   logger.log(`Microservice is listening...`);

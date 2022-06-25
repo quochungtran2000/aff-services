@@ -109,4 +109,24 @@ export class ConfigRepo {
       this.logger.log(`${this.deleteConfig.name} Done `);
     }
   }
+
+  async getOneByName(name: string) {
+    try {
+      this.logger.log(`${this.getOneByName.name} called Query:${JSON.stringify(name)}`);
+
+      const exists = await this.configRepository
+        .createQueryBuilder('c')
+        .where('1=1')
+        .andWhere('c.name = :name')
+        .setParameters({ name })
+        .getOne();
+
+      if (!exists) throw new RpcException(`Không tìm thấy cấu hình có tên :${name}`);
+
+      return exists.value;
+    } catch (error) {
+      this.logger.error(`${this.getOneByName.name} Error:${error.message}`);
+      throw new RpcException({ message: error.message, status: error.status || 500 });
+    }
+  }
 }
