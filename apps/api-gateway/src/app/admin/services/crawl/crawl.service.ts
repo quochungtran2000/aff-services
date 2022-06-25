@@ -22,8 +22,9 @@ export class CrawlService {
   async crawlData() {
     this.logger.log(`${this.crawlData.name} called`);
     const result = await this.client.send({ cmd: CMD.CREATE_CRAWL_HISTORY }, {}).toPromise();
-    const data = await this.client.send({ cmd: CMD.CRAWL_DATA }, result).toPromise();
-    return { message: 'Created crawl request', data };
+    // const data = await this.client.send({ cmd: CMD.CRAWL_DATA }, result).toPromise();
+    this.client.send({ cmd: CMD.CRAWL_DATA }, result).toPromise();
+    return { message: 'Created crawl request', data: result };
     // return result
   }
 

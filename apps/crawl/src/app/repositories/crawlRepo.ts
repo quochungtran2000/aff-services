@@ -119,6 +119,18 @@ export class CrawlRepo {
     return { total, data };
   }
 
+  async getListCrawlProductDetailV2(crawlHistoryId: number, merchant: 'tiki' | 'lazada' | 'shopee') {
+    const [data, total] = await this.crawlProductHistoryRepo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.product', 'p')
+      .where('1=1')
+      .andWhere('c.crawl_history_id = :crawlHistoryId')
+      .andWhere('p.merchant = :merchant')
+      .setParameters({ crawlHistoryId, merchant })
+      .getManyAndCount();
+    return { total, data };
+  }
+
   async updateProductToCrawling(crawlHistoryId: number, productId: string) {
     return this.crawlProductHistoryRepo
       .createQueryBuilder('c')

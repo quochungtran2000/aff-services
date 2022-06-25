@@ -1464,21 +1464,26 @@ export class CrawlService {
     const browser = await puppeteer.launch({ headless: true, handleSIGINT: false, args: args });
 
     try {
+      // return await this.getShopeeProductDetailV2(
+      //   browser,
+      //   'https://shopee.vn/Điện-thoại-mini-siêu-nhỏ-3310-2-sim-2-sóng-hỗ-trợ-bluetooth-mp3-thẻ-nhớ-thay-đổi-giọng-nói-bảo-hành-12-tháng-i.83847933.13226033110?sp_atk=6d0c50e4-7e1a-4635-9587-cb67201ccf1b&xptdk=6d0c50e4-7e1a-4635-9587-cb67201ccf1b',
+      //   {}
+      // );
       const arrPromises = [];
       for (const elm of crawlList) {
         // let products: any[] = [];
         switch (elm.merchant) {
-          case MerchangeEnum.TIKI: {
-            const url = `${crawlUrl.tiki}${elm.slug}`;
-            if (elm.slug) arrPromises.push(this.getTikiProductsV3(browser, url, crawlConfig.tiki, elm.crawlCategoryId));
-            break;
-          }
-          case MerchangeEnum.SHOPEE: {
-            const url = `${crawlUrl.shopee}${elm.slug}`;
-            if (elm.slug)
-              arrPromises.push(this.getShopeeProductV3(browser, url, crawlConfig.shopee, elm.crawlCategoryId));
-            break;
-          }
+          // case MerchangeEnum.TIKI: {
+          //   const url = `${crawlUrl.tiki}${elm.slug}`;
+          //   if (elm.slug) arrPromises.push(this.getTikiProductsV3(browser, url, crawlConfig.tiki, elm.crawlCategoryId));
+          //   break;
+          // }
+          // case MerchangeEnum.SHOPEE: {
+          //   const url = `${crawlUrl.shopee}${elm.slug}`;
+          //   if (elm.slug)
+          //     arrPromises.push(this.getShopeeProductV3(browser, url, crawlConfig.shopee, elm.crawlCategoryId));
+          //   break;
+          // }
           case MerchangeEnum.LAZADA: {
             const url = `${crawlUrl.lazada}${elm.slug}`;
             if (elm.slug)
@@ -1507,73 +1512,141 @@ export class CrawlService {
         skuImage: '.option-figure picture.webpimg-container source[type="image/webp"]',
         description: '.left .group .content.has-table table tr',
       };
-
-      const { data: toBeCrawlDetails, total } = await this.crawlRepo.getListCrawlProductDetail(data.crawlHistoryId);
-      const crawlDetailPromises = [];
-      let temp = [...toBeCrawlDetails];
-      let count = 0;
       const result = [];
-      while (count < total) {
+
+      const { data: tikiData, total: tikiTotal } = await this.crawlRepo.getListCrawlProductDetailV2(
+        data.crawlHistoryId,
+        'tiki'
+      );
+      let tempTikiData = [...tikiData];
+      let countTiki = 0;
+      const crawlTikiDetailPromises = [];
+      while (countTiki < tikiTotal) {
         for (let i = 0; i < 30; i++) {
-          if (temp?.[i])
-            switch (temp[i].product.merchant) {
-              case MerchangeEnum.TIKI: {
-                crawlDetailPromises.push(
-                  this.crawlRepo
-                    .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
-                    .then(() => this.getTikiProductDetailV2(browser, temp[i].product.originalUrl, config))
-                    .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId))
-                );
-
-                // crawlDetailPromises.push(this.getTikiProductDetailV2(browser, temp[i].product.originalUrl, config));
-
-                break;
-              }
-              case MerchangeEnum.SHOPEE: {
-                this.crawlRepo
-                  .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
-                  .then(() => this.getShopeeProductDetailV2(browser, temp[i].product.originalUrl, config))
-                  .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId));
-                // crawlDetailPromises.push(this.getShopeeProductDetailV2(browser, temp[i].product.originalUrl, config));
-                break;
-              }
-              case MerchangeEnum.LAZADA: {
-                this.crawlRepo
-                  .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
-                  .then(() => this.getLazadaProductDetailV2(browser, temp[i].product.originalUrl, config))
-                  .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId));
-                // crawlDetailPromises.push(this.getLazadaProductDetailV2(browser, temp[i].product.originalUrl, config));
-                break;
-              }
-              default:
-                break;
-            }
+          if (tempTikiData?.[i]) {
+            const update = async (crawlHistoryId: number, product: Product, browser: puppeteer.Browser, config) => {
+              await this.crawlRepo.updateLineToCrawling(crawlHistoryId, product.productId);
+              await this.getTikiProductDetailV2(browser, product.originalUrl, config);
+              await this.crawlRepo.updateLineToDone(crawlHistoryId, product.productId);
+            };
+            crawlTikiDetailPromises.push(update(data.crawlHistoryId, tempTikiData[i].product, browser, config));
+          }
         }
-        const abv = await Promise.allSettled(crawlDetailPromises);
+        const abv = await Promise.allSettled(crawlTikiDetailPromises);
         const dataInsert = abv.map((x: any) => x.value).filter((x) => x);
         await this.productRepo.insertProductDetailsV2(dataInsert);
         result.push([...abv.map((x: any) => x?.value)]);
-        count = count + 20;
-        temp = temp?.splice(20);
+        countTiki = countTiki + 20;
+        tempTikiData = tempTikiData?.splice(20);
       }
-      // for (const elm of toBeCrawlDetails) {
-      //   // let products: any[] = [];
-      //   switch (elm.product.merchant) {
-      //     case MerchangeEnum.TIKI: {
-      //       crawlDetailPromises.push(this.getTikiProductDetailV2(browser, elm.product.originalUrl, config));
-      //       break;
-      //     }
-      //     case MerchangeEnum.SHOPEE: {
-      //       crawlDetailPromises.push(this.getShopeeProductDetailV2(browser, elm.product.originalUrl, config));
-      //       break;
-      //     }
-      //     case MerchangeEnum.LAZADA: {
-      //       crawlDetailPromises.push(this.getLazadaProductDetailV2(browser, elm.product.originalUrl, config));
-      //       break;
-      //     }
-      //     default:
-      //       break;
+
+      const { data: lazadaData, total: lazadaTotal } = await this.crawlRepo.getListCrawlProductDetailV2(
+        data.crawlHistoryId,
+        'lazada'
+      );
+      let tempLazadaData = [...lazadaData];
+      let countLazada = 0;
+      const crawlLazadaDetailPromises = [];
+      while (countLazada < lazadaTotal) {
+        for (let i = 0; i < 20; i++) {
+          if (tempTikiData?.[i]) {
+            const update = async (crawlHistoryId: number, product: Product, browser: puppeteer.Browser, config) => {
+              await this.crawlRepo.updateLineToCrawling(crawlHistoryId, product.productId);
+              await this.getLazadaProductDetailV2(browser, product.originalUrl, config);
+              await this.crawlRepo.updateLineToDone(crawlHistoryId, product.productId);
+            };
+            crawlLazadaDetailPromises.push(update(data.crawlHistoryId, tempLazadaData[i].product, browser, config));
+          }
+        }
+        const abv = await Promise.allSettled(crawlLazadaDetailPromises);
+        const dataInsert = abv.map((x: any) => x.value).filter((x) => x);
+        await this.productRepo.insertProductDetailsV2(dataInsert);
+        result.push([...abv.map((x: any) => x?.value)]);
+        countLazada = countLazada + 20;
+        tempLazadaData = tempLazadaData?.splice(20);
+      }
+
+      const { data: shopeeData, total: shopTotal } = await this.crawlRepo.getListCrawlProductDetailV2(
+        data.crawlHistoryId,
+        'shopee'
+      );
+      let tempShopeeData = [...shopeeData];
+      let countShopee = 0;
+      const crawlShopeeDetailPromises = [];
+      const afterCrawl = [];
+      while (countShopee < shopTotal) {
+        for (let i = 0; i < 10; i++) {
+          if (tempShopeeData?.[i]) {
+            // const update = async (crawlHistoryId: number, product: Product, browser: puppeteer.Browser, config) => {
+            //   await this.crawlRepo.updateLineToCrawling(crawlHistoryId, product.productId);
+            //   await this.getShopeeProductDetailV2(browser, product.originalUrl, config);
+            //   await this.crawlRepo.updateLineToDone(crawlHistoryId, product.productId);
+            // };
+            crawlShopeeDetailPromises.push(
+              this.getShopeeProductDetailV2(browser, tempShopeeData[i].product.originalUrl, config)
+            );
+            afterCrawl.push(this.crawlRepo.updateLineToDone(data.crawlHistoryId, tempShopeeData[i].product.productId));
+          }
+        }
+        const abv = await Promise.allSettled(crawlShopeeDetailPromises);
+        const dataInsert = abv.map((x: any) => x.value).filter((x) => x);
+        await Promise.allSettled(afterCrawl);
+        console.log(dataInsert);
+        await this.productRepo.insertProductDetailsV2(dataInsert);
+        result.push([...abv.map((x: any) => x?.value)]);
+        countShopee = countShopee + 20;
+        tempShopeeData = tempShopeeData?.splice(20);
+      }
+
+      // const { data: toBeCrawlDetails, total } = await this.crawlRepo.getListCrawlProductDetail(data.crawlHistoryId);
+      // const crawlDetailPromises = [];
+      // let temp = [...toBeCrawlDetails];
+      // let count = 0;
+      // while (count < total) {
+      //   for (let i = 0; i < 10; i++) {
+      //     if (temp?.[i])
+      //       switch (temp[i].product.merchant) {
+      //         // case MerchangeEnum.TIKI: {
+      //         //   crawlDetailPromises.push(
+      //         //     this.crawlRepo
+      //         //       .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
+      //         //       .then(() => this.getTikiProductDetailV2(browser, temp[i].product.originalUrl, config))
+      //         //       .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId))
+      //         //   );
+
+      //         //   // crawlDetailPromises.push(this.getTikiProductDetailV2(browser, temp[i].product.originalUrl, config));
+
+      //         //   break;
+      //         // }
+      //         case MerchangeEnum.SHOPEE: {
+      //           // const update = async (crawlHistoryId: number, product: Product, browser: puppeteer.Browser, config) => {
+      //           //   await this.crawlRepo.updateLineToCrawling(crawlHistoryId, product.productId);
+      //           //   await this.getShopeeProductDetailV2(browser, product.originalUrl, config);
+      //           //   await this.crawlRepo.updateLineToDone(crawlHistoryId, product.productId);
+      //           // };
+      //           // crawlDetailPromises.push(update(data.crawlHistoryId, temp[i].product, browser, config));
+      //           // .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId));
+      //           crawlDetailPromises.push(this.getShopeeProductDetailV2(browser, temp[i].product.originalUrl, config));
+      //           break;
+      //         }
+      //         // case MerchangeEnum.LAZADA: {
+      //         //   this.crawlRepo
+      //         //     .updateLineToCrawling(data.crawlHistoryId, temp[i].productId)
+      //         //     .then(() => this.getLazadaProductDetailV2(browser, temp[i].product.originalUrl, config))
+      //         //     .finally(() => this.crawlRepo.updateLineToDone(data.crawlHistoryId, temp[i].productId));
+      //         //   // crawlDetailPromises.push(this.getLazadaProductDetailV2(browser, temp[i].product.originalUrl, config));
+      //         //   break;
+      //         // }
+      //         default:
+      //           break;
+      //       }
       //   }
+      //   const abv = await Promise.allSettled(crawlDetailPromises);
+      //   const dataInsert = abv.map((x: any) => x.value).filter((x) => x);
+      //   await this.productRepo.insertProductDetailsV2(dataInsert);
+      //   result.push([...abv.map((x: any) => x?.value)]);
+      //   count = count + 20;
+      //   temp = temp?.splice(20);
       // }
 
       return { result };
@@ -1583,7 +1656,7 @@ export class CrawlService {
       browser.close();
       await this.endCrawl(data.crawlHistoryId);
       await this.crawlRepo.endSession(data.crawlHistoryId);
-      await this.productRepo.updateProduct();
+      await this.productRepo.updateProduct(data.crawlHistoryId);
       this.logger.log(`${this.crawlProductsV3.name} DONE ✅✅✅✅✅`);
     }
   }
@@ -1871,16 +1944,18 @@ export class CrawlService {
       await page.setViewport({ width: 1800, height: 6000 });
 
       await this.pageScrollDown(page);
-      const categories: string[] = await page.$$eval(`.page-product__breadcrumb .ClhheV`, (breadcrumbItems) => {
-        const breadcrumb = [];
-        breadcrumbItems?.forEach((elm) => {
-          const url = elm?.getAttribute('href');
-          if (url && url !== '#' && url !== '/') {
-            breadcrumb.push(url?.split('.')?.pop());
-          }
-        });
-        return breadcrumb;
-      });
+      const categories: string[] = await page
+        .$$eval(`.page-product__breadcrumb .ClhheV`, (breadcrumbItems) => {
+          const breadcrumb = [];
+          breadcrumbItems?.forEach((elm) => {
+            const url = elm?.getAttribute('href');
+            if (url && url !== '#' && url !== '/') {
+              breadcrumb.push(url?.split('.')?.pop());
+            }
+          });
+          return breadcrumb;
+        })
+        .catch(() => []);
 
       const description = await page.evaluate(() => {
         const crawlDescription = document.querySelectorAll('.product-detail.page-product__detail .KqLK01 ._3Xk7SJ');

@@ -225,22 +225,22 @@ export class ProductRepo {
       if (!productId) return;
       this.logger.log(`${this.insertProductDetailV2.name} called`);
 
-      const dbCateogries = await this.crawlCategoryRepo.find({ crawlCategoryId: In(categories) });
-      const insertCategory: string[] = [];
-      categories.reverse().forEach((elm) => {
-        const [category] = dbCateogries.filter((dbCategory) => dbCategory.crawlCategoryId === elm);
-        if (category) insertCategory.push(category.crawlCategoryId);
-      });
+      // const dbCateogries = await this.crawlCategoryRepo.find({ crawlCategoryId: In(categories) });
+      // const insertCategory: string[] = [];
+      // categories.reverse().forEach((elm) => {
+      //   const [category] = dbCateogries.filter((dbCategory) => dbCategory.crawlCategoryId === elm);
+      //   if (category) insertCategory.push(category.crawlCategoryId);
+      // });
 
-      const [childCategory] = insertCategory;
-      if (!childCategory) throw new Error('Không tìm thấy danh mục');
+      // const [childCategory] = insertCategory;
+      // if (!childCategory) throw new Error('Không tìm thấy danh mục');
 
       /** update product detail */
       await this.productRepo.update(
         { productId },
         {
           description,
-          crawlCategoryId: childCategory,
+          // crawlCategoryId: childCategory,
           isCompleteUpdate: true,
           isCompleteCrawl: true,
           lastestCrawlAt: new Date(),
@@ -326,17 +326,21 @@ export class ProductRepo {
     }
   }
 
-  async updateProduct() {
+  async updateProduct(crawlHistoryId: number) {
     try {
       this.logger.log(`${this.updateProduct.name} called`);
 
       // const result = await this.productService.getProducts();
       const total = await this.productRepo
         .createQueryBuilder('p')
+        .leftJoin('p.productHistory', 'ph')
         .where('1=1')
+        .andWhere('ph.crawl_history_id = :crawlHistoryId', { crawlHistoryId })
         .andWhere('p.crawl_category_id is not null')
-        .andWhere('length(p.slug) > 13')
+        .andWhere('length(p.slug) > 7')
         .getCount();
+
+      console.log(total);
       const size = 10;
       let page = 1;
       const totalPage = Math.round(total / size) + 1;
@@ -346,14 +350,19 @@ export class ProductRepo {
           const skip = (page - 1) * size;
           const data = await this.productRepo
             .createQueryBuilder('p')
+            .leftJoin('p.productHistory', 'ph')
             .where('1=1')
             .andWhere('p.crawl_category_id is not null')
+            .andWhere('ph.crawl_history_id = :crawlHistoryId', { crawlHistoryId })
+
             .andWhere('length(p.slug) > 13')
             .take(size)
             .skip(skip)
             .getMany();
 
-          await Promise.allSettled(data.map((update) => this.getRelatedProduct(update)));
+          console.log(data);
+
+          await Promise.allSettled(data.map((update) => this.getRelatedProductV3(update)));
         } catch (error) {
           this.logger.error(`Update Error:${error.message}`);
         }
@@ -458,6 +467,79 @@ export class ProductRepo {
           this.logger.error(`Update Exits:${error.message}`);
         }
       }
+    }
+  }
+
+  async getRelatedProductV3(update: Product) {
+    try {
+      const tobeUpdate = CreateProductTemplateDTO.fromProduct(update);
+      let productTemplate: PRODUCT_TEMPLATE;
+
+      this.logger.log(`${this.getRelatedProductV3.name} 1`);
+      this.logger.log(`${this.getRelatedProductV3.name} 2`);
+      productTemplate = await this.productTemplateRepo
+        .createQueryBuilder('pt')
+        .leftJoin('pt.productProducts', 'pp')
+        .where('pp.product_id = :productId', { productId: update.productId })
+        // .where('slug1 = :slug', { slug: tobeUpdate.slug1 })
+        .getOne();
+      this.logger.log(`${this.getRelatedProductV3.name} 3`);
+      if (!productTemplate) {
+        const { generatedMaps } = await this.productProductRepo
+          .createQueryBuilder()
+          .insert()
+          .into(PRODUCT_TEMPLATE)
+          .values(tobeUpdate)
+          .returning('*')
+          .execute();
+
+        productTemplate = generatedMaps[0] as PRODUCT_TEMPLATE;
+        this.logger.log(`${this.getRelatedProductV3.name} 3`);
+      }
+
+      if (productTemplate) {
+        this.logger.log(`${this.getRelatedProductV3.name} 6`);
+
+        const relatedProducts = await this.productRepo
+          .createQueryBuilder()
+          .where('1 = 1')
+          .andWhere('product_id != :productId')
+          .andWhere(
+            `(name like '%' || :name || '%' or slug like  '%' || :slug || '%' or slug like '%' || :shortName || '%' )`
+          )
+          .andWhere('length(slug) > 13')
+          .setParameters({
+            productId: update.productId,
+            name: update.name,
+            slug: update.slug,
+            shortName: productTemplate.productShortName,
+          })
+          .getMany();
+
+        if (relatedProducts?.length)
+          console.log('related:', { product: relatedProducts?.[0], template: productTemplate });
+
+        if (relatedProducts.length) {
+          const values = relatedProducts.map((product) => {
+            return { productTemplateId: productTemplate.productTemplateId, productId: product.productId };
+          });
+
+          try {
+            this.logger.log(`${this.getRelatedProductV3.name} 7`);
+            await this.productProductRepo
+              .createQueryBuilder()
+              .insert()
+              .into(PRODUCT_PRODUCT)
+              .values(values)
+              .orIgnore(true)
+              .execute();
+          } catch (error) {
+            this.logger.error(`Update Exits:${error.message}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 }
