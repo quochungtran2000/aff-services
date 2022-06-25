@@ -33,6 +33,7 @@ export enum CMD {
   ADMIN_UPDATE_CONFIG = 'admin_update_config',
   ADMIN_DELETE_CONFIG = 'admin_delete_config',
   ADMIN_CREATE_AFF_LINK = 'admin_create_aff_link',
+  ADMIN_GET_FINACE_REPORT = 'admin_get_finance_report',
 
   // Webiste
   WEBSITE_GET_PRODUCT = 'website_get_product',

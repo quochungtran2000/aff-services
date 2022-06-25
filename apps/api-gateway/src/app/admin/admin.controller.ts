@@ -58,4 +58,15 @@ export class AdminController {
       throw new HttpException(error.message, error.status || 500);
     }
   }
+
+  @Get('finance-report')
+  async getFinaceReport(@Res() res: Response, @Req() req: Request) {
+    try {
+      this.logger.log(`${this.getFinaceReport.name} called`);
+      const result = await this.adminService.getFinaceReport();
+      return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
 }

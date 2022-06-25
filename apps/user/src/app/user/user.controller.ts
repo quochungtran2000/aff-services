@@ -50,4 +50,10 @@ export class UserController {
     this.logger.log(`${this.deleteConfig.name} called`);
     return this.userService.deleteConfig(configName);
   }
+
+  @MessagePattern({ cmd: CMD.ADMIN_GET_FINACE_REPORT })
+  adminGetFinanceReport() {
+    this.logger.log(`${this.adminGetFinanceReport.name} called`);
+    return this.userService.adminGetFinanceReport();
+  }
 }

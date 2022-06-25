@@ -1,5 +1,5 @@
 import { ConfigPayload, UpdateUserDTO, UserQuery } from '@aff-services/shared/models/dtos';
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { UserRepo } from '../repositories/userRepo';
 import { v2 as cloudinary } from 'cloudinary';
 import { RpcException } from '@nestjs/microservices';
@@ -15,7 +15,11 @@ cloudinary.config({
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(`Micro-User.${UserService.name}`);
-  constructor(private readonly userRepo: UserRepo, private readonly configRepo: ConfigRepo) {}
+  constructor(
+    private readonly userRepo: UserRepo,
+    private readonly configRepo: ConfigRepo,
+    private readonly httpService: HttpService
+  ) {}
 
   async adminGetUsers(query: UserQuery) {
     this.logger.log(`${this.adminGetUsers.name} called`);
@@ -62,5 +66,63 @@ export class UserService {
   async deleteConfig(configName: string) {
     this.logger.log(`${this.deleteConfig.name} called`);
     return await this.configRepo.deleteConfig(configName);
+  }
+
+  async adminGetFinanceReport() {
+    const apiKey = await this.configRepo.getOneByName('access_trader_api_key');
+    const accessTraderApi = await this.configRepo.getOneByName('access_trader_api');
+    const lazadaCampaignId = await this.configRepo.getOneByName('lazada_campaign_id');
+    const shopeeCampaignId = await this.configRepo.getOneByName('shopee_campaign_id');
+    const tikiCampaignId = await this.configRepo.getOneByName('tiki_campaign_id');
+
+    const configRequest = {
+      headers: {
+        Authorization: `Token ${apiKey}`,
+      },
+    };
+    const lazadaPromise = this.httpService
+      .get(`${accessTraderApi}/commission_policies?camp_id=${lazadaCampaignId}`, configRequest)
+      .toPromise()
+      .then(({ data }) => data)
+      .catch(() => {
+        return { category: [], default: [], product: [] };
+      });
+
+    const shopeePromise = this.httpService
+      .get(`${accessTraderApi}/commission_policies?camp_id=${shopeeCampaignId}`, configRequest)
+      .toPromise()
+      .then(({ data }) => data)
+      .catch(() => {
+        return { category: [], default: [], product: [] };
+      });
+
+    const tikiPromise = this.httpService
+      .get(`${accessTraderApi}/commission_policies?camp_id=${tikiCampaignId}`, configRequest)
+      .toPromise()
+      .then(({ data }) => data)
+      .catch(() => {
+        return { category: [], default: [], product: [] };
+      });
+
+    const ordersPromise = this.httpService
+      .get(`${accessTraderApi}/orders`, {
+        headers: {
+          Authorization: `Token ${apiKey}`,
+        },
+      })
+      .toPromise()
+      .then(({ data }) => data)
+      .catch(() => {
+        return { data: [], total: 0, total_page: 0 };
+      });
+
+    const [tiki, shopee, lazada, commission] = await Promise.all([
+      tikiPromise,
+      shopeePromise,
+      lazadaPromise,
+      ordersPromise,
+    ]);
+
+    return { data: { tiki, shopee, lazada, commission } };
   }
 }

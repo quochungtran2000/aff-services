@@ -41,4 +41,9 @@ export class AdminService {
     this.logger.log(`${this.deleteConfig.name} called`);
     return this.client.send({ cmd: CMD.ADMIN_DELETE_CONFIG }, { configName }).toPromise();
   }
+
+  async getFinaceReport() {
+    this.logger.log(`${this.getFinaceReport.name} called`);
+    return this.client.send({ cmd: CMD.ADMIN_GET_FINACE_REPORT }, { }).toPromise();
+  }
 }
